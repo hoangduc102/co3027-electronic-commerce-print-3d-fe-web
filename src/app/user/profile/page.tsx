@@ -102,6 +102,7 @@ export default function ProfilePage() {
     try {
       const userProfile = await userProfileService.getProfile();
       // Debug log để kiểm tra data
+      console.log("Profile loaded:", userProfile);
       setProfile(userProfile);
       // Cập nhật context user nếu có refreshUser function
       if (refreshUser) {
@@ -109,11 +110,13 @@ export default function ProfilePage() {
       }
     } catch (err) {
       const error = err as Error;
+      console.error("Error loading profile:", error);
       setError(
         error.message || "Không thể tải thông tin hồ sơ. Vui lòng thử lại."
       );
       // Fallback về user từ context nếu có
       if (contextUser) {
+        console.log("Fallback to contextUser:", contextUser);
         setProfile({
           ...contextUser,
           isActive: true,
@@ -337,6 +340,11 @@ export default function ProfilePage() {
     }
     return null;
   })();
+
+  // Debug log để kiểm tra displayProfile
+  console.log("displayProfile:", displayProfile);
+  console.log("profile state:", profile);
+  console.log("contextUser:", contextUser);
 
   // Hiển thị error state nếu không có profile
   if (!displayProfile) {
