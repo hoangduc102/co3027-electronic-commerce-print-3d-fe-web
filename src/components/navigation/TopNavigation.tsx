@@ -2,7 +2,15 @@
 
 import type React from "react";
 
-import { Search, MessageCircle, Bell, X, User, LogOut } from "lucide-react";
+import {
+  Search,
+  MessageCircle,
+  Bell,
+  X,
+  User,
+  LogOut,
+  ShoppingCart,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -163,6 +171,18 @@ export default function TopNavigation() {
             <Bell className="h-5 w-5" />
             {/* Có thể thêm badge notification ở đây */}
             <span className="sr-only">Thông báo</span>
+          </Button>
+
+          {/* Shopping Cart */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="relative text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            onClick={() => router.push("/user/cart")}
+          >
+            <ShoppingCart className="h-5 w-5" />
+            {/* Có thể thêm badge số lượng sản phẩm ở đây */}
+            <span className="sr-only">Giỏ hàng</span>
           </Button>
 
           {/* User Dropdown */}
