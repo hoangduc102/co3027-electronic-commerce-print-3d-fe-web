@@ -1,11 +1,14 @@
+// src/app/item/[id]/page.tsx – ĐÃ KẾT NỐI API THẬT
 "use client";
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
-import { Star, Package, Truck, Check, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Star, Package, Truck, Check, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useRouter } from "next/navigation";
+import { productService, Product } from "@/services/product.service";
+import type { Review } from "@/services/product.service";
 
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -13,48 +16,45 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   const [activeTab, setActiveTab] = useState<"specs" | "reviews" | "materials">("specs");
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
-  const product = {
-    name: "Ốp điện thoại iPhone 15 Pro Max",
-    price: 150000,
-    rating: 4.8,
-    reviewsCount: 128,
-    material: "PLA+ Xanh nhạt",
-    inStock: true,
-  };
+  const [product, setProduct] = useState<Product | null>(null);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const images = [
-    "/61-4yFqPBDL._AC_SL1500_.jpg",
-    "/61XnwtpYazL._AC_SL1500_.jpg",
-    "/61KH2DdzhBL._AC_SL1500_.jpg",
-    "/61PNwgoA+dL._AC_SL1500_.jpg",
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [productData, reviewData] = await Promise.all([
+          productService.getById(params.id),
+          productService.getReviews(params.id),
+        ]);
+        setProduct(productData);
+        setReviews(reviewData);
+      } catch (err: any) {
+        setError("Không tải được sản phẩm. Vui lòng thử lại.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const reviews = [
-    { name: "Nguyễn Đăng Anh", rating: 5, date: "15/03/2025", comment: "In cực đẹp, vừa khít iPhone 15, màu chuẩn như hình!" },
-    { name: "Trần Nguyễn Ngọc Bích", rating: 4, date: "10/03/2025", comment: "Chất lượng tốt, giao hơi chậm." },
-  ];
+    fetchData();
+  }, [params.id]);
 
-  const materials = [
-    { name: "PLA", desc: "Thân thiện môi trường", price: 0 },
-    { name: "PLA+", desc: "Độ bền cao hơn", price: 30000 },
-    { name: "PETG", desc: "Chống nước, chịu lực", price: 50000 },
-    { name: "ABS", desc: "Chịu nhiệt cao", price: 60000 },
-    { name: "TPU", desc: "Dẻo, chống sốc", price: 80000 },
-    { name: "ASA", desc: "Chống UV, ngoài trời", price: 90000 },
-  ];
-
-  const prevImage = () => setSelectedImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
-  const nextImage = () => setSelectedImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  const prevImage = () => setSelectedImageIndex(prev => prev === 0 ? (product?.images.length || 1) - 1 : prev - 1);
+  const nextImage = () => setSelectedImageIndex(prev => prev === (product?.images.length || 1) - 1 ? 0 : prev + 1);
 
   const handleAddToCart = () => {
+    if (!product) return;
     addToCart({
-      id: params.id,
+      id: product.id,
       name: product.name,
       price: product.price,
-      material: product.material,
-      image: images[0],
+      material: product.material || "PLA+",
+      image: product.images[0],
     });
-    alert("Đã thêm sản phẩm vào giỏ hàng!");
+    alert("Đã thêm vào giỏ hàng!");
   };
 
   const handleBuyNow = () => {
@@ -62,13 +62,32 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
     router.push("/checkout");
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-12 h-12 animate-spin text-green-600" />
+      </div>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <div className="text-center py-20">
+        <p className="text-red-600 text-xl">{error || "Sản phẩm không tồn tại"}</p>
+        <Link href="/templates" className="text-green-600 underline mt-4 inline-block">
+          ← Quay lại danh sách mẫu
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-6 py-12">
       {/* Breadcrumb */}
       <div className="text-sm text-gray-600 mb-6">
-        <Link href="/" className="hover:text-green-700">Trang chủ</Link> →{" "}
-        <Link href="/templates" className="hover:text-green-700">Mẫu thiết kế</Link> →{" "}
-        <span className="text-green-700">{product.name}</span>
+        <Link href="/" className="hover:text-green-700">Trang chủ</Link> →
+        <Link href="/templates" className="hover:text-green-700"> Mẫu thiết kế</Link> →
+        <span className="text-green-700"> {product.name}</span>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-12">
@@ -76,67 +95,48 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
         <div className="space-y-4">
           <div className="relative aspect-square bg-gray-50 rounded-3xl overflow-hidden group">
             <Image
-              src={images[selectedImageIndex]}
-              alt={`${product.name} - ảnh ${selectedImageIndex + 1}`}
+              src={product.images[selectedImageIndex] || "/placeholder.jpg"}
+              alt={product.name}
               fill
               className="object-contain p-8"
               priority
             />
-
-            {/* Nút chuyển ảnh */}
-            {images.length > 1 && (
+            {product.images.length > 1 && (
               <>
-                <button
-                  onClick={prevImage}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition"
-                >
+                <button onClick={prevImage} className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition">
                   <ChevronLeft className="w-6 h-6" />
                 </button>
-                <button
-                  onClick={nextImage}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition"
-                >
+                <button onClick={nextImage} className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition">
                   <ChevronRight className="w-6 h-6" />
                 </button>
               </>
             )}
           </div>
 
-          {/* Thumbnails */}
-          {images.length > 1 && (
+          {product.images.length > 1 && (
             <div className="grid grid-cols-4 gap-3">
-              {images.map((img, i) => (
+              {product.images.map((img, i) => (
                 <button
                   key={i}
                   onClick={() => setSelectedImageIndex(i)}
-                  className={`aspect-square rounded-xl overflow-hidden border-4 transition-all ${
-                    selectedImageIndex === i
-                      ? "border-green-600 shadow-lg"
-                      : "border-transparent hover:border-gray-300"
-                  }`}
+                  className={`aspect-square rounded-xl overflow-hidden border-4 transition-all ${selectedImageIndex === i ? "border-green-600 shadow-lg" : "border-transparent hover:border-gray-300"}`}
                 >
-                  <Image
-                    src={img}
-                    alt={`Thumbnail ${i + 1}`}
-                    width={150}
-                    height={150}
-                    className="object-contain p-5"
-                  />
+                  <Image src={img} alt="" width={150} height={150} className="object-contain p-4 bg-white" />
                 </button>
               ))}
             </div>
           )}
         </div>
 
-        {/* Info + CTA */}
+        {/* Info */}
         <div className="space-y-8">
           <div>
             <h1 className="text-4xl font-bold mb-4">{product.name}</h1>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                <span className="font-semibold">{product.rating}</span>
-                <span className="text-gray-600">({product.reviewsCount} đánh giá)</span>
+                <span className="font-semibold">{product.rating || "Chưa có"}</span>
+                <span className="text-gray-600">({reviews.length} đánh giá)</span>
               </div>
             </div>
           </div>
@@ -144,63 +144,40 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
           <div className="bg-gray-50 rounded-2xl p-6">
             <div className="flex justify-between items-end mb-4">
               <div>
-                <span className="text-gray-600">Chất liệu hiện tại:</span>
-                <p className="font-semibold text-lg">{product.material}</p>
+                <span className="text-gray-600">Giá hiện tại:</span>
+                <p className="font-semibold text-lg">{product.material || "PLA+"}</p>
               </div>
               <span className="text-3xl font-bold text-green-700">
                 {product.price.toLocaleString("vi-VN")} đ
               </span>
             </div>
             <p className="text-green-600 font-medium flex items-center gap-2">
-              <Package className="w-5 h-5" /> Còn hàng – Giao trong 2–4 ngày
+              <Package className="w-5 h-5" /> Còn hàng
             </p>
           </div>
 
           <div className="flex gap-4">
-            <button
-              onClick={handleAddToCart}
-              className="flex-1 border-2 border-green-600 text-green-600 font-bold py-4 rounded-full hover:bg-green-50 transition"
-            >
+            <button onClick={handleAddToCart} className="flex-1 border-2 border-green-600 text-green-600 font-bold py-4 rounded-full hover:bg-green-50 transition">
               Thêm vào giỏ
             </button>
-            <button
-              onClick={handleBuyNow}
-              className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-full transition shadow-lg"
-            >
+            <button onClick={handleBuyNow} className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-full transition shadow-lg">
               Đặt in ngay
             </button>
-          </div>
-
-          <div className="flex items-center gap-4 text-sm text-gray-600">
-            <Truck className="w-10 h-10 text-green-600" />
-            <div>
-              <p className="font-medium">Giao hàng toàn quốc</p>
-              <p>Miễn phí đơn từ 500.000đ</p>
-            </div>
           </div>
         </div>
       </div>
 
-      {/* Các Tab */}
+      {/* Tabs */}
       <div className="mt-20">
         <div className="border-b border-gray-300">
           <div className="flex gap-10 text-lg font-medium">
-            <button
-              onClick={() => setActiveTab("specs")}
-              className={`py-4 px-1 border-b-4 transition ${activeTab === "specs" ? "border-green-600 text-green-600" : "border-transparent text-gray-600 hover:text-green-600"}`}
-            >
+            <button onClick={() => setActiveTab("specs")} className={activeTab === "specs" ? "py-4 border-b-4 border-green-600 text-green-600" : "py-4 text-gray-600 hover:text-green-600"}>
               Thông số
             </button>
-            <button
-              onClick={() => setActiveTab("reviews")}
-              className={`py-4 px-1 border-b-4 transition ${activeTab === "reviews" ? "border-green-600 text-green-600" : "border-transparent text-gray-600 hover:text-green-600"}`}
-            >
-              Đánh giá ({product.reviewsCount})
+            <button onClick={() => setActiveTab("reviews")} className={activeTab === "reviews" ? "py-4 border-b-4 border-green-600 text-green-600" : "py-4 text-gray-600 hover:text-green-600"}>
+              Đánh giá ({reviews.length})
             </button>
-            <button
-              onClick={() => setActiveTab("materials")}
-              className={`py-4 px-1 border-b-4 transition ${activeTab === "materials" ? "border-green-600 text-green-600" : "border-transparent text-gray-600 hover:text-green-600"}`}
-            >
+            <button onClick={() => setActiveTab("materials")} className={activeTab === "materials" ? "py-4 border-b-4 border-green-600 text-green-600" : "py-4 text-gray-600 hover:text-green-600"}>
               Vật liệu hỗ trợ
             </button>
           </div>
@@ -208,55 +185,65 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
 
         <div className="py-12">
           {activeTab === "specs" && (
-            <div className="bg-white rounded-2xl p-10 shadow text-gray-500">
-              <p>Đây là ốp lưng iPhone 15.</p>
-              <p>Chỉ tương thích với iPhone 15 6.1 inch.</p>
-              <p>Có các màu sắc: Light Blue, Light Pink, Black và Beige.</p>
-              <p>Vật liệu hỗ trợ bao gồm: PLA, PLA+, PETG, ABS, TPU, ASA.</p>
+            <div className="bg-white rounded-2xl p-10 shadow text-gray-700 whitespace-pre-line">
+              {product.description || "Đang cập nhật thông số kỹ thuật..."}
             </div>
           )}
           {activeTab === "reviews" && (
             <div className="space-y-8">
-              {reviews.map((r, i) => (
-                <div key={i} className="bg-white rounded-2xl p-8 shadow border">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center font-bold text-green-700">
-                        {r.name[0]}
+              {reviews.length === 0 ? (
+                <p className="text-center text-gray-500">Chưa có đánh giá nào.</p>
+              ) : (
+                reviews.map((r: any) => (
+                  <div key={r.id} className="bg-white rounded-2xl p-8 shadow border">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center font-bold text-green-700">
+                          {r.user?.username[0] || "A"}
+                        </div>
+                        <div>
+                          <p className="font-semibold">{r.user?.username || "Khách"}</p>
+                          <p className="text-sm text-gray-500">{new Date(r.createdAt).toLocaleDateString("vi-VN")}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-semibold">{r.name}</p>
-                        <p className="text-sm text-gray-500">{r.date}</p>
+                      <div className="flex gap-1">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className={`w-5 h-5 ${i < r.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`} />
+                        ))}
                       </div>
                     </div>
-                    <div className="flex gap-1">
-                      {[...Array(5)].map((_, j) => (
-                        <Star key={j} className={`w-5 h-5 ${j < r.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`} />
-                      ))}
-                    </div>
+                    <p className="text-gray-700">{r.content}</p>
                   </div>
-                  <p className="text-gray-700">{r.comment}</p>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           )}
           {activeTab === "materials" && (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-              {materials.map((m) => (
-                <div key={m.name} className="bg-white rounded-2xl p-6 shadow hover:shadow-lg transition text-center">
-                  <div className="w-20 h-20 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center text-2xl font-bold text-green-700">
-                    {m.name}
+              {product.variants && product.variants.length > 0 ? (
+                product.variants.map((v) => (
+                  <div key={v.id || v.material} className="bg-white rounded-2xl p-6 shadow hover:shadow-lg transition text-center">
+                    <div className="w-20 h-20 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center text-2xl font-bold text-green-700">
+                      {v.material}
+                    </div>
+                    <h4 className="font-bold text-lg">{v.material}</h4>
+                    <p className="text-green-600 font-medium mt-3">
+                      {v.additionalPrice === 0 ? "Miễn phí" : `+${v.additionalPrice.toLocaleString()}đ`}
+                    </p>
+                    {v.inStock ? (
+                      <div className="mt-4 flex justify-center">
+                        <Check className="w-6 h-6 text-green-600" />
+                      </div>
+                    ) : (
+                      <p className="text-red-500 text-sm mt-2">Hết hàng</p>
+                    )}
                   </div>
-                  <h4 className="font-bold text-lg">{m.name}</h4>
-                  <p className="text-sm text-gray-600 mt-1">{m.desc}</p>
-                  <p className="text-green-600 font-medium mt-3">
-                    {m.price === 0 ? "Miễn phí" : `+${m.price.toLocaleString()}đ`}
-                  </p>
-                  <div className="mt-4 flex justify-center">
-                    <Check className="w-6 h-6 text-green-600" />
-                  </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="col-span-full text-center text-gray-500">
+                  Chưa có thông tin vật liệu hỗ trợ.
+                </p>
+              )}
             </div>
           )}
         </div>
