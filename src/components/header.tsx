@@ -33,26 +33,44 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex gap-8 items-center">
-            {["Trang chủ", "Đặt in", "Khám phá", "Liên hệ"].map((item, idx) => (
-              <a
-                key={item}
-                href="#"
-                className="text-foreground hover:text-primary transition-colors animate-fadeInUp"
-                style={{ animationDelay: `${100 + idx * 100}ms` }}
-              >
-                {item}
-              </a>
-            ))}
+            {["Trang chủ", "Đặt in", "Khám phá", "Liên hệ"].map((item, idx) => {
+              const getHref = (itemName: string) => {
+                switch (itemName) {
+                  case "Trang chủ":
+                    return "/";
+                  case "Đặt in":
+                    return "/order";
+                  case "Khám phá":
+                    return "/explore";
+                  case "Liên hệ":
+                    return "/contact";
+                  default:
+                    return "#";
+                }
+              };
+              return (
+                <Link
+                  key={item}
+                  href={getHref(item)}
+                  className="text-foreground hover:text-primary transition-colors animate-fadeInUp"
+                  style={{ animationDelay: `${100 + idx * 100}ms` }}
+                >
+                  {item}
+                </Link>
+              );
+            })}
           </nav>
 
           {/* Right Actions */}
           <div className="hidden md:flex items-center gap-4">
-            <button
-              className="p-2 hover:bg-accent rounded-lg transition-colors animate-fadeInUp"
-              style={{ animationDelay: "600ms" }}
-            >
-              <ShoppingCart className="w-5 h-5 text-foreground" />
-            </button>
+            <Link href="/user/cart">
+              <button
+                className="p-2 hover:bg-accent rounded-lg transition-colors animate-fadeInUp"
+                style={{ animationDelay: "600ms" }}
+              >
+                <ShoppingCart className="w-5 h-5 text-foreground" />
+              </button>
+            </Link>
             <Link href="/login">
               <button
                 className="px-6 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-all animate-fadeInUp"
@@ -77,15 +95,31 @@ export default function Header() {
         {isOpen && (
           <nav className="md:hidden pb-4 border-t border-border animate-slideInDown">
             <div className="flex flex-col gap-4 pt-4">
-              {["Trang chủ", "Đặt in", "Khám phá", "Liên hệ"].map((item) => (
-                <a
-                  key={item}
-                  href="#"
-                  className="text-foreground hover:text-primary transition-colors"
-                >
-                  {item}
-                </a>
-              ))}
+              {["Trang chủ", "Đặt in", "Khám phá", "Liên hệ"].map((item) => {
+                const getHref = (itemName: string) => {
+                  switch (itemName) {
+                    case "Trang chủ":
+                      return "/";
+                    case "Đặt in":
+                      return "/order";
+                    case "Khám phá":
+                      return "/explore";
+                    case "Liên hệ":
+                      return "/contact";
+                    default:
+                      return "#";
+                  }
+                };
+                return (
+                  <Link
+                    key={item}
+                    href={getHref(item)}
+                    className="text-foreground hover:text-primary transition-colors"
+                  >
+                    {item}
+                  </Link>
+                );
+              })}
               <Link href="/login">
                 <button className="px-6 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-all">
                   Đăng nhập
