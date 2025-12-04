@@ -1,6 +1,7 @@
 import { API_CONFIG } from "../config/api.config";
 import { tokenStorage } from "../utils/tokenStorage";
 import { authService } from "./auth.service";
+import { isTokenExpiringSoon, isTokenExpired } from "../utils/tokenRefresh";
 
 class HttpClient {
   private readonly baseUrl = API_CONFIG.API_BASE_URL;
@@ -9,7 +10,20 @@ class HttpClient {
 
   async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
-    const accessToken = tokenStorage.getAccessToken();
+    let accessToken = tokenStorage.getAccessToken();
+
+    // Kiểm tra token trước khi gọi API (trừ endpoint refresh)
+    if (accessToken && !endpoint.includes("/auth/")) {
+      // Nếu token đã hết hạn hoặc sắp hết hạn, refresh trước
+      if (isTokenExpired(accessToken) || isTokenExpiringSoon(accessToken, 60)) {
+        if (!this.isRefreshing) {
+          this.isRefreshing = true;
+          this.refreshPromise = this.handleTokenRefresh();
+        }
+        await this.refreshPromise;
+        accessToken = tokenStorage.getAccessToken();
+      }
+    }
 
     // Tự động thêm Authorization header nếu có token
     const headers: Record<string, string> = {

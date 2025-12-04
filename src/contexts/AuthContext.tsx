@@ -6,10 +6,12 @@ import React, {
   useState,
   useEffect,
   ReactNode,
+  useCallback,
+  useMemo,
 } from "react";
 import { authService, LoginDto, RegisterDto } from "../services/auth.service";
 import { tokenStorage, User } from "../utils/tokenStorage";
-import { tokenRefreshService } from "../utils/tokenRefresh";
+import { tokenRefreshService, setOnRefreshFailed } from "../utils/tokenRefresh";
 
 interface AuthContextType {
   user: User | null;
@@ -33,7 +35,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Xử lý khi refresh token thất bại
+  const handleRefreshFailed = useCallback(() => {
+    console.warn("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+    setUser(null);
+    // Có thể thêm redirect về trang login ở đây nếu cần
+  }, []);
+
   useEffect(() => {
+    // Đăng ký callback khi refresh token thất bại
+    setOnRefreshFailed(handleRefreshFailed);
+
     // Kiểm tra xem user đã đăng nhập chưa khi app load
     const initAuth = async () => {
       const storedUser = tokenStorage.getUser();
@@ -48,7 +60,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
           // Bắt đầu tự động refresh token
           tokenRefreshService.start();
-        } catch (error) {
+        } catch {
           // Token không hợp lệ, thử refresh
           const refreshToken = tokenStorage.getRefreshToken();
           if (refreshToken) {
@@ -78,7 +90,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     };
 
     initAuth();
-  }, []);
+  }, [handleRefreshFailed]);
 
   const login = async (emailOrUsername: string, password: string) => {
     try {
@@ -111,19 +123,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     email: string,
     password: string
   ) => {
-    try {
-      const registerData: RegisterDto = { username, email, password };
-      const response = await authService.register(registerData);
-      tokenStorage.setTokens(response.accessToken, response.refreshToken);
-      tokenStorage.setUser(response.user);
-      setUser(response.user);
+    const registerData: RegisterDto = { username, email, password };
+    const response = await authService.register(registerData);
+    tokenStorage.setTokens(response.accessToken, response.refreshToken);
+    tokenStorage.setUser(response.user);
+    setUser(response.user);
 
-      // Bắt đầu tự động refresh token
-      tokenRefreshService.start();
-    } catch (error) {
-      // Re-throw để component có thể xử lý
-      throw error;
-    }
+    // Bắt đầu tự động refresh token
+    tokenRefreshService.start();
   };
 
   const logout = async () => {
@@ -157,15 +164,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
-  const value: AuthContextType = {
-    user,
-    isLoading,
-    isAuthenticated: !!user,
-    login,
-    register,
-    logout,
-    refreshUser,
-  };
+  const value: AuthContextType = useMemo(
+    () => ({
+      user,
+      isLoading,
+      isAuthenticated: !!user,
+      login,
+      register,
+      logout,
+      refreshUser,
+    }),
+    [user, isLoading]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

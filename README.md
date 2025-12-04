@@ -64,6 +64,7 @@ Dự án đã được cấu hình sẵn để chạy trong Docker với Next.js
 - **Docker Compose** >= 2.0 (khuyến nghị) ([Download Docker Compose](https://docs.docker.com/compose/install/))
 
 Kiểm tra cài đặt:
+
 ```bash
 docker --version
 docker-compose --version
@@ -78,6 +79,7 @@ Dockerfile sử dụng **multi-stage build** gồm 3 giai đoạn:
 3. **Stage 3 (runner)**: Image production nhẹ, chỉ chứa code đã build và dependencies cần thiết
 
 Lợi ích:
+
 - Image cuối cùng nhỏ gọn (~200-300MB)
 - Không chứa source code, node_modules gốc, và dev dependencies
 - Tăng tốc độ build nhờ layer caching
@@ -114,7 +116,8 @@ NODE_ENV=production
 NEXT_TELEMETRY_DISABLED=1
 ```
 
-**Lưu ý**: 
+**Lưu ý**:
+
 - Thay đổi `NEXT_PUBLIC_API_URL` theo URL thực tế của backend API
 - Nếu backend chạy trong Docker network, có thể dùng tên service thay vì `localhost`
 
@@ -126,6 +129,7 @@ docker-compose up -d --build
 ```
 
 Lệnh này sẽ:
+
 - Build Docker image từ Dockerfile
 - Tạo network `print-3d-network`
 - Chạy container `print-3d-app` ở chế độ detached (background)
@@ -239,6 +243,7 @@ docker run -d \
 ```
 
 **Giải thích các tham số:**
+
 - `-d`: Chạy ở chế độ detached (background)
 - `--name print-3d-app`: Tên container
 - `-p 3000:3000`: Map port (host:container)
@@ -315,6 +320,7 @@ Invoke-WebRequest -Uri http://localhost:3000 -Method Head
 ##### Kiểm tra health check
 
 Container tự động có health check được cấu hình:
+
 - Kiểm tra mỗi 30 giây
 - Timeout: 10 giây
 - Start period: 40 giây (thời gian để ứng dụng khởi động)
@@ -387,10 +393,11 @@ lsof -i :3000
    docker ps | grep print-3d
    ```
 3. Thử truy cập bằng IP thay vì localhost:
+
    ```bash
    # Windows (PowerShell)
    (Get-NetIPAddress -AddressFamily IPv4 | Where-Object {$_.IPAddress -like "192.168.*"}).IPAddress
-   
+
    # Linux/Mac
    ifconfig | grep "inet "
    ```
@@ -404,7 +411,6 @@ docker-compose build --no-cache
 # Hoặc với docker
 docker build --no-cache -t print-3d:latest .
 ```
-
 
 ### Cấu trúc thư mục
 
