@@ -5,15 +5,11 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
-import { Eye, EyeOff } from "lucide-react";
+import Image from "next/image";
+import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 
 export default function LoginPage() {
   const { login, isAuthenticated, isLoading } = useAuth();
@@ -32,11 +28,13 @@ export default function LoginPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-white">
-        <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
-          <p className="mt-4 text-gray-600">Đang tải...</p>
-        </div>
+      <div className="min-h-screen flex flex-col">
+        <main className="flex-1 flex items-center justify-center py-12 px-4">
+          <div className="text-center">
+            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
+            <p className="mt-4 text-muted-foreground">Đang tải...</p>
+          </div>
+        </main>
       </div>
     );
   }
@@ -58,60 +56,69 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-white p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2 text-gray-900">
-            3D Print Service
-          </h1>
-          <p className="text-gray-600">Dịch vụ đặt in 3D trực tuyến</p>
-        </div>
-
-        <Card className="border border-gray-200 shadow-lg">
-          <CardHeader className="space-y-1 pb-4">
-            <h2 className="text-2xl font-semibold text-center text-gray-900">
-              Đăng nhập
-            </h2>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {error && (
-                <div className="p-3 text-sm text-red-600 bg-red-50 rounded-md border border-red-200">
-                  {error}
-                </div>
-              )}
-              <div className="space-y-2">
-                <Label htmlFor="email-username" className="text-gray-700">
-                  Email hoặc Username
-                </Label>
-                <Input
-                  id="email-username"
-                  type="text"
-                  value={emailOrUsername}
-                  onChange={(e) => setEmailOrUsername(e.target.value)}
-                  placeholder="email@example.com hoặc username"
-                  required
-                  className="h-11 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-primary focus:ring-primary"
+    <div className="min-h-screen flex flex-col">
+      <main className="flex-1 flex items-center justify-center py-12 px-4">
+        <div className="w-full max-w-md">
+          <div className="border-2 border-foreground bg-card p-8">
+            {/* Header */}
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                <Image
+                  src="/logo.svg"
+                  alt="Logo"
+                  width={64}
+                  height={64}
+                  className="object-contain"
                 />
               </div>
+              <h1 className="text-2xl font-bold">Đăng nhập</h1>
+              <p className="text-muted-foreground mt-2">
+                Chào mừng bạn quay lại Print3D.vn
+              </p>
+            </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="p-3 mb-6 text-sm text-red-600 bg-red-50 rounded-md border border-red-200">
+                {error}
+              </div>
+            )}
+
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-gray-700">
-                  Mật khẩu
-                </Label>
+                <Label htmlFor="email-username">Email hoặc Username</Label>
                 <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="email-username"
+                    type="text"
+                    value={emailOrUsername}
+                    onChange={(e) => setEmailOrUsername(e.target.value)}
+                    placeholder="email@example.com hoặc username"
+                    className="pl-10 border-2 border-foreground"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password">Mật khẩu</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Nhập mật khẩu"
+                    placeholder="••••••••"
+                    className="pl-10 pr-10 border-2 border-foreground"
                     required
-                    className="h-11 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-primary focus:ring-primary pr-10"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4" />
@@ -121,9 +128,20 @@ export default function LoginPage() {
                   </button>
                 </div>
               </div>
+
+              <div className="flex items-center gap-2">
+                <Checkbox id="remember" />
+                <Label
+                  htmlFor="remember"
+                  className="text-sm font-normal cursor-pointer"
+                >
+                  Ghi nhớ đăng nhập
+                </Label>
+              </div>
+
               <Button
                 type="submit"
-                className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-medium"
+                className="w-full bg-primary hover:bg-primary/90 border-2 border-foreground font-semibold"
                 disabled={loading}
               >
                 {loading ? (
@@ -136,20 +154,20 @@ export default function LoginPage() {
                 )}
               </Button>
             </form>
-          </CardContent>
-          <CardFooter className="flex flex-col gap-4 pt-0">
-            <div className="text-sm text-center text-gray-600">
+
+            {/* Register Link */}
+            <p className="text-center mt-6 text-sm text-muted-foreground">
               Chưa có tài khoản?{" "}
               <Link
                 href="/register"
-                className="text-primary hover:underline font-medium"
+                className="text-primary font-medium hover:underline"
               >
                 Đăng ký ngay
               </Link>
-            </div>
-          </CardFooter>
-        </Card>
-      </div>
+            </p>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

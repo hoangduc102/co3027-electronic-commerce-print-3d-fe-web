@@ -1,17 +1,15 @@
 "use client";
 
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import TopNavigation from "@/components/navigation/TopNavigation";
 
 export default function UserLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-gray-50">
-        <TopNavigation />
         <main className="container mx-auto px-4 py-8">{children}</main>
       </div>
     </ProtectedRoute>

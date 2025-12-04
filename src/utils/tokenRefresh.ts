@@ -1,6 +1,17 @@
 import { tokenStorage } from "./tokenStorage";
 import { authService } from "../services/auth.service";
 
+// Callback khi refresh token thất bại (sẽ được set từ AuthContext)
+type OnRefreshFailedCallback = () => void;
+let onRefreshFailed: OnRefreshFailedCallback | null = null;
+
+/**
+ * Set callback khi refresh token thất bại
+ */
+export function setOnRefreshFailed(callback: OnRefreshFailedCallback): void {
+  onRefreshFailed = callback;
+}
+
 /**
  * Decode JWT token để lấy thông tin payload (không verify signature)
  */
@@ -21,7 +32,7 @@ function decodeJWT(token: string): { exp?: number; iat?: number } | null {
 /**
  * Kiểm tra xem token có sắp hết hạn không (trong vòng thresholdSeconds)
  */
-function isTokenExpiringSoon(
+export function isTokenExpiringSoon(
   token: string | null,
   thresholdSeconds: number = 60 // Mặc định: refresh nếu còn < 1 phút
 ): boolean {
@@ -38,13 +49,26 @@ function isTokenExpiringSoon(
 }
 
 /**
+ * Kiểm tra xem token đã hết hạn chưa
+ */
+export function isTokenExpired(token: string | null): boolean {
+  if (!token) return true;
+
+  const decoded = decodeJWT(token);
+  if (!decoded?.exp) return true;
+
+  const expirationTime = decoded.exp * 1000;
+  return Date.now() >= expirationTime;
+}
+
+/**
  * Proactive token refresh service
  * Tự động refresh token trước khi hết hạn
  */
 class TokenRefreshService {
   private refreshInterval: NodeJS.Timeout | null = null;
-  private readonly CHECK_INTERVAL = 5 * 60 * 1000; // Kiểm tra mỗi 5 phút
-  private readonly THRESHOLD_SECONDS = 60; // Refresh nếu còn < 1 phút
+  private readonly CHECK_INTERVAL = 60 * 1000; // Kiểm tra mỗi 1 phút
+  private readonly THRESHOLD_SECONDS = 5 * 60; // Refresh nếu còn < 5 phút (access token có 15 phút)
 
   /**
    * Bắt đầu tự động refresh token
@@ -89,8 +113,14 @@ class TokenRefreshService {
         tokenStorage.setTokens(tokens.accessToken, tokens.refreshToken);
       } catch (error) {
         console.error("Lỗi khi refresh token:", error);
-        // Nếu refresh thất bại, dừng service
+        // Nếu refresh thất bại, xóa tokens và thông báo logout
         this.stop();
+        tokenStorage.clear();
+
+        // Gọi callback để thông báo cho AuthContext
+        if (onRefreshFailed) {
+          onRefreshFailed();
+        }
       }
     }
   }
@@ -104,8 +134,20 @@ class TokenRefreshService {
       throw new Error("Không có refresh token");
     }
 
-    const tokens = await authService.refresh(refreshToken);
-    tokenStorage.setTokens(tokens.accessToken, tokens.refreshToken);
+    try {
+      const tokens = await authService.refresh(refreshToken);
+      tokenStorage.setTokens(tokens.accessToken, tokens.refreshToken);
+    } catch (error) {
+      // Xóa tokens và thông báo logout khi refresh thất bại
+      this.stop();
+      tokenStorage.clear();
+
+      if (onRefreshFailed) {
+        onRefreshFailed();
+      }
+
+      throw error;
+    }
   }
 }
 
