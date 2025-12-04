@@ -1,6 +1,6 @@
 "use client";
 
-import type React from "react";
+import type { LucideIcon } from "lucide-react";
 
 import { Check, Clock, Printer, Sparkles, Truck, Package } from "lucide-react";
 import { ORDER_STATUSES } from "@/lib/constants";
@@ -12,7 +12,7 @@ interface OrderTimelineProps {
   updatedAt: Date;
 }
 
-const statusIcons: Record<OrderStatusKey, React.ElementType> = {
+const statusIcons: Record<OrderStatusKey, LucideIcon> = {
   received: Package,
   reviewing: Clock,
   printing: Printer,
@@ -39,7 +39,7 @@ export function OrderTimeline({
   return (
     <div className="relative">
       {statusOrder.map((status, index) => {
-        const Icon = statusIcons[status] as React.ElementType;
+        const Icon = statusIcons[status];
         const statusInfo = ORDER_STATUSES[status];
         const isCompleted = index < currentIndex;
         const isCurrent = index === currentIndex;
