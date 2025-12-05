@@ -1,433 +1,307 @@
-## Cung cấp dịch vụ đặt in 3D trực tuyến
+# 🖨️ 3D Print Service
 
-Dự án web cho phép người dùng tải mô hình 3D, cấu hình vật liệu/kích thước/chất lượng, báo giá tức thì và đặt in trực tuyến. Xây dựng trên Next.js App Router.
+> Nền tảng cung cấp dịch vụ đặt in 3D trực tuyến - cho phép người dùng tải mô hình 3D, cấu hình thông số in, báo giá tức thì và đặt hàng online.
+
+![Next.js](https://img.shields.io/badge/Next.js-16.0.1-black?logo=next.js)
+![React](https://img.shields.io/badge/React-19.2.0-61DAFB?logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?logo=typescript)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.0-06B6D4?logo=tailwindcss)
+![License](https://img.shields.io/badge/License-MIT-green)
+
+---
+
+## 📋 Mục lục
+
+- [Tổng quan](#-tổng-quan)
+- [Tính năng](#-tính-năng)
+- [Công nghệ sử dụng](#-công-nghệ-sử-dụng)
+- [Cài đặt](#-cài-đặt)
+- [Cấu trúc dự án](#-cấu-trúc-dự-án)
+- [Authentication](#-authentication)
+- [Scripts](#-scripts)
+- [Triển khai Docker](#-triển-khai-docker)
+- [Giấy phép](#-giấy-phép)
+
+---
+
+## 🎯 Tổng quan
+
+**3D Print Service** là một ứng dụng web hiện đại được xây dựng trên **Next.js App Router**, cung cấp trải nghiệm đặt in 3D hoàn chỉnh từ upload file đến thanh toán và theo dõi đơn hàng.
+
+### Điểm nổi bật:
+
+- 🚀 **Next.js 16** với App Router và React 19
+- 🎨 **Radix UI** + **TailwindCSS** cho giao diện đẹp, responsive
+- 🔐 **JWT Authentication** với auto token refresh
+- 📦 **Three.js** cho xem trước mô hình 3D
+- 🐳 **Docker ready** với multi-stage build
+
+---
+
+## ✨ Tính năng
+
+### Người dùng
+
+| Tính năng | Mô tả |
+|-----------|-------|
+| 📤 **Upload mô hình 3D** | Hỗ trợ định dạng STL/OBJ với xem trước 3D |
+| ⚙️ **Cấu hình in** | Chọn công nghệ (FDM/SLA/SLS), vật liệu, màu sắc, infill |
+| 💰 **Báo giá tự động** | Tính giá theo thể tích, thời gian in và vật liệu |
+| 🛒 **Giỏ hàng & Thanh toán** | Quản lý đơn hàng, checkout online |
+| 📊 **Dashboard** | Theo dõi trạng thái đơn hàng, lịch sử in |
+| 🔍 **Tìm kiếm & Lọc** | Tìm sản phẩm, bộ lọc nâng cao |
+
+### Trang công khai
+
+- 🏠 Trang chủ với banner khuyến mãi
+- 🏪 Cửa hàng sản phẩm mẫu
+- 📖 Blog & Tin tức
+- 📚 Hướng dẫn in 3D
+- 🧪 Thư viện vật liệu
+- 📞 Liên hệ & Hỗ trợ
+- 📜 Chính sách (Điều khoản, Bảo mật, Hoàn tiền, Vận chuyển)
+
+---
+
+## 🛠 Công nghệ sử dụng
+
+### Frontend
+
+| Công nghệ | Phiên bản | Mô tả |
+|-----------|-----------|-------|
+| **Next.js** | 16.0.1 | React framework với App Router |
+| **React** | 19.2.0 | UI library |
+| **TypeScript** | 5.x | Type-safe JavaScript |
+| **TailwindCSS** | 4.x | Utility-first CSS |
+| **Radix UI** | Latest | Accessible UI components |
+| **Three.js** | 0.181 | 3D visualization |
+| **Lucide React** | 0.552 | Icon library |
+
+### Development
+
+| Tool | Mô tả |
+|------|-------|
+| **pnpm** | Package manager (khuyến nghị) |
+| **ESLint** | Linting |
+| **Prettier** | Code formatting |
+| **Docker** | Containerization |
+
+---
+
+## 🚀 Cài đặt
 
 ### Yêu cầu hệ thống
 
-- Node.js >= 18
-- pnpm (khuyến nghị) hoặc npm/yarn
-- Backend API chạy tại `http://localhost:3000` (hoặc cấu hình trong `.env.local`)
+- **Node.js** >= 18
+- **pnpm** (khuyến nghị) hoặc npm/yarn
+- **Backend API** đang chạy (mặc định: `http://localhost:8000`)
 
-### Cài đặt và chạy
+### Bước 1: Clone repository
 
-1. Cài đặt dependencies:
+```bash
+git clone https://github.com/hoangduc102/co3027-electronic-commerce-print-3d.git
+cd co3027-electronic-commerce-print-3d
+```
+
+### Bước 2: Cài đặt dependencies
 
 ```bash
 pnpm install
 ```
 
-2. Tạo file `.env.local` (xem `.env.example` nếu có):
+### Bước 3: Cấu hình môi trường
+
+Tạo file `.env.local`:
 
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:3000
+NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
 
-3. Chạy development server:
+### Bước 4: Chạy development server
 
 ```bash
 pnpm dev
-# mở http://localhost:3001 (hoặc port Next.js hiển thị)
 ```
 
-### Authentication
-
-Dự án sử dụng JWT-based authentication tích hợp với backend:
-
-- **Access Token**: Hết hạn sau 15 phút
-- **Refresh Token**: Hết hạn sau 7 ngày
-- Tokens được lưu trong localStorage
-- Tự động refresh token khi access token hết hạn
-
-#### Cấu trúc Authentication:
-
-- `src/config/api.config.ts`: Cấu hình API endpoints
-- `src/utils/tokenStorage.ts`: Quản lý lưu trữ tokens
-- `src/services/auth.service.ts`: Service gọi API authentication
-- `src/services/httpClient.ts`: HTTP client với auto token refresh
-- `src/contexts/AuthContext.tsx`: React Context quản lý auth state
-- `src/components/auth/ProtectedRoute.tsx`: Component bảo vệ routes
-
-### Scripts
-
-- `dev`: chạy máy chủ phát triển
-- `build`: build sản phẩm
-- `start`: chạy sản phẩm sau build
-- `lint`: chạy ESLint
-
-### Docker Deployment
-
-Dự án đã được cấu hình sẵn để chạy trong Docker với Next.js standalone mode. Dockerfile sử dụng multi-stage build để tối ưu kích thước image và tăng tốc độ build.
-
-#### Yêu cầu hệ thống:
-
-- **Docker** >= 20.10 ([Download Docker](https://www.docker.com/get-started))
-- **Docker Compose** >= 2.0 (khuyến nghị) ([Download Docker Compose](https://docs.docker.com/compose/install/))
-
-Kiểm tra cài đặt:
-
-```bash
-docker --version
-docker-compose --version
-```
-
-#### Kiến trúc Docker Image
-
-Dockerfile sử dụng **multi-stage build** gồm 3 giai đoạn:
-
-1. **Stage 1 (deps)**: Cài đặt dependencies với pnpm
-2. **Stage 2 (builder)**: Build ứng dụng Next.js với standalone output
-3. **Stage 3 (runner)**: Image production nhẹ, chỉ chứa code đã build và dependencies cần thiết
-
-Lợi ích:
-
-- Image cuối cùng nhỏ gọn (~200-300MB)
-- Không chứa source code, node_modules gốc, và dev dependencies
-- Tăng tốc độ build nhờ layer caching
-- Bảo mật tốt hơn (chạy với non-root user)
+Mở trình duyệt: **http://localhost:3000**
 
 ---
 
-#### Phương pháp 1: Sử dụng Docker Compose (Khuyến nghị)
+## 📁 Cấu trúc dự án
 
-Docker Compose giúp quản lý container dễ dàng hơn với cấu hình tập trung.
-
-##### Bước 1: Tạo file môi trường
-
-Tạo file `.env.production` trong thư mục gốc của dự án:
-
-```bash
-# Windows (PowerShell)
-New-Item -Path .env.production -ItemType File
-
-# Linux/Mac
-touch .env.production
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── (public)/           # Các trang công khai
+│   │   ├── about/          # Giới thiệu
+│   │   ├── blog/           # Blog & tin tức
+│   │   ├── checkout/       # Thanh toán
+│   │   ├── materials/      # Thư viện vật liệu
+│   │   ├── quote/          # Báo giá
+│   │   ├── store/          # Cửa hàng
+│   │   └── ...
+│   ├── dashboard/          # Dashboard người dùng
+│   ├── login/              # Đăng nhập
+│   ├── register/           # Đăng ký
+│   └── user/               # Hồ sơ người dùng
+│
+├── components/             # React components
+│   ├── auth/               # Components xác thực
+│   ├── checkout/           # Components thanh toán
+│   ├── dashboard/          # Components dashboard
+│   ├── layout/             # Header, Footer
+│   ├── quote/              # Components báo giá
+│   ├── store/              # Components cửa hàng
+│   └── ui/                 # UI primitives (shadcn/ui)
+│
+├── config/                 # Cấu hình
+│   └── api.config.ts       # API endpoints
+│
+├── contexts/               # React Contexts
+│   └── AuthContext.tsx     # Quản lý authentication
+│
+├── hooks/                  # Custom hooks
+│   ├── use-file-upload.ts  # Upload file
+│   └── use-price-calculator.ts
+│
+├── lib/                    # Utilities
+│   ├── constants.ts        # Hằng số
+│   ├── data.ts             # Mock data
+│   ├── types.ts            # TypeScript types
+│   └── utils.ts            # Helper functions
+│
+├── services/               # API services
+│   ├── auth.service.ts     # Authentication API
+│   ├── httpClient.ts       # HTTP client với interceptors
+│   └── user-profile.service.ts
+│
+└── utils/                  # Tiện ích
+    ├── tokenRefresh.ts     # Auto refresh token
+    └── tokenStorage.ts     # Quản lý localStorage
 ```
 
-Thêm nội dung vào file `.env.production`:
+---
 
-```env
-# URL của Backend API
-NEXT_PUBLIC_API_URL=http://localhost:8000
+## 🔐 Authentication
 
-# Môi trường
-NODE_ENV=production
+Hệ thống xác thực sử dụng **JWT (JSON Web Tokens)**:
 
-# Tắt telemetry của Next.js
-NEXT_TELEMETRY_DISABLED=1
+| Token | Thời hạn | Mô tả |
+|-------|----------|-------|
+| **Access Token** | 15 phút | Xác thực API requests |
+| **Refresh Token** | 7 ngày | Làm mới access token |
+
+### Tính năng:
+
+- ✅ Tự động refresh token khi hết hạn
+- ✅ Tokens lưu trong localStorage
+- ✅ Protected routes với `ProtectedRoute` component
+- ✅ Global auth state với React Context
+
+### Cấu trúc files:
+
+```
+src/
+├── config/api.config.ts        # API endpoints
+├── contexts/AuthContext.tsx    # Auth state management
+├── services/
+│   ├── auth.service.ts         # Auth API calls
+│   └── httpClient.ts           # HTTP client với interceptors
+├── utils/
+│   ├── tokenStorage.ts         # Token CRUD
+│   └── tokenRefresh.ts         # Auto refresh logic
+└── components/auth/
+    └── ProtectedRoute.tsx      # Route protection
 ```
 
-**Lưu ý**:
+---
 
-- Thay đổi `NEXT_PUBLIC_API_URL` theo URL thực tế của backend API
-- Nếu backend chạy trong Docker network, có thể dùng tên service thay vì `localhost`
+## 📜 Scripts
 
-##### Bước 2: Build và khởi chạy container
+| Script | Lệnh | Mô tả |
+|--------|------|-------|
+| **dev** | `pnpm dev` | Chạy development server |
+| **build** | `pnpm build` | Build production |
+| **start** | `pnpm start` | Chạy production build |
+| **lint** | `pnpm lint` | Kiểm tra ESLint |
+| **lint:fix** | `pnpm lint:fix` | Sửa lỗi ESLint + format |
+| **format** | `pnpm format` | Format code với Prettier |
+
+---
+
+## 🐳 Triển khai Docker
+
+### Yêu cầu
+
+- **Docker** >= 20.10
+- **Docker Compose** >= 2.0
+
+### Quick Start
 
 ```bash
-# Build image và chạy container ở chế độ background
+# 1. Tạo file môi trường
+echo "NEXT_PUBLIC_API_URL=http://localhost:8000" > .env.production
+
+# 2. Build và chạy
 docker-compose up -d --build
+
+# 3. Truy cập http://localhost:3000
 ```
 
-Lệnh này sẽ:
+### Kiến trúc Docker
 
-- Build Docker image từ Dockerfile
-- Tạo network `print-3d-network`
-- Chạy container `print-3d-app` ở chế độ detached (background)
-- Map port 3000 của container ra port 3000 của host
+Dockerfile sử dụng **multi-stage build** để tối ưu:
 
-##### Bước 3: Kiểm tra trạng thái
-
-```bash
-# Xem trạng thái các container
-docker-compose ps
-
-# Kiểm tra health check
-docker-compose ps | grep print-3d
+```
+Stage 1 (deps)     → Cài đặt dependencies với pnpm
+Stage 2 (builder)  → Build Next.js standalone
+Stage 3 (runner)   → Production image (~200-300MB)
 ```
 
-Bạn sẽ thấy trạng thái `healthy` nếu container đã sẵn sàng.
+**Lợi ích:**
+- 📦 Image nhỏ gọn
+- 🔒 Chạy với non-root user
+- ⚡ Layer caching tăng tốc build
 
-##### Bước 4: Truy cập ứng dụng
-
-Mở trình duyệt và truy cập: **http://localhost:3000**
-
-##### Xem logs (quan trọng để debug)
+### Các lệnh thường dùng
 
 ```bash
-# Xem logs real-time của tất cả services
-docker-compose logs -f
-
-# Xem logs của service cụ thể
+# Xem logs
 docker-compose logs -f print-3d
 
-# Xem 100 dòng logs gần nhất
-docker-compose logs --tail=100 print-3d
-```
-
-##### Dừng và xóa container
-
-```bash
-# Dừng container (giữ lại data và network)
-docker-compose stop
-
-# Dừng và xóa container, network (không xóa image)
+# Dừng container
 docker-compose down
 
-# Dừng và xóa tất cả bao gồm volumes (nếu có)
-docker-compose down -v
-```
+# Rebuild không cache
+docker-compose build --no-cache && docker-compose up -d
 
-##### Rebuild sau khi thay đổi code
-
-```bash
-# Rebuild image và restart container
-docker-compose up -d --build
-
-# Hoặc rebuild không cache (nếu gặp vấn đề với cache)
-docker-compose build --no-cache
-docker-compose up -d
-```
-
----
-
-#### Phương pháp 2: Sử dụng Docker trực tiếp
-
-Phù hợp khi bạn muốn kiểm soát chi tiết hơn hoặc tích hợp vào CI/CD pipeline.
-
-##### Bước 1: Build Docker image
-
-```bash
-# Build image với tag
-docker build -t print-3d:latest .
-
-# Build với tag và version
-docker build -t print-3d:1.0.0 -t print-3d:latest .
-```
-
-**Lưu ý**: Quá trình build có thể mất 3-5 phút lần đầu tiên.
-
-##### Bước 2: Kiểm tra image đã build
-
-```bash
-# Liệt kê các images
-docker images | grep print-3d
-
-# Xem chi tiết image
-docker inspect print-3d:latest
-```
-
-##### Bước 3: Chạy container
-
-**Cách 1: Sử dụng biến môi trường trực tiếp**
-
-```bash
-docker run -d \
-  --name print-3d-app \
-  -p 3000:3000 \
-  -e NEXT_PUBLIC_API_URL=http://localhost:8000 \
-  -e NODE_ENV=production \
-  -e NEXT_TELEMETRY_DISABLED=1 \
-  --restart unless-stopped \
-  print-3d:latest
-```
-
-**Cách 2: Sử dụng file .env.production**
-
-```bash
-docker run -d \
-  --name print-3d-app \
-  -p 3000:3000 \
-  --env-file .env.production \
-  --restart unless-stopped \
-  print-3d:latest
-```
-
-**Giải thích các tham số:**
-
-- `-d`: Chạy ở chế độ detached (background)
-- `--name print-3d-app`: Tên container
-- `-p 3000:3000`: Map port (host:container)
-- `-e`: Thiết lập biến môi trường
-- `--env-file`: Load biến môi trường từ file
-- `--restart unless-stopped`: Tự động restart khi container bị dừng
-
-##### Bước 4: Kiểm tra container đang chạy
-
-```bash
-# Xem danh sách containers
-docker ps
-
-# Xem thông tin chi tiết
-docker ps | grep print-3d-app
-
-# Kiểm tra health status
-docker inspect print-3d-app | grep -A 10 Health
-```
-
-##### Bước 5: Xem logs
-
-```bash
-# Xem logs real-time
-docker logs -f print-3d-app
-
-# Xem 50 dòng logs gần nhất
-docker logs --tail=50 print-3d-app
-
-# Xem logs với timestamp
-docker logs -f -t print-3d-app
-```
-
-##### Dừng và xóa container
-
-```bash
-# Dừng container
-docker stop print-3d-app
-
-# Khởi động lại container đã dừng
-docker start print-3d-app
-
-# Dừng và xóa container
-docker rm -f print-3d-app
-```
-
-##### Xóa image
-
-```bash
-# Xóa image (phải dừng và xóa container trước)
-docker rmi print-3d:latest
-
-# Xóa image không cần xác nhận
-docker rmi -f print-3d:latest
-```
-
----
-
-#### Kiểm tra và Debug
-
-##### Kiểm tra ứng dụng hoạt động
-
-```bash
-# Kiểm tra bằng curl (nếu có cài curl)
-curl http://localhost:3000
-
-# Kiểm tra response status
-curl -I http://localhost:3000
-
-# Trên Windows PowerShell
-Invoke-WebRequest -Uri http://localhost:3000 -Method Head
-```
-
-##### Kiểm tra health check
-
-Container tự động có health check được cấu hình:
-
-- Kiểm tra mỗi 30 giây
-- Timeout: 10 giây
-- Start period: 40 giây (thời gian để ứng dụng khởi động)
-- Retries: 3 lần
-
-```bash
-# Với docker-compose
-docker-compose ps
-
-# Với docker
-docker ps --format "table {{.Names}}\t{{.Status}}"
-```
-
-##### Vào bên trong container (debug)
-
-```bash
-# Vào container đang chạy
+# Vào container debug
 docker exec -it print-3d-app sh
-
-# Kiểm tra các file và thư mục
-ls -la
-cat package.json
-
-# Kiểm tra process đang chạy
-ps aux
-
-# Thoát container
-exit
 ```
 
-##### Kiểm tra network (nếu dùng docker-compose)
+### Health Check
 
-```bash
-# Xem networks
-docker network ls
+Container tự động kiểm tra sức khỏe:
 
-# Inspect network
-docker network inspect print-3d_print-3d-network
-
-# Kiểm tra container trong network
-docker network inspect print-3d_print-3d-network | grep -A 5 Containers
-```
+| Cấu hình | Giá trị |
+|----------|---------|
+| Interval | 30s |
+| Timeout | 10s |
+| Start period | 40s |
+| Retries | 3 |
 
 ---
 
-#### Troubleshooting (Xử lý sự cố)
+## 📄 Giấy phép
 
-##### Container không start hoặc crash ngay
+Dự án được phát hành theo giấy phép **MIT**. Xem file [LICENSE](LICENSE) để biết thêm chi tiết.
 
-```bash
-# Xem logs để tìm lỗi
-docker-compose logs print-3d
-# hoặc
-docker logs print-3d-app
+---
 
-# Kiểm tra xem port 3000 đã bị sử dụng chưa
-# Windows
-netstat -ano | findstr :3000
-# Linux/Mac
-lsof -i :3000
-```
+<div align="center">
 
-**Giải pháp**: Đổi port trong docker-compose.yml hoặc dừng service đang dùng port 3000.
+**Made with ❤️ by HCMUT Students**
 
-##### Container chạy nhưng không truy cập được
+*CO3027 - Electronic Commerce*
 
-1. Kiểm tra firewall/antivirus có chặn port 3000
-2. Kiểm tra container có expose đúng port:
-   ```bash
-   docker ps | grep print-3d
-   ```
-3. Thử truy cập bằng IP thay vì localhost:
-
-   ```bash
-   # Windows (PowerShell)
-   (Get-NetIPAddress -AddressFamily IPv4 | Where-Object {$_.IPAddress -like "192.168.*"}).IPAddress
-
-   # Linux/Mac
-   ifconfig | grep "inet "
-   ```
-
-##### Build bị lỗi hoặc chậm
-
-```bash
-# Xóa cache và build lại
-docker-compose build --no-cache
-
-# Hoặc với docker
-docker build --no-cache -t print-3d:latest .
-```
-
-### Cấu trúc thư mục
-
-- `src/app`: App Router (trang, layout, styles)
-- `public`: tài nguyên tĩnh (icons, hình ảnh)
-- `Dockerfile`: Multi-stage Dockerfile cho production
-- `docker-compose.yml`: Cấu hình Docker Compose
-- `.dockerignore`: Files bị loại trừ khỏi Docker build
-
-### Roadmap tính năng (dự kiến)
-
-- Upload mô hình 3D (STL/OBJ)
-- Cấu hình in: vật liệu, layer height, infill, màu sắc
-- Báo giá tự động theo thể tích/thời gian in
-- Giỏ hàng và thanh toán
-- Quản trị đơn hàng, trạng thái in
-
-### Giấy phép
-
-Phát hành theo giấy phép MIT. Xem tệp `LICENSE`.
+</div>
