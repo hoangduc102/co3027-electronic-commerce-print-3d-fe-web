@@ -10,6 +10,14 @@ import {
   Zap,
   Shield,
 } from "lucide-react";
+import type { Metadata } from "next";
+import { generatePageMetadata, pagesSEO } from "@/lib/seo.config";
+
+export const metadata: Metadata = generatePageMetadata({
+  title: pagesSEO.about.title,
+  description: pagesSEO.about.description,
+  path: "/about",
+});
 
 const stats = [
   { label: "Đơn hàng hoàn thành", value: "10,000+", icon: Printer },

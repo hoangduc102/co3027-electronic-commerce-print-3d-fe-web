@@ -1,6 +1,13 @@
-"use client";
 import { MATERIALS, TECHNOLOGIES } from "@/lib/constants";
 import { Info } from "lucide-react";
+import type { Metadata } from "next";
+import { generatePageMetadata, pagesSEO } from "@/lib/seo.config";
+
+export const metadata: Metadata = generatePageMetadata({
+  title: pagesSEO.materials.title,
+  description: pagesSEO.materials.description,
+  path: "/materials",
+});
 
 const PropertyBar = ({ value, label }: { value: number; label: string }) => (
   <div>

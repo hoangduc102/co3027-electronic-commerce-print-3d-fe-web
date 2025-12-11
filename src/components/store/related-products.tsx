@@ -1,10 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Check } from "lucide-react";
 import { SAMPLE_PRODUCTS } from "@/lib/data";
+import { useCart } from "@/contexts/CartContext";
+import { MATERIALS } from "@/lib/constants";
 
 interface RelatedProductsProps {
   currentProductId: string;
@@ -85,11 +88,36 @@ export function FrequentlyBoughtTogether({
     (p) => p.id !== currentProductId
   ).slice(0, maxItems);
 
+  const { addToCart } = useCart();
+  const [isAdded, setIsAdded] = useState(false);
+
   const formatPrice = (value: number) => {
     return new Intl.NumberFormat("vi-VN").format(value) + "đ";
   };
 
   const totalPrice = products.reduce((sum, p) => sum + p.basePrice, 0);
+
+  const handleAddAll = () => {
+    products.forEach((product) => {
+      const materialName =
+        MATERIALS.find((m) => m.id === product.materials[0])?.name ||
+        product.materials[0];
+      addToCart({
+        productId: product.id,
+        name: product.name,
+        image: product.images[0] || "/placeholder.svg",
+        price: product.basePrice,
+        quantity: 1,
+        specs: {
+          material: materialName,
+          color: product.colors[0] || "#000000",
+          size: product.sizes[1]?.name || product.sizes[0]?.name || "Mặc định",
+        },
+      });
+    });
+    setIsAdded(true);
+    setTimeout(() => setIsAdded(false), 2000);
+  };
 
   if (products.length === 0) return null;
 
@@ -132,9 +160,21 @@ export function FrequentlyBoughtTogether({
               {formatPrice(totalPrice)}
             </p>
           </div>
-          <Button className="bg-primary hover:bg-primary/90 border-2 border-foreground">
-            <ShoppingCart className="h-4 w-4 mr-2" />
-            Thêm tất cả
+          <Button
+            className="bg-primary hover:bg-primary/90 border-2 border-foreground"
+            onClick={handleAddAll}
+          >
+            {isAdded ? (
+              <>
+                <Check className="h-4 w-4 mr-2" />
+                Đã thêm!
+              </>
+            ) : (
+              <>
+                <ShoppingCart className="h-4 w-4 mr-2" />
+                Thêm tất cả
+              </>
+            )}
           </Button>
         </div>
       </div>

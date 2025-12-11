@@ -1,6 +1,14 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Calendar, Clock, ArrowRight, Tag } from "lucide-react";
+import type { Metadata } from "next";
+import { generatePageMetadata, pagesSEO } from "@/lib/seo.config";
+
+export const metadata: Metadata = generatePageMetadata({
+  title: pagesSEO.blog.title,
+  description: pagesSEO.blog.description,
+  path: "/blog",
+});
 
 const blogPosts = [
   {
