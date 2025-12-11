@@ -24,6 +24,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Menu, ShoppingCart, User, Search, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
 
 const navigation = [
   {
@@ -58,6 +59,8 @@ export function Header() {
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const router = useRouter();
   const { user, logout } = useAuth();
+  const { getCartCount } = useCart();
+  const cartCount = getCartCount();
 
   const handleLogout = async () => {
     try {
@@ -141,9 +144,11 @@ export function Header() {
               >
                 <Link href="/checkout">
                   <ShoppingCart className="h-5 w-5" />
-                  <span className="absolute -top-1 -right-1 h-5 w-5 bg-primary text-primary-foreground text-xs flex items-center justify-center">
-                    2
-                  </span>
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 h-5 w-5 bg-primary text-primary-foreground text-xs flex items-center justify-center">
+                      {cartCount > 99 ? "99+" : cartCount}
+                    </span>
+                  )}
                   <span className="sr-only">Giỏ hàng</span>
                 </Link>
               </Button>

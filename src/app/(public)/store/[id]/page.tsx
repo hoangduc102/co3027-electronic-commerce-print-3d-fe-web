@@ -9,7 +9,14 @@ import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
-import { ShoppingCart, ArrowLeft, Minus, Plus, RotateCw } from "lucide-react";
+import {
+  ShoppingCart,
+  ArrowLeft,
+  Minus,
+  Plus,
+  RotateCw,
+  Check,
+} from "lucide-react";
 import { SAMPLE_PRODUCTS } from "@/lib/data";
 import { MATERIALS } from "@/lib/constants";
 import { ModelViewer } from "@/components/quote/model-viewer";
@@ -18,14 +25,16 @@ import {
   FrequentlyBoughtTogether,
 } from "@/components/store/related-products";
 import { WarrantyInfo } from "@/components/store/warranty-info";
+import { useCart } from "@/contexts/CartContext";
 
 export default function ProductDetailPage({
   params,
-}: {
+}: Readonly<{
   params: Promise<{ id: string }>;
-}) {
+}>) {
   const { id } = use(params);
   const product = SAMPLE_PRODUCTS.find((p) => p.id === id);
+  const { addToCart } = useCart();
 
   const [selectedSize, setSelectedSize] = useState(
     product?.sizes[1] || product?.sizes[0]
@@ -37,6 +46,7 @@ export default function ProductDetailPage({
   const [customScale, setCustomScale] = useState(100);
   const [quantity, setQuantity] = useState(1);
   const [useCustomScale, setUseCustomScale] = useState(false);
+  const [isAdded, setIsAdded] = useState(false);
 
   if (!product) {
     return (
@@ -277,9 +287,45 @@ export default function ProductDetailPage({
 
                 {/* Add to Cart */}
                 <div className="flex gap-4 pt-4">
-                  <Button className="flex-1 h-14 bg-primary hover:bg-primary/90 text-primary-foreground border-2 border-foreground font-semibold gap-2 text-base">
-                    <ShoppingCart className="h-5 w-5" />
-                    Thêm vào giỏ hàng
+                  <Button
+                    className="flex-1 h-14 bg-primary hover:bg-primary/90 text-primary-foreground border-2 border-foreground font-semibold gap-2 text-base"
+                    onClick={() => {
+                      const materialName =
+                        MATERIALS.find((m) => m.id === selectedMaterial)
+                          ?.name || selectedMaterial;
+                      const sizeName = useCustomScale
+                        ? `${customScale}%`
+                        : selectedSize?.name || "Mặc định";
+
+                      addToCart({
+                        productId: product.id,
+                        name: product.name,
+                        image: product.images[0] || "/placeholder.svg",
+                        price: calculatedPrice,
+                        quantity: quantity,
+                        specs: {
+                          material: materialName,
+                          color: selectedColor,
+                          size: sizeName,
+                        },
+                      });
+
+                      // Hiển thị trạng thái đã thêm
+                      setIsAdded(true);
+                      setTimeout(() => setIsAdded(false), 2000);
+                    }}
+                  >
+                    {isAdded ? (
+                      <>
+                        <Check className="h-5 w-5" />
+                        Đã thêm vào giỏ!
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingCart className="h-5 w-5" />
+                        Thêm vào giỏ hàng
+                      </>
+                    )}
                   </Button>
                 </div>
               </div>

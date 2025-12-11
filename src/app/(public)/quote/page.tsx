@@ -8,6 +8,8 @@ import { useFileUpload } from "@/hooks/use-file-upload";
 import type { PrintConfig } from "@/lib/types";
 import { MATERIALS } from "@/lib/constants";
 
+// Metadata được export từ layout.tsx do đây là client component
+
 const defaultConfig: PrintConfig = {
   technology: "FDM",
   material: "pla",

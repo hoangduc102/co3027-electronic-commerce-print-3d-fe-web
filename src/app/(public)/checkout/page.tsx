@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,56 +13,63 @@ import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { TrustBadges } from "@/components/ui/trust-badges";
 import { PaymentMethods } from "@/components/ui/payment-methods";
 import { WarrantyBadges } from "@/components/store/warranty-info";
-import { CreditCard, Truck, AlertTriangle } from "lucide-react";
-
-// Mock cart data
-const initialCart = [
-  {
-    id: "1",
-    name: "Tượng Rồng Phong Thủy",
-    image: "/dragon-statue-gold-3d-printed.jpg",
-    price: 350000,
-    quantity: 1,
-    specs: { material: "Resin", color: "#FFD700", size: "Vừa (15cm)" },
-  },
-  {
-    id: "2",
-    name: "Núm vặn tủ bếp Hexagon",
-    image: "/hexagon-cabinet-knob-black-3d-printed.jpg",
-    price: 25000,
-    quantity: 4,
-    specs: { material: "PETG", color: "#000000", size: "30mm" },
-  },
-];
+import {
+  CreditCard,
+  Truck,
+  AlertTriangle,
+  CheckCircle,
+  Loader2,
+} from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export default function CheckoutPage() {
-  const [cart, setCart] = useState(initialCart);
+  const router = useRouter();
+  const { cart, updateQuantity, removeFromCart, clearCart, getCartTotal } =
+    useCart();
   const [technicalNotes, setTechnicalNotes] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [agreements, setAgreements] = useState({
     copyright: false,
     expectations: false,
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [orderNumber, setOrderNumber] = useState("");
+
+  // Hàm xử lý đặt hàng
+  const handlePlaceOrder = async () => {
+    if (!canCheckout) return;
+
+    setIsSubmitting(true);
+
+    // Giả lập thời gian xử lý đơn hàng
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
+    // Tạo mã đơn hàng
+    const newOrderNumber = `IN3D-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 100000)).padStart(5, "0")}`;
+    setOrderNumber(newOrderNumber);
+
+    // Xóa giỏ hàng
+    clearCart();
+
+    // Hiển thị dialog thành công
+    setIsSubmitting(false);
+    setShowSuccessDialog(true);
+  };
 
   const formatPrice = (value: number) => {
     return new Intl.NumberFormat("vi-VN").format(value) + "đ";
   };
 
-  const updateQuantity = (id: string, quantity: number) => {
-    setCart((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, quantity } : item))
-    );
-  };
-
-  const removeItem = (id: string) => {
-    setCart((prev) => prev.filter((item) => item.id !== id));
-  };
-
-  const subtotal = cart.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0
-  );
-  const shippingFee = 35000;
+  const subtotal = getCartTotal();
+  const shippingFee = cart.length > 0 ? 35000 : 0;
   const total = subtotal + shippingFee;
 
   const canCheckout =
@@ -95,9 +103,14 @@ export default function CheckoutPage() {
                   {cart.map((item) => (
                     <CartItem
                       key={item.id}
-                      {...item}
+                      id={item.id}
+                      name={item.name}
+                      image={item.image}
+                      price={item.price}
+                      quantity={item.quantity}
+                      specs={item.specs}
                       onUpdateQuantity={(qty) => updateQuantity(item.id, qty)}
-                      onRemove={() => removeItem(item.id)}
+                      onRemove={() => removeFromCart(item.id)}
                     />
                   ))}
                   {cart.length === 0 && (
@@ -309,12 +322,20 @@ export default function CheckoutPage() {
 
                   <Button
                     className="w-full h-14 bg-primary hover:bg-primary/90 text-primary-foreground border-2 border-foreground font-semibold text-base"
-                    disabled={!canCheckout}
+                    disabled={!canCheckout || isSubmitting}
+                    onClick={handlePlaceOrder}
                   >
-                    Đặt hàng
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                        Đang xử lý...
+                      </>
+                    ) : (
+                      "Đặt hàng"
+                    )}
                   </Button>
 
-                  {!canCheckout && (
+                  {!canCheckout && !isSubmitting && (
                     <p className="text-xs text-center text-muted-foreground">
                       Vui lòng đồng ý với các điều khoản để tiếp tục
                     </p>
@@ -338,6 +359,54 @@ export default function CheckoutPage() {
           </div>
         </div>
       </main>
+
+      {/* Dialog đặt hàng thành công */}
+      <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <DialogContent className="sm:max-w-md border-2 border-foreground">
+          <DialogHeader>
+            <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+              <CheckCircle className="h-10 w-10 text-green-600" />
+            </div>
+            <DialogTitle className="text-center text-2xl">
+              Đặt hàng thành công!
+            </DialogTitle>
+            <DialogDescription asChild>
+              <div className="text-center space-y-2 text-muted-foreground text-sm">
+                <p>Cảm ơn bạn đã đặt hàng tại Print3D.</p>
+                <p className="font-semibold text-foreground">
+                  Mã đơn hàng:{" "}
+                  <span className="text-primary">{orderNumber}</span>
+                </p>
+                <p>
+                  Chúng tôi sẽ liên hệ với bạn trong vòng 24 giờ để xác nhận đơn
+                  hàng.
+                </p>
+              </div>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-3 mt-4">
+            <Button
+              className="w-full border-2 border-foreground font-semibold"
+              onClick={() => {
+                setShowSuccessDialog(false);
+                router.push("/dashboard/orders");
+              }}
+            >
+              Xem đơn hàng của tôi
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full border-2 border-foreground"
+              onClick={() => {
+                setShowSuccessDialog(false);
+                router.push("/store");
+              }}
+            >
+              Tiếp tục mua sắm
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* <Footer /> */}
     </div>

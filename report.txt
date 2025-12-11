@@ -1,0 +1,2047 @@
+VIETNAM NATIONAL UNIVERSITY, HO CHI MINH CITY
+UNIVERSITY OF TECHNOLOGY
+FACULTY OF COMPUTER SCIENCE AND ENGINEERING
+
+THƯƠNG MẠI ĐIỆN TỬ (CO3027)
+Bài tập lớn
+
+CỬA HÀNG IN 3D ONLINE
+
+GVHD:
+
+Trần Thị Quế Nguyệt
+
+Nhóm:
+
+9
+
+Sinh viên:
+
+Lê Ngọc Thiện
+Phan Thế Cương
+Huỳnh Chí Toàn
+Ngô Quỳnh Thảo Nguyên
+Trương Phước Tiến
+Vương Nhật Minh
+Hoàng Mạnh Đức
+
+HỒ CHÍ MINH, THÁNG 11 2025
+
+2213250
+2112953
+1814361
+2212279
+2313446
+2212094
+2210787
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+Mục lục
+1 Tổng quan dự án
+4
+1.1 Giới thiệu dự án . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+4
+1.1.1 Đặt vấn đề . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+4
+1.1.2 Mục tiêu . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+4
+1.1.3 Phạm vi . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+5
+1.2 Phân tích thị trường . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+6
+1.2.1 Tổng quan thị trường . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+6
+1.2.2 Quy mô thị trường . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+6
+1.2.3 Xu hướng hành vi . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+7
+1.2.4 Phân khúc thị trường . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+7
+1.2.5 Đối thủ cạnh tranh . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+8
+1.3 Phân tích khảo sát người dùng . . . . . . . . . . . . . . . . . . . . . . . . . . . . 10
+1.3.1 Mục tiêu khảo sát . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 10
+1.3.2 Phương pháp khảo sát . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+1.3.3 Thiết kế bảng khảo sát . . . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+1.3.4 Kết quả khảo sát . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 12
+1.4 Phân tích vấn đề và đặt mục tiêu dự án . . . . . . . . . . . . . . . . . . . . . . . 12
+1.4.1 Trải nghiệm Khách hàng (Tương tác & Trực quan) . . . . . . . . . . . . . 12
+1.4.2 Quản lý và Vận hành . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 13
+1.4.3 Cạnh tranh và Marketing . . . . . . . . . . . . . . . . . . . . . . . . . . . 13
+1.4.4 Mục tiêu dự án . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 13
+1.4.4.a Khởi động và xây dựng sản phẩm khả dụng tối thiểu (MVP) 13
+1.4.4.b
+Tối ưu hóa Chức năng và Cá nhân hóa . . . . . . . . . . 13
+1.4.4.c Mở rộng Hệ sinh thái và Nâng cao Công nghệ . . . . . . . 14
+1.5 Tính khả thi của dự án và phân tích SWOT . . . . . . . . . . . . . . . . . . . . . 14
+1.5.1 Bối cảnh và định hướng phát triển . . . . . . . . . . . . . . . . . . . . . . 14
+1.5.2 Phân tích SWOT . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 14
+1.5.3 Ma trận SWOT . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 16
+1.5.4 Phân tích khả năng tồn tại của dự án . . . . . . . . . . . . . . . . . . . . 16
+1.6 Xây dựng mô hình kinh doanh . . . . . . . . . . . . . . . . . . . . . . . . . . . . 17
+1.7 Kế hoạch phát triển dự án, chi phí dự trù và quản lý rủi ro . . . . . . . . . . . . 18
+1.7.1 Mô hình kinh doanh và kế hoạch triển khai theo giai đoạn khách hàng . . 18
+1.7.2 Kế hoạch chi phí dự trù . . . . . . . . . . . . . . . . . . . . . . . . . . . . 20
+1.7.3 Kế hoạch quản lý rủi ro . . . . . . . . . . . . . . . . . . . . . . . . . . . . 20
+2 Phân tích và thiết kế
+2.1 Lược đồ use case và đặc tả . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+2.1.1 Sơ đồ tổng quan . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+2.1.2 Khám phá & đánh giá sản phẩm . . . . . . . . . . . . . . . . . . . . . . .
+2.1.2.a Lọc sản phẩm/dịch vụ . . . . . . . . . . . . . . . . . . . .
+2.1.2.b Xem chi tiết sản phẩm/dịch vụ . . . . . . . . . . . . . . .
+2.1.3 Công cụ hỗ trợ in 3D . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+2.1.4 Mua hàng & giao nhận . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+2.1.4.a Theo dõi đơn hàng & trạng thái sản xuất . . . . . . . . .
+2.1.4.b Thêm vào giỏ hàng . . . . . . . . . . . . . . . . . . . . . .
+2.1.4.c Thanh toán (Checkout) . . . . . . . . . . . . . . . . . . .
+2.1.5 Quản trị hệ thống & danh mục . . . . . . . . . . . . . . . . . . . . . . . .
+
+Thương mại điện tử - HK251
+
+22
+22
+22
+23
+23
+24
+24
+25
+26
+26
+27
+27
+
+Trang 1/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+2.2
+
+2.3
+
+2.4
+
+2.5
+
+2.1.6 Quản trị danh mục sản phẩm & dịch vụ . . . . . . . . . . . . . . . . . . .
+Yêu cầu phi chức năng . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+2.2.1 Tính Sẵn Sàng và Ổn Định (Availability & Stability) . . . . . . . . . . .
+2.2.2 Hiệu Năng và Khả Năng Mở Rộng (Performance & Scalability) . . . . . .
+2.2.3 Bảo Mật và Tuân Thủ (Security & Compliance) . . . . . . . . . . . . . .
+2.2.4 Tính Tương thích và Linh hoạt (Compatibility & Flexibility) . . . . . . .
+2.2.5 Trải nghiệm và Tính Dễ sử dụng (User Experience & Usability) . . . . . .
+2.2.6 Tính Bảo Trì và Bền Vững (Maintainability & Sustainability) . . . . . .
+Nguyên lí thiết kế theo Gestal . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+2.3.1 Nguyên tắc thiết kế kiến trúc thông tin . . . . . . . . . . . . . . . . . . .
+2.3.2 Nguyên lý Gestalt trong giao diện website . . . . . . . . . . . . . . . . . .
+Thiết kế giao diện người dùng . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+2.4.1 Trang chủ . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+2.4.2 Trang đặt in theo nhu cầu . . . . . . . . . . . . . . . . . . . . . . . . . . .
+2.4.3 Trang giới thiệu vật liệu . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+2.4.4 Trang hướng dẫn sử dụng . . . . . . . . . . . . . . . . . . . . . . . . . . .
+2.4.5 Trang Showcase . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+2.4.6 Trang checkout . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+2.4.7 Trang đăng nhập . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Lược đồ cơ sở dữ liệu . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+28
+28
+28
+28
+29
+29
+29
+29
+30
+30
+31
+34
+34
+34
+35
+36
+37
+38
+39
+39
+
+3 Hiện thực hệ thống
+
+43
+
+4 Kết luận
+
+44
+
+5 Phụ lục
+5.1 Kết quả khảo sát người dùng . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+5.2 Giao diện demo . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+5.3 Source code . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+5.4 Tài liệu tham khảo . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+45
+45
+45
+45
+45
+
+Thương mại điện tử - HK251
+
+Trang 2/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+Thành viên
+Lê Ngọc Thiện
+
+MSSV
+2213250
+
+Phan Thế Cương
+
+2112953
+
+Huỳnh Chí Toàn
+Ngô Quỳnh Thảo Nguyên
+Trương Phước Tiến
+
+1814361
+2212279
+2313446
+
+Vương Nhật Minh
+
+2212094
+
+Hoàng Mạnh Đức
+
+2210787
+
+Nhiệm vụ
+Hiện thực backend, tổng quan dự án,
+viết báo cáo.
+Hiện thực backend, thiết kế giao diện,
+vẽ khung mô hình kinh doanh
+Hiện thực backend, Usecase và đặc tả
+Tổng quan dự án
+Nguyên lí thiết kế theo Gestal được
+chọn, nhận biết thương hiệu, hiện thực
+frontend
+Lược đồ cơ sở dữ liệu, hiện thực
+frontend.
+Hiện thực frontend, yêu cầu phi chức
+năng
+
+Mức độ hoàn thành
+100%
+100%
+100%
+40%
+100%
+
+100%
+100%
+
+Bảng 1: Bảng phân công nhiệm vụ
+
+Thương mại điện tử - HK251
+
+Trang 3/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+1
+
+Tổng quan dự án
+
+1.1
+
+Giới thiệu dự án
+
+1.1.1
+
+Đặt vấn đề
+
+Trong những năm trở lại đây, nhu cầu sử dụng mô hình 3D trong các lĩnh vực như kỹ thuật,
+cơ khí, kiến trúc, thiết kế sản phẩm, giáo dục và nghiên cứu đang tăng lên đáng kể. Các trường
+đại học, trung tâm đào tạo kỹ thuật và các doanh nghiệp nhỏ thường xuyên cần tạo mẫu nhanh
+(rapid prototyping) cho các bài tập, đồ án, thử nghiệm ý tưởng hoặc mô phỏng sản phẩm. Điều
+này khiến thị trường dịch vụ in 3D trở nên ngày càng phát triển nhanh chóng, đặc biệt tại
+TP.HCM và Hà Nội.
+Mặc dù nhu cầu in 3D tăng, việc tiếp cận các dịch vụ in 3D trên thị trường hiện nay vẫn
+còn nhiều hạn chế:
+• Phải liên hệ qua các mạng xã hội hoặc điện thoại: Phần lớn các dịch vụ đều nhận
+yêu cầu qua các mạng xã hội như: Facebook, Zalo,... Khách phải gửi file, chờ chủ tiệm xem
+và báo giá, sau đó tiếp tục hỏi về các vật liệu, kích thước hay thời gian in. Mỗi bước đều
+phải nhắn tin thủ công, khiến quy trình kéo dài, đặc biệt khi khách cần chỉnh sửa file hoặc
+đặt hàng gấp. Ngoài ra, việc trao đổi qua tin nhắn cũng gây khó khăn trong theo dõi lại
+thông tin khi cần đối chiếu.
+• Không nắm rõ chi phí in trước khi đặt in: Đa số các dịch vụ báo giá không cung cấp
+công cụ tính giá theo thể tích hoặc thời gian in. Điều này khiến khách hàng khó đưa ra
+quyết định vì họ không thể ước lượng chi phí ban đầu. Một số khách phải gửi cùng một
+file cho nhiều đơn vị khác nhau để so sánh, dẫn đến mất thời gian và không thống nhất
+giá cả trong thị trường. Việc thiếu minh bạch giá còn giảm niềm tin của khách đối với dịch
+vụ in 3D, đặc biệt là người dùng mới.
+• Không có hệ thống để theo dõi tiến độ đơn hàng: Sau khi xác nhận in, khách hàng
+hầu như không biết đơn hàng đang ở tình trạng nào: đã bắt đầu in, đang xử lý hậu kỳ
+hay đã hoàn thiện hay đang giao hàng sản phẩm. Tất cả thông tin trên đều phụ thuộc vào
+dịch vụ phản hôì thủ công cho khách hàng. Điều này khiến khách hàng rơi vào trạng thái
+bị động và khó kiểm soát, ảnh hưởng đến trải nghiệm khi sử dụng dịch vụ.
+Những vấn đề trên cho thấy thị trường in 3D tại Việt Nam mặc dù có nhu cầu lớn nhưng
+vẫn thiếu một nền tảng chuyên nghiệp có khả năng tự động hóa và chuẩn hóa quy trình đặt in.
+Khách hàng hiện nay vẫn phụ thuộc nhiều vào trao đổi thủ công, dẫn đến thiếu minh bạch và
+khó kiểm soát tiến độ. Chính vì vậy, dự án PRINT 3D được xây dựng nhằm cung cấp một
+website thương mại điện tử chuyên biệt, giúp khách hàng dễ dàng đặt in, theo dõi và quản lý
+đơn hàng một cách chủ động và hiệu quả hơn.
+1.1.2
+
+Mục tiêu
+
+Dự án IN 3D hướng đến xây dựng một website thương mại điện tử B2C chuyên biệt cho dịch
+vụ in 3D, giúp chuẩn hóa quy trình đặt hàng, rút ngắn thời gian xử lý và nâng cao trải nghiệm
+người dùng. Thông qua nền tảng trực tuyến, dự án kỳ vọng tối ưu hóa hoạt động vận hành, cải
+thiện chất lượng dịch vụ và mở rộng khả năng tiếp cận khách hàng trong dài hạn. Các mục tiêu
+trọng tâm của dự án như sau:
+• Khách hàng có thể tải trực tiếp file thiết kế 3D hoặc chọn mẫu từ thư viện có sẵn
+Website hỗ trợ các định dạng phổ biến như STL và OBJ, đồng thời cung cấp thư viện mẫu
+Thương mại điện tử - HK251
+
+Trang 4/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+để khách hàng lựa chọn khi không có sẵn file thiết kế. Người dùng có thể xem trước mô
+hình và điều chỉnh kích thước cơ bản ngay trên giao diện web. Điều này giúp tối ưu trải
+nghiệm, đặc biệt với những khách hàng mới làm quen với công nghệ in 3D.
+• Hệ thống tự động tính giá dựa trên thể tích, vật liệu và mức độ hoàn thiện
+Thuật toán tính giá được tích hợp giúp hệ thống đưa ra chi phí ngay lập tức dựa trên thể
+tích nhựa, loại vật liệu (PLA, ABS, PETG, resin. . . ) và tùy chọn hoàn thiện bề mặt. Việc
+báo giá tự động giúp khách hàng chủ động hơn và hạn chế sự phụ thuộc vào trao đổi thủ
+công. Đồng thời, tính năng này giúp tăng tính minh bạch và giảm thời gian phản hồi của
+cửa tiệm.
+• Khách hàng thanh toán trực tuyến và theo dõi tiến độ in ngay trên website
+Sau khi xác nhận thông số in, khách hàng có thể thanh toán qua chuyển khoản hoặc ví
+điện tử tích hợp. Hệ thống cập nhật trạng thái đơn hàng theo từng giai đoạn như kiểm tra
+file, đang in, xử lý hậu kỳ và hoàn thiện. Việc theo dõi tiến độ theo thời gian thực giúp
+khách hàng chủ động hơn và giảm sự bị động trong quá trình chờ nhận sản phẩm.
+• Thành phẩm được giao tận nơi hoặc nhận trực tiếp tại cửa tiệm
+Website cho phép khách hàng lựa chọn phương thức nhận hàng linh hoạt phù hợp với nhu
+cầu và thời gian cá nhân. Các đơn hàng có thể được giao qua đơn vị vận chuyển hoặc được
+lấy trực tiếp tại cửa tiệm. Việc tích hợp đa dạng phương thức giao nhận giúp dịch vụ trở
+nên thuận tiện và phù hợp với nhiều nhóm khách hàng hơn.
+1.1.3
+
+Phạm vi
+
+• Lĩnh vực: Dịch vụ in 3D theo yêu cầu (3D Printing Service).
+• Hình thức thương mại điện tử: Đặt dịch vụ trực tuyến (Online service booking) thông qua
+website.
+• Mô hình: B2C (Business to Customer) – Đơn vị cung cấp dịch vụ in 3D phục vụ trực tiếp
+khách hàng.
+• Các thành phần:
+– Khách hàng: Người tải file thiết kế, lựa chọn cấu hình in và đặt dịch vụ.
+– Đơn vị cung cấp dịch vụ in 3D: Thực hiện xử lý file, in sản phẩm, hậu kỳ và bàn giao.
+– Cổng thanh toán trực tuyến: Hỗ trợ giao dịch thanh toán một cách an toàn và tiện
+lợi.
+• Mô hình doanh thu: Khách hàng thanh toán chi phí in 3D dựa trên vật liệu, thể tích in,
+thời gian in và mức độ hoàn thiện.
+• Đối tượng sử dụng: Sinh viên, kỹ sư, nhà thiết kế, doanh nghiệp nhỏ và khách hàng cá
+nhân có nhu cầu tạo mẫu hoặc sản phẩm tùy chỉnh.
+• Phạm vi địa lý: Hoạt động trên toàn quốc; sản phẩm được gửi qua đơn vị vận chuyển hoặc
+nhận trực tiếp tại điểm cung cấp dịch vụ.
+• Phạm vi chức năng của nền tảng:
+– Tải file thiết kế 3D hoặc chọn mẫu từ thư viện.
+– Tự động tính giá dựa trên cấu hình in.
+Thương mại điện tử - HK251
+
+Trang 5/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+– Đặt dịch vụ, thanh toán trực tuyến và theo dõi tiến độ in.
+– Quản lý tài khoản và lịch sử đơn hàng.
+
+1.2
+
+Phân tích thị trường
+
+1.2.1
+
+Tổng quan thị trường
+
+Thị trường in 3D tại Việt Nam đang mở rộng khi nhu cầu tạo mẫu, thiết kế kỹ thuật và sản
+xuất các sản phẩm tùy chỉnh tăng lên đáng kể trong những năm gần đây. Việc ứng dụng mô
+hình hóa 3D trong học tập, nghiên cứu, thiết kế sản phẩm và các hoạt động công nghệ đã trở
+nên rộng rãi hơn, thúc đẩy sự phát triển của các dịch vụ in 3D. Nhiều nhóm khách hàng mới,
+từ sinh viên, kỹ sư, nhà thiết kế đến doanh nghiệp nhỏ, đang tìm đến công nghệ in 3D như một
+giải pháp linh hoạt và tiết kiệm chi phí cho quá trình sáng tạo và thử nghiệm sản phẩm.
+1.2.2
+
+Quy mô thị trường
+
+Hình 1: Xu hướng phát triển của thị trường in 3D Việt Nam (IMARC)
+Theo báo cáo Vietnam 3D Printing Market 2024–2033 của IMARC Group, thị trường in 3D tại
+Việt Nam được định giá khoảng 140,5 triệu USD vào năm 2024. Con số này phản ánh mức phát
+triển đáng kể của ngành in 3D trong bối cảnh nhiều nhóm người dùng mới tiếp cận công nghệ
+mô hình hóa 3D, từ giáo dục kỹ thuật đến các doanh nghiệp sản xuất nhỏ. Với tốc độ mở rộng
+ổn định trong giai đoạn gần đây, thị trường ngày càng thu hút nhiều đơn vị cung cấp dịch vụ
+cũng như khách hàng có nhu cầu tạo mẫu, thiết kế kỹ thuật và sản xuất tùy chỉnh.
+Bên cạnh mức quy mô hiện tại, IMARC dự báo thị trường có thể đạt 700,3 triệu USD vào
+năm 2033, tương ứng tốc độ tăng trưởng kép hàng năm (CAGR) khoảng 16,4% trong giai đoạn
+2025–2033. Tốc độ này cho thấy nhu cầu in 3D vẫn còn nhiều khoảng trống để khai thác, đặc
+biệt khi các lĩnh vực như giáo dục kỹ thuật, R&D, sản xuất linh kiện nhỏ và thiết kế sản phẩm
+tiêu dùng tiếp tục phát triển. Quy mô thị trường ngày càng lớn tạo ra nền tảng vững chắc cho
+các mô hình TMĐT, bao gồm nền tảng đặt dịch vụ in 3D trực tuyến.
+
+Thương mại điện tử - HK251
+
+Trang 6/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+1.2.3
+
+Xu hướng hành vi
+
+Hành vi sử dụng dịch vụ in 3D tại Việt Nam có nhiều thay đổi trong những năm gần đây, phản
+ánh mức độ phổ biến ngày càng cao của công nghệ tạo mẫu nhanh và nhu cầu sản xuất linh kiện
+tùy chỉnh. Có thể nhận thấy một số hành vi tiêu biểu như sau:
+• Xu hướng đánh giá cao khả năng xử lý file và tối ưu mô hình
+Một phần lớn đơn in hiện nay đi kèm yêu cầu kiểm tra và chỉnh sửa file (fix lỗi mesh, tách
+linh kiện, tối ưu độ dày hoặc hỗ trợ cấu trúc). Nhiều khách hàng xem đoạn xử lý file trước
+khi in là yếu tố quyết định lựa chọn đơn vị cung cấp, thay vì chỉ nhìn vào máy in hay vật
+liệu. Điều này cho thấy hành vi khách hàng đang nghiêng về các dịch vụ trọn gói có năng
+lực kỹ thuật thay vì chỉ in theo file sẵn.
+• Xu hướng dịch chuyển sang vật liệu có tính năng cao
+Tỷ lệ người dùng chọn resin độ phân giải cao, nhựa kỹ thuật (PETG, ABS-Plus) hoặc vật
+liệu chịu nhiệt tăng lên đáng kể. Đây là hành vi tiêu biểu trong các giai đoạn trưởng thành
+của thị trường, khi khách hàng ưu tiên vật liệu đáp ứng yêu cầu cơ học thay vì mức giá
+thấp. Nhu cầu này phù hợp với phân tích của IMARC về việc mở rộng thị phần sang nhóm
+ứng dụng công nghiệp quy mô nhỏ.
+• Xu hướng mở rộng sang các dịch vụ hỗ trợ hậu kỳ
+Người dùng hiện quan tâm nhiều hơn đến các dịch vụ sau in như chà nhám, sơn phủ, hàn
+ghép, khoan hoặc gắn linh kiện. Đây là các nhu cầu xuất hiện khi thị trường chuyển sang
+các ứng dụng cần tính thẩm mỹ hoặc chức năng. Các đơn vị có khả năng cung cấp hậu kỳ
+chuyên sâu thường được ưu tiên hơn, cho thấy khách hàng đánh giá dịch vụ theo chuỗi giá
+trị thay vì chỉ từng công đoạn.
+1.2.4
+
+Phân khúc thị trường
+
+Thị trường in 3D tại Việt Nam có thể chia thành bốn nhóm người dùng chính dựa trên mục đích
+sử dụng, khả năng chi trả và mức độ hiểu biết kỹ thuật. Mỗi nhóm có nhu cầu và hành vi khác
+nhau khi tiếp cận dịch vụ in 3D.
+• Nhóm học thuật – kỹ thuật
+– Độ tuổi: 18–25, chủ yếu là sinh viên các ngành cơ khí, kiến trúc, thiết kế công nghiệp,
+tự động hóa.
+– Khả năng chi trả: Mức trung bình, ưu tiên giá hợp lý để phù hợp điều kiện tài chính.
+– Mục đích sử dụng: Làm đồ án, mô hình minh họa, chi tiết máy hoặc sản phẩm thử
+nghiệm.
+– Hành vi: Tần suất sử dụng tăng mạnh theo kỳ học; cần quy trình đơn giản, thời gian
+hoàn thành ngắn và hướng dẫn rõ ràng.
+• Nhóm thiết kế – sáng tạo
+– Độ tuổi: 22–35, bao gồm kỹ sư, nhà thiết kế sản phẩm, kiến trúc sư, nghệ sĩ 3D.
+– Khả năng chi trả: Cao hơn nhóm sinh viên do yêu cầu kỹ thuật và nhu cầu sử dụng
+thường xuyên.
+– Mục đích sử dụng: Tạo prototype, mockup chi tiết hoặc mô hình phục vụ trình bày
+dự án.
+Thương mại điện tử - HK251
+
+Trang 7/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+– Hành vi: Quan tâm đến độ chính xác, chất lượng bề mặt và vật liệu đa dạng; ưu tiên
+đơn vị có khả năng tối ưu file và cung cấp dịch vụ hậu kỳ.
+• Nhóm doanh nghiệp nhỏ – cơ sở sản xuất mini
+– Độ tuổi: Không cố định, tùy theo loại hình doanh nghiệp (R&D, sản xuất, startup).
+– Khả năng chi trả: Ổn định, sẵn sàng thanh toán cao hơn cho dịch vụ có tính đồng
+nhất và tiến độ rõ ràng.
+– Mục đích sử dụng: Thử nghiệm sản phẩm, in linh kiện theo lô nhỏ, tạo mẫu chức
+năng.
+– Hành vi: Đặt đơn theo chu kỳ hoặc theo dự án; cần tiến độ ổn định, nhiều lựa chọn
+vật liệu và báo giá chính xác.
+• Nhóm tiêu dùng cá nhân
+– Độ tuổi: 20–40, gồm người sử dụng in 3D cho sở thích hoặc nhu cầu tiện ích.
+– Khả năng chi trả: Trung bình; nhu cầu không liên tục nhưng đa dạng.
+– Mục đích sử dụng: In mô hình trang trí, figure, phụ kiện cá nhân, linh kiện thay thế
+đồ gia dụng.
+– Hành vi: Ưu tiên nền tảng dễ dùng, có thư viện mẫu gợi ý và quy trình đặt đơn đơn
+giản.
+1.2.5
+
+Đối thủ cạnh tranh
+
+Thị trường in 3D hiện có nhiều đơn vị hoạt động với quy mô khác nhau. Có thể chia thành ba
+nhóm đối thủ chính: các cơ sở in 3D chuyên nghiệp, các cá nhân in 3D nhỏ lẻ và các dịch vụ hỗ
+trợ liên quan như thiết kế 3D hoặc in tại trường đại học.
+1.2.5.1
+
+Đối thủ trực tiếp
+
+• Nhóm cơ sở in 3D chuyên nghiệp (VD: 3D Thinking, 3DMakerHub)
+– Đặc điểm: Có cửa hàng, đầu tư nhiều máy in (FDM, SLA, resin), nhận đơn từ nhiều
+nhóm khách hàng khác nhau.
+– Điểm mạnh:
+∗ Máy móc đa dạng, có khả năng in chi tiết, in kích thước lớn hoặc in theo vật liệu
+đặc thù.
+∗ Kinh nghiệm xử lý file tốt, hỗ trợ chỉnh file, tối ưu mô hình.
+∗ Thời gian in ổn định và có thể nhận đơn gấp theo yêu cầu.
+– Điểm yếu:
+∗ Phần lớn vẫn trao đổi và báo giá thủ công qua Facebook/Zalo → thời gian chờ
+lâu.
+∗ Không có hệ thống theo dõi tiến độ đơn hàng; khách phải hỏi thủ công.
+∗ Chưa tối ưu hóa quy trình trực tuyến, thiếu công cụ báo giá tự động.
+• Nhóm đơn vị có website (VD: 3dmaker.vn, 3DSS)
+
+Thương mại điện tử - HK251
+
+Trang 8/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+– Đặc điểm: Có website nhận file, nhưng chức năng chỉ dừng ở liên hệ – đặt yêu cầu,
+chưa có hệ thống tự động hóa.
+– Điểm mạnh:
+∗ Website giúp khách gửi file thuận tiện hơn so với nhắn tin.
+∗ Tạo được hình ảnh chuyên nghiệp, dễ tiếp cận khách hàng mới.
+– Điểm yếu:
+∗ Website chỉ đóng vai trò “form nhận file”, mọi bước còn lại vẫn làm thủ công.
+∗ Không có tính năng tính giá theo thể tích hoặc vật liệu.
+∗ Không có dashboard theo dõi đơn hàng cho khách.
+1.2.5.2
+
+Đối thủ gián tiếp
+
+• Nhóm cá nhân in 3D nhỏ lẻ (tự đầu tư máy in tại nhà)
+– Đặc điểm: Nhận đơn nhỏ, giá rẻ, hoạt động trong các nhóm cộng đồng trên mạng
+xã hội (Facebook, Zalo).
+– Điểm mạnh:
+∗ Giá thấp do chi phí vận hành thấp.
+∗ Phản hồi nhanh, linh hoạt theo yêu cầu của khách.
+– Điểm yếu:
+∗ Chất lượng không ổn định, khó đảm bảo độ chính xác.
+∗ Máy ít → không nhận được đơn lớn hoặc đơn gấp.
+∗ Không có hỗ trợ hậu kỳ hoặc xử lý file chuyên sâu.
+• Dịch vụ thiết kế 3D độc lập (freelancer)
+– Đặc điểm: Chỉ cung cấp thiết kế, không in trực tiếp.
+– Điểm mạnh:
+∗ Hỗ trợ khách hàng tạo file từ ý tưởng.
+∗ Có thể tạo mô hình phức tạp hoặc yêu cầu kỹ thuật cao.
+– Điểm yếu:
+∗ Không phải đơn vị in → khách vẫn phải tìm nơi in khác.
+∗ Dễ khiến khách hàng phân tán, không tập trung vào một nền tảng.
+• Các phòng lab trường đại học/cao đẳng
+– Đặc điểm: Cung cấp in 3D miễn phí hoặc giá thấp cho sinh viên.
+– Điểm mạnh:
+∗ Chi phí rẻ hoặc bằng 0.
+∗ Phù hợp sinh viên làm đồ án lớn.
+– Điểm yếu:
+∗ Chỉ phục vụ nội bộ → không phải lựa chọn của khách hàng bên ngoài.
+∗ Công suất thấp, thời gian chờ dài trong mùa cao điểm.
+Thương mại điện tử - HK251
+
+Trang 9/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+∗ Không có hỗ trợ kỹ thuật đầy đủ, không nhận in yêu cầu chi tiết cao.
+Bảng 2: Bảng ma trận so sánh tính năng của các đối thủ cạnh tranh
+Thuộc tính
+
+Cơ sở in 3D
+chuyên nghiệp
+
+Website nhận file
+
+Cá nhân in 3D
+nhỏ lẻ
+
+Nền tảng
+dự án
+
+Mô
+hình
+kinh doanh
+
+In theo yêu cầu, báo
+giá thủ công.
+
+Website nhận file,
+phản hồi thủ công.
+
+Nhận đơn qua
+Facebook/Zalo.
+
+Nền
+tảng
+tự động hóa
+(báo
+giá
+– theo dõi
+đơn).
+
+Đối tượng
+mục tiêu
+
+Sinh viên, kỹ sư,
+doanh nghiệp nhỏ.
+
+Người dùng cần gửi
+file nhanh.
+
+Người muốn in
+giá rẻ, linh hoạt.
+
+Người dùng
+cần
+quy
+trình minh
+bạch,
+dễ
+theo dõi.
+
+Định vị &
+Giá trị cốt
+lõi
+
+Chất lượng cao, xử
+lý file tốt.
+
+Thuận tiện hơn
+inbox, có website.
+
+Giá thấp, phản
+hồi nhanh.
+
+Minh bạch
+giá,
+chuẩn
+hóa
+quy
+trình.
+
+Năng
+lực
+kỹ thuật /
+Tính năng
+chính
+
+Mạnh: nhiều máy,
+sử
+dụng
+nhiều
+chất
+liệu
+(như
+resin/FDM,...), có
+hậu kỳ.
+
+Trung bình: in ổn,
+xử lý file hạn chế.
+
+Thấp:
+phụ
+thuộc máy gia
+đình.
+
+Báo giá tự
+động, hướng
+dẫn vật liệu,
+theo dõi tiến
+độ.
+
+Điểm
+chính
+
+Chậm báo giá,
+không theo dõi tiến
+độ.
+
+Website dạng “form
+gửi file”, thiếu tự
+động.
+
+Chất
+lượng
+không ổn định.
+
+Cần
+xây
+dựng thương
+hiệu từ đầu.
+
+yếu
+
+1.2.5.3 Nhận xét chung Các đối thủ trên thị trường đa phần hoạt động rời rạc, thiếu nền
+tảng đặt in trực tuyến có khả năng báo giá tự động và theo dõi tiến độ. Mặc dù nhiều đơn vị
+có kinh nghiệm và chất lượng in tốt, quy trình vận hành vẫn phụ thuộc vào trao đổi thủ công.
+Điều này tạo ra một khoảng trống lớn cho mô hình TMĐT có tính tự động hóa, minh bạch và
+quản lý đơn hàng tập trung.
+
+1.3
+
+Phân tích khảo sát người dùng
+
+1.3.1
+
+Mục tiêu khảo sát
+
+Khảo sát được tiến hành nhằm thu thập dữ liệu thực tế phục vụ cho việc đánh giá tiềm năng
+và mức độ chấp nhận của thị trường đối với nền tảng in 3D trực tuyến. Các mục tiêu chính bao
+gồm:
+(1) Xác định nhu cầu và tần suất sử dụng dịch vụ in 3D;
+(2) Tìm hiểu các khó khăn mà người dùng gặp phải khi đặt in 3D theo cách truyền thống;
+(3) Đánh giá mức độ quan tâm đối với nền tảng có tính năng báo giá tự động và theo dõi tiến
+độ;
+
+Thương mại điện tử - HK251
+
+Trang 10/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+(4) Xác định các yếu tố mà khách hàng ưu tiên khi lựa chọn dịch vụ in 3D;
+(5) Thu thập kỳ vọng và đề xuất của người dùng để cải thiện mô hình dự án.
+
+1.3.2
+
+Phương pháp khảo sát
+
+• Hình thức khảo sát: Google Form
+• Đối tượng thu thập: sinh viên, nhà thiết kế, kỹ sư, freelancer và người dùng cá nhân có
+nhu cầu in 3D.
+• Phương pháp phân tích: kết hợp dữ liệu định lượng (multiple-choice) và định tính (câu
+hỏi mở).
+• Số lượng phản hồi hợp lệ: ... mẫu thu thập được.
+• Mục tiêu phân tích: hành vi sử dụng, nhu cầu dịch vụ và đánh giá mức độ quan tâm
+đối với nền tảng trực tuyến.
+1.3.3
+
+Thiết kế bảng khảo sát
+
+Bảng khảo sát được chia thành 4 phần, nhằm thu thập thông tin một cách hệ thống và đầy đủ.
+• Phần 1 – Thông tin chung:
+– Thu thập các đặc điểm nhân khẩu học: giới tính, độ tuổi, nghề nghiệp, mức thu nhập.
+– Mục đích: phân loại nhóm người trả lời và xác định nhóm khách hàng mục tiêu.
+• Phần 2 – Nhận thức về công nghệ in 3D:
+– Kiểm tra mức độ hiểu biết về in 3D.
+– Xác định người dùng đã từng sử dụng dịch vụ in 3D hay chưa.
+– Ghi nhận mục đích sử dụng nếu đã từng in: học tập, linh kiện, prototype, trang trí,...
+• Phần 3 – Nhu cầu sử dụng dịch vụ in 3D:
+– Thu thập nhu cầu vật liệu: PLA, ABS, PETG, resin,...
+– Xác định kênh đặt in phổ biến: mạng xã hội, TMĐT, website, cửa hàng.
+– Ghi nhận tiêu chí lựa chọn dịch vụ: chất lượng, tốc độ, giá thành,...
+– Khảo sát ngân sách mong muốn cho mỗi sản phẩm.
+• Phần 4 – Kỳ vọng về website dịch vụ in 3D:
+– Thu thập thông tin người dùng mong muốn khi truy cập website.
+– Xác định các khó khăn từng gặp khi sử dụng dịch vụ in 3D trực tuyến.
+– Đánh giá mức độ sẵn sàng sử dụng nền tảng có báo giá tự động.
+– Ghi nhận các tính năng kỳ vọng: preview mô hình, theo dõi tiến độ, thanh toán linh
+hoạt,...
+
+Thương mại điện tử - HK251
+
+Trang 11/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+1.3.4
+
+Kết quả khảo sát
+
+Kết quả khảo sát được thu thập từ 53 người dùng [Link] cho thấy một số đặc điểm quan trọng
+về nhu cầu và hành vi khi tiếp cận dịch vụ in 3D.
+Về nhân khẩu học, phần lớn người tham gia thuộc nhóm tuổi 18-24 và chủ yếu là học sinh-sinh
+viên. Điều này phản ánh tệp khách hàng chính của dịch vụ in 3D hiện nay là nhóm người trẻ,
+quen thuộc công nghệ và có nhu cầu sử dụng mô hình phục vụ học tập hoặc sở thích cá nhân.
+Mức thu nhập đa số dưới 5 triệu, do đó mức giá dịch vụ cần phải minh bạch, dễ dự đoán và có
+nhiều lựa chọn phù hợp ngân sách.
+Về nhận thức công nghệ, phần lớn người dùng đã từng nghe đến in 3D nhưng chỉ một phần
+nhỏ hiểu rõ cách hoạt động. Tỷ lệ đã từng sử dụng dịch vụ và chưa từng sử dụng gần như ngang
+bằng, cho thấy mức độ tiếp cận thị trường vẫn còn rộng. Khi được hỏi mục đích in 3D, người
+dùng chủ yếu chọn:
+• Đồ chơi hoặc vật trang trí (68.1%),
+• Mô hình học tập (51.1%),
+• Linh kiện cơ khí hoặc kỹ thuật (46.8%).
+Điều này cho thấy nhu cầu trải dài từ học thuật đến giải trí, đồng thời gợi ý website nên ưu tiên
+hiển thị các nhóm sản phẩm phổ biến tương ứng.
+Về nhu cầu sử dụng dịch vụ, vật liệu được quan tâm nhất là ABS, PLA và Resin. Người
+dùng thường tìm kiếm dịch vụ in 3D thông qua mạng xã hội, sàn thương mại điện tử hoặc truy
+cập trực tiếp website. Điều này nhấn mạnh tầm quan trọng của việc tối ưu hoá giao diện, nội
+dung và liên kết truyền thông của website để tiếp cận đa kênh.
+Khi đánh giá yếu tố quyết định chọn dịch vụ, người dùng tập trung mạnh vào:
+• Chất lượng và độ chính xác sản phẩm (77.4%),
+• Giá thành hợp lý (77.4%),
+• Thời gian hoàn thành rõ ràng (49.1%).
+Đây là ba yếu tố cốt lõi ảnh hưởng trực tiếp đến trải nghiệm và sự hài lòng của khách hàng. Về
+mặt ngân sách, phần lớn sẵn sàng chi 100,000–200,000 VND cho một sản phẩm, cho thấy nhu
+cầu nằm trong phân khúc giá thấp đến trung bình.
+Người dùng cũng chia sẻ kỳ vọng về website dịch vụ in 3D. Những tính năng được mong
+muốn nhất gồm giao diện dễ dùng, khả năng báo giá tự động sau khi tải file, hỗ trợ nhiều vật
+liệu và màu sắc, và đặc biệt là tính năng xem trước mô hình 3D. Một số phản hồi mở cho thấy
+nhu cầu bổ sung các tiện ích như chatbot tư vấn, công cụ tùy chỉnh mô hình trực tuyến, thông
+tin so sánh vật liệu và quy trình hỗ trợ nhanh chóng.
+Nhìn chung, khảo sát phản ánh nhu cầu thực tế của người dùng trẻ tuổi, ưu tiên sự rõ ràng,
+dễ sử dụng và minh bạch thông tin. Các kết quả này là cơ sở quan trọng để nhóm thiết kế tối
+ưu giao diện, luồng thao tác và chức năng của website dịch vụ in 3D.
+
+1.4
+
+Phân tích vấn đề và đặt mục tiêu dự án
+
+1.4.1
+
+Trải nghiệm Khách hàng (Tương tác & Trực quan)
+
+• Thiếu tính Trực quan: Hình ảnh 2D không thể lột tả chi tiết, hình dạng, và chất lượng
+bề mặt thực tế của vật phẩm in 3D.
+
+Thương mại điện tử - HK251
+
+Trang 12/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+• Hạn chế Tương tác: Khách hàng không thể xoay, phóng to, thu nhỏ mô hình 3D để xem
+mọi góc cạnh, dẫn đến thiếu tin tưởng.
+• Khó khăn trong Cá nhân hóa: Thiếu công cụ cho phép người dùng tải lên, chỉnh sửa file 3D
+hoặc tạo thiết kế riêng một cách trực quan.
+1.4.2
+
+Quản lý và Vận hành
+
+• Quản lý File 3D: Việc lưu trữ, bảo mật, và quản lý các định dạng file 3D khác nhau
+(STL, OBJ, v.v.) phức tạp hơn.
+• Định giá Phức tạp: Giá thành phụ thuộc vào nhiều yếu tố (thể tích vật liệu, thời gian in),
+đòi hỏi việc tính toán giá tự động và chính xác.
+1.4.3
+
+Cạnh tranh và Marketing
+
+• Sự bão hòa TMĐT 2D: Cần tạo ra lợi thế cạnh tranh khác biệt để thu hút và giữ chân
+khách hàng.
+• Truyền tải Công nghệ: Cần kênh hiệu quả để giới thiệu và giáo dục khách hàng về công
+nghệ in 3D và tiềm năng cá nhân hóa.
+1.4.4
+
+Mục tiêu dự án
+
+Lộ trình phát triển được phân chia thành ba giai đoạn, với các mục tiêu và kết quả cụ thể được
+xác định cho từng pha triển khai.
+1.4.4.a
+
+Khởi động và xây dựng sản phẩm khả dụng tối thiểu (MVP)
+
+Mục tiêu: Tập trung vào việc xây dựng phiên bản tối thiểu khả dụng (Minimum Viable Product - MVP)
+để xác thực nhu cầu thị trường và khả năng vận hành cơ bản của nền tảng TMĐT.
+• Cơ chế Bán hàng Cố định: Triển khai chức năng TMĐT tiêu chuẩn (giỏ hàng, quản lý
+đơn hàng, cổng thanh toán) cho các sản phẩm 3D có sẵn (đã được in hoặc file thiết kế).
+• Trực quan hóa Cơ bản: Tích hợp 3D Viewer tối thiểu, cho phép hiển thị các mô hình
+3D có sẵn với khả năng xoay và phóng to cơ bản.
+• Quản lý Dữ liệu Ban đầu: Xây dựng hệ thống quản lý nội dung (CMS) cho cả sản
+phẩm 2D và 3D, đồng thời thiết lập môi trường lưu trữ và bảo mật file 3D (dạng STL
+hoặc OBJ) để chuẩn bị cho các giai đoạn tiếp theo.
+• Kết quả: Ra mắt MVP và thu thập phản hồi ban đầu từ người dùng.
+1.4.4.b
+
+Tối ưu hóa Chức năng và Cá nhân hóa
+
+• Cá nhân hóa Chuyên biệt: Phát triển công cụ cốt lõi cho phép khách hàng tải lên file
+3D cá nhân và thiết lập các thông số in ấn.
+• Tự động hóa Định giá: Triển khai HthngBogiTØng (Automated Quotation System),
+tính toán chi phí theo thời gian thực dựa trên các thuật toán phức tạp (thể tích vật liệu,
+khối lượng, độ dày lớp, loại vật liệu và thời gian in).
+
+Thương mại điện tử - HK251
+
+Trang 13/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+• Tối ưu hóa Vận hành: Tích hợp công cụ tự động kiểm tra lỗi file 3D cơ bản (ví dụ: lỗi
+manifold, độ dày tường) nhằm giảm thiểu rủi ro và sai sót trong quá trình sản xuất.
+• Nâng cao Trải nghiệm (UX): Bổ sung các tùy chọn chỉnh sửa vật liệu và màu sắc một
+cách trực quan ngay trong 3D Viewer.
+1.4.4.c
+
+Mở rộng Hệ sinh thái và Nâng cao Công nghệ
+
+Mục tiêu: Mở rộng phạm vi dịch vụ, xây dựng cộng đồng và tích hợp các công nghệ tiên tiến
+để tạo lợi thế cạnh tranh bền vững.
+• Mở rộng Hệ sinh thái Thiết kế: Xây dựng Sàn giao dịch File 3D hoặc Thư viện Cộng
+đồng, cho phép người dùng/nhà thiết kế bán hoặc chia sẻ các file thiết kế.
+• Tương tác Đỉnh cao (AR): Nghiên cứu và triển khai công nghệ Thực tế Tăng cường
+(Augmented Reality) để khách hàng có thể xem mô hình 3D của sản phẩm trong môi
+trường thực tế của họ (ví dụ: phòng khách, bàn làm việc) thông qua thiết bị di động.
+• Phát triển Cộng đồng: Tích hợp các tính năng Diễn đàn và Blog chuyên sâu để giáo
+dục khách hàng, tăng cường sự gắn kết và định vị thương hiệu là một đơn vị chuyên gia.
+• Mở rộng Đối tác: Thiết lập kết nối API với các dịch vụ thiết kế chuyên nghiệp hoặc
+mạng lưới xưởng in bên ngoài để tăng cường khả năng sản xuất và cung cấp dịch vụ đa
+dạng.
+
+1.5
+
+Tính khả thi của dự án và phân tích SWOT
+
+1.5.1
+
+Bối cảnh và định hướng phát triển
+
+Trong bối cảnh thị trường in 3D tại Việt Nam đạt quy mô trên 140 triệu USD (2024) và dự báo
+tăng trưởng nhanh trong giai đoạn 2025–2033, nhu cầu sử dụng dịch vụ in 3D cho học tập, thiết
+kế và tạo mẫu ngày càng mở rộng. Tuy nhiên, thị trường hiện mang tính phân tán, thiếu nền
+tảng đặt dịch vụ trực tuyến và chưa có quy trình minh bạch về báo giá, vật liệu hay theo dõi
+tiến độ.
+Dự án website in 3D hướng đến chuẩn hóa quy trình đặt in, giảm phụ thuộc vào trao đổi
+thủ công và tối ưu trải nghiệm cho nhóm khách hàng trẻ – những người chiếm tỷ lệ lớn trong
+nhu cầu sử dụng in 3D. Đây là cơ sở để đánh giá tính khả thi của dự án và xây dựng chiến lược
+phát triển phù hợp.
+1.5.2
+1.5.2.1
+
+Phân tích SWOT
+Điểm mạnh (Strengths)
+
+• Quy trình cung cấp dịch vụ được số hóa: Nền tảng web tích hợp báo giá tự động
+và theo dõi tiến độ giúp minh bạch chi phí và giảm thời gian trao đổi thủ công cho khách
+hàng.
+• Tối ưu cho nhóm khách hàng học thuật – kỹ thuật: Hệ thống phù hợp nhu cầu in
+mô hình đồ án, chi tiết máy và prototype—những nhu cầu xuất hiện liên tục trong môi
+trường học tập và nghiên cứu.
+• Giao diện dễ sử dụng: Thiết kế đơn giản, rõ ràng, phù hợp cả với người mới bắt đầu
+hoặc người ít kinh nghiệm về công nghệ và phần mềm 3D.
+
+Thương mại điện tử - HK251
+
+Trang 14/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+• Khả năng tiêu chuẩn hóa chất lượng dịch vụ: Quy trình xử lý file – in – hậu kỳ được
+chuẩn hóa, giúp chất lượng sản phẩm ổn định hơn so với các tiệm in thủ công.
+• Tập trung vào thị trường ngách chưa cạnh tranh: Dịch vụ in 3D trực tuyến còn
+ít đơn vị cung cấp, tạo lợi thế tiên phong trong trải nghiệm đặt in minh bạch và chuyên
+nghiệp.
+1.5.2.2
+
+Điểm yếu (Weaknesses)
+
+• Phụ thuộc vào máy in của một đơn vị duy nhất: Khi số lượng đơn tăng cao, dự án
+có thể gặp giới hạn về năng lực vận hành.
+• Thiếu nhận diện thương hiệu ban đầu: Là dự án mới nên cần thời gian để xây dựng
+sự tin tưởng với người dùng.
+• Hạn chế nguồn lực kỹ thuật: Nhân sự hỗ trợ thiết kế và xử lý file 3D trong giai đoạn
+đầu còn mỏng, có thể ảnh hưởng tốc độ phản hồi.
+• Khả năng mở rộng phụ thuộc vào đầu tư thiết bị: Việc nâng cấp máy in (resin/FDM
+chuyên sâu) đòi hỏi chi phí đáng kể.
+• Phạm vi dịch vụ ban đầu còn hẹp: Chưa cung cấp nhiều tùy chọn hậu kỳ như sơn,
+mài, ghép, khiến khả năng cạnh tranh với xưởng lớn còn hạn chế.
+1.5.2.3
+
+Cơ hội (Opportunities)
+
+• Thị trường in 3D tăng trưởng mạnh: Theo báo cáo Vietnam 3D Printing Market
+Report 2024–2033 (IMARC Group), thị trường đạt khoảng 140,5 triệu USD năm 2024
+và dự kiến duy trì tốc độ tăng trưởng CAGR ∼16–17% trong giai đoạn 2025–2033. Đây
+là nền tảng thuận lợi để mở rộng dịch vụ in 3D trực tuyến.
+• Nhóm người dùng trẻ tiếp nhận công nghệ nhanh: Sinh viên, kỹ sư trẻ, nhà thiết
+kế có xu hướng sử dụng nền tảng online thay vì liên hệ thủ công.
+• Khoảng trống về nền tảng đặt dịch vụ trực tuyến: Phần lớn cơ sở in 3D chưa có hệ
+thống báo giá tự động hoặc theo dõi tiến độ, tạo cơ hội khác biệt hóa.
+• Nhu cầu cá nhân hóa sản phẩm tăng lên: In phụ kiện, figure và linh kiện nhỏ đang
+trở thành xu hướng phổ biến.
+• Khả năng mở rộng sang dịch vụ hậu kỳ: Các dịch vụ như sơn, mài, resin finish có
+thể trở thành nguồn doanh thu mới.
+1.5.2.4
+
+Thách thức (Threats)
+
+• Các cơ sở in 3D truyền thống có thể nhanh chóng phát triển hệ thống trực
+tuyến: Điều này làm tăng áp lực cạnh tranh trực tiếp.
+• Chi phí đầu tư máy in chất lượng cao và vật liệu chuyên dụng tăng: Dẫn đến
+tăng chi phí vận hành và giảm biên lợi nhuận.
+• Rủi ro cạnh tranh giá từ nhóm in 3D nhỏ lẻ: Nhóm này có thể thu hút khách nhờ
+giá thấp dù chất lượng không ổn định.
+
+Thương mại điện tử - HK251
+
+Trang 15/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+• Kỳ vọng khách hàng ngày càng cao: Đòi hỏi về tốc độ, chất lượng và dịch vụ hậu kỳ
+gây áp lực lên vận hành.
+• Công nghệ in 3D thay đổi nhanh: Dự án phải liên tục cập nhật để không bị lỗi thời
+về thiết bị hoặc vật liệu.
+1.5.3
+
+Ma trận SWOT
+Bảng 3: Ma trận SWOT – Chiến lược SO, ST, WO, WT
+Cơ hội (O)
+
+Thách thức (T)
+
+Điểm
+mạnh
+(S)
+
+Chiến lược SO – Tận dụng điểm
+mạnh để khai thác cơ hội:
+• Website báo giá tự động.
+• Tối ưu quy trình online để khai thác
+khoảng trống thị trường chưa số hóa.
+• Phát triển thư viện mẫu phục vụ nhu
+cầu tạo mẫu & cá nhân hóa đang tăng
+mạnh.
+
+Chiến lược ST – Sử dụng điểm
+mạnh để giảm thiểu thách thức:
+• Chuẩn hóa quy trình để cạnh tranh
+với nhóm in 3D giá rẻ.
+• Theo dõi tiến độ minh bạch để giảm
+rủi ro khách chuyển đổi nhà cung cấp.
+• Nâng cấp trải nghiệm online nhằm
+giảm tác động của biến động thị
+trường.
+
+Điểm
+yếu (W)
+
+Chiến lược WO – Khắc phục điểm
+yếu để tận dụng cơ hội:
+• Mở rộng hợp tác với các xưởng khác
+để giải quyết hạn chế năng lực vận
+hành.
+• Xây dựng thương hiệu qua cộng đồng
+và nội dung giáo dục.
+• Đào tạo kỹ thuật để khai thác thị
+trường thiết kế – prototype đang phát
+triển.
+
+Chiến lược WT – Giảm thiểu điểm
+yếu và hạn chế thách thức:
+• Tối ưu chi phí và nguồn vật liệu để
+giảm rủi ro biến động giá.
+• Đầu tư nâng cấp máy theo giai đoạn
+để giảm phụ thuộc thiết bị.
+• Áp dụng chính sách bảo hành/chăm
+sóc khách để hạn chế nguy cơ mất
+khách.
+
+1.5.4
+1.5.4.1
+
+Phân tích khả năng tồn tại của dự án
+Lợi thế cạnh tranh của dự án
+
+• Quy trình trực tuyến hoàn chỉnh: Cho phép khách tải file, xem báo giá, chọn vật liệu
+và theo dõi tiến độ mà không phụ thuộc phản hồi thủ công như các dịch vụ hiện nay.
+• Báo giá tự động theo thông số kỹ thuật: Minh bạch chi phí ngay tại thời điểm đặt
+đơn, giải quyết vấn đề “báo giá cảm tính” phổ biến trên Facebook/Zalo.
+• Trải nghiệm người dùng dễ tiếp cận: Giao diện tối giản, phù hợp với sinh viên – kỹ
+sư – designer trẻ, nhóm khách hàng chiếm tỉ trọng lớn trong thị trường in 3D.
+• Chuẩn hóa chất lượng đầu ra: Có bộ tiêu chuẩn về thông số in và hậu kỳ giúp giảm
+lỗi và duy trì chất lượng nhất quán giữa các đơn hàng.
+• Khả năng mở rộng tính năng: Dễ tích hợp thêm gợi ý vật liệu, kiểm tra file tự động,
+hoặc dịch vụ thiết kế 3D khi nhu cầu tăng.
+
+Thương mại điện tử - HK251
+
+Trang 16/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+1.5.4.2
+
+Nguồn lực hiện có của nhóm
+
+• Năng lực lập trình web: Có khả năng triển khai frontend – backend – cơ sở dữ liệu phục
+vụ bản prototype.
+• Hiểu biết về in 3D: Thành viên quen với quy trình FDM/resin, xử lý file và sử dụng
+slicer.
+• Kinh nghiệm phân tích người dùng: Đã khảo sát hành vi khách hàng, phân loại nhu
+cầu và ghi nhận vấn đề thị trường.
+• Kỹ năng thiết kế giao diện: Có thể tự làm UI/UX giúp sản phẩm rõ ràng, phù hợp
+nhóm người dùng mục tiêu.
+1.5.4.3
+
+Nguồn lực cần bổ sung
+
+• Hạ tầng vận hành: Máy chủ, dung lượng lưu trữ file 3D, domain, bảo mật SSL.
+• Thiết bị in: Máy in FDM/resin, nguồn vật liệu ổn định và phụ kiện thay thế.
+• Kinh phí thử nghiệm: kinh phí chạy quảng cáo và truyền thông ở mức tối thiểu để
+quảng bá thử nghiệm, tiếp cận nhóm người dùng mục tiêu và thu thập phản hồi cho giai
+đoạn hoàn thiện.
+• Kiến thức TMĐT & vận hành: Chính sách thanh toán, bảo hành sản phẩm in, logistics
+giao nhận.
+1.5.4.4
+
+Đánh giá khả năng tồn tại của dự án
+
+• Tính phù hợp thị trường: Nhu cầu in 3D tăng (nhiều trường học, cá nhân, doanh nghiệp
+cần tạo mẫu), trong khi thị trường vẫn vận hành thủ công → dự án có không gian phát
+triển.
+• Tính khác biệt: Các tính năng minh bạch giá và theo dõi đơn hàng giúp dự án nổi bật
+so với đối thủ truyền thống.
+• Mức độ khả thi: Nhóm sở hữu kỹ năng kỹ thuật cốt lõi → có thể tự triển khai phiên
+bản demo mà không cần đầu tư lớn ban đầu.
+• Tính bền vững: Khi hệ thống hoàn thiện, quy trình tự động sẽ giúp giảm chi phí vận
+hành và tăng khả năng mở rộng.
+• Rủi ro chấp nhận được: Chi phí triển khai ban đầu thấp, mô hình dễ thử nghiệm với
+nhóm khách nhỏ trước khi mở rộng.
+
+1.6
+
+Xây dựng mô hình kinh doanh
+
+Dựa trên nghiên cứu thị trường, khảo sát người dùng và mục tiêu của dự án, nhóm xây dựng
+mô hình kinh doanh IN 3D theo khung Business Model Canvas bao gồm 9 thành phần như sau.
+
+Thương mại điện tử - HK251
+
+Trang 17/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+Hình 2: Khung mô hình kinh doanh
+
+1.7
+
+Kế hoạch phát triển dự án, chi phí dự trù và quản lý rủi ro
+
+1.7.1
+
+Mô hình kinh doanh và kế hoạch triển khai theo giai đoạn khách hàng
+
+Phân khúc khách hàng
+• Người dùng phổ thông có nhu cầu in mô hình 3D (trang trí, quà tặng, mô hình nhân vật).
+• Sinh viên, kỹ sư, nhà thiết kế cần in thử nghiệm sản phẩm (prototype).
+• Các maker và kỹ thuật viên cần in linh kiện hoặc chi tiết cơ khí nhỏ lẻ.
+• Doanh nghiệp nhỏ cần in mô hình trưng bày, logo 3D, sản phẩm giới thiệu.
+Giá trị cung cấp (Value Proposition)
+• Quy trình đặt in đơn giản, không yêu cầu người dùng có kiến thức chuyên môn.
+• Báo giá tự động theo vật liệu, kích thước và cấu hình in.
+• Hỗ trợ nhiều công nghệ in (FDM, SLA, Resin) và đa dạng vật liệu.
+• Theo dõi trạng thái sản xuất theo thời gian thực.
+• Cung cấp các mẫu thiết kế 3D có sẵn để khách hàng lựa chọn nhanh.
+Nguồn doanh thu
+• Doanh thu bán sản phẩm in sẵn.
+• Doanh thu từ dịch vụ in 3D theo yêu cầu.
+• Doanh thu từ các dịch vụ bổ sung: xử lý hậu kỳ, sơn, tối ưu file 3D.
+Cơ cấu chi phí
+• Chi phí vận hành website, lưu trữ file, triển khai cloud.
+• Chi phí nhân sự kỹ thuật và hỗ trợ khách hàng.
+• Chi phí marketing và quảng cáo.
+Thương mại điện tử - HK251
+
+Trang 18/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+• Chi phí vật tư: vật liệu in, bảo trì máy in.
+Nguồn lực chính
+• Đội ngũ kỹ thuật vận hành máy in 3D và xử lý hậu kỳ.
+• Hệ thống máy in 3D và kho vật liệu.
+• Đội ngũ lập trình phát triển website.
+Các hoạt động chính
+• Nhận file, kiểm tra độ khả thi và báo giá.
+• Sản xuất, xử lý hậu kỳ và giao hàng.
+• Cập nhật thông tin sản phẩm và quản lý đơn hàng.
+• Quảng bá website, chăm sóc và hỗ trợ khách hàng.
+Các đối tác chính
+• Nhà cung cấp vật liệu in 3D.
+• Đơn vị vận chuyển.
+• Đối tác cung cấp dịch vụ thanh toán trực tuyến.
+Kênh phân phối
+• Website thương mại điện tử.
+• Mạng xã hội (Facebook, TikTok, Instagram).
+• Các cộng đồng maker và kỹ thuật 3D.
+Quan hệ khách hàng
+• Hỗ trợ trực tuyến qua chatbox và email.
+• Gợi ý sản phẩm và cấu hình in theo lịch sử đặt hàng.
+• Chương trình ưu đãi cho khách hàng quay lại.
+Kế hoạch triển khai theo các giai đoạn khách hàng
+Giai đoạn Nhận thức Triển khai chiến dịch quảng cáo trên Google, Facebook và các cộng
+đồng liên quan đến in 3D nhằm giới thiệu trang web đến người dùng tiềm năng.
+Giai đoạn Mua hàng lần đầu Khuyến khích khách hàng đặt in bằng mã giảm giá lần đầu.
+Tập trung tối ưu trải nghiệm sử dụng để tăng khả năng chuyển đổi.
+Giai đoạn Duy trì và phát triển quan hệ Gửi thông báo khi có chương trình khuyến mãi,
+sản phẩm mới, hoặc vật liệu mới. Gửi email cá nhân hoá như chúc mừng sinh nhật, ưu đãi theo
+hành vi mua hàng, nhằm tăng tỷ lệ quay lại.
+
+Thương mại điện tử - HK251
+
+Trang 19/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+1.7.2
+
+Kế hoạch chi phí dự trù
+
+Chi phí cố định hàng tháng
+• Thuê VPS AWS EC2 chạy server: 11.75 USD/tháng.
+• Thuê RDS lưu trữ cơ sở dữ liệu: 11.52 USD/tháng.
+• Tên miền: khoảng 500.000 VNĐ/năm.
+• Nhân sự phát triển và vận hành: 20.000.000 VNĐ/tháng.
+• Dịch vụ gửi tin nhắn (Twilio): khoảng 351.000 VNĐ/tháng.
+Tổng chi phí vận hành dự kiến mỗi tháng: 6.398.000 VNĐ. Chi phí dự phòng cho sự cố
+hoặc tăng cường tiến độ: 4.000.000 VNĐ.
+Tổng chi phí mỗi tháng: 25.500.000 VNĐ Chi phí cho 6 tháng triển khai:
+150.000.000 VNĐ
+Chi phí Marketing
+• Google Ads: 300.000 VNĐ/ngày.
+• Facebook Ads: 300.000 VNĐ/ngày.
+Tổng chi phí quảng cáo trong 30 ngày: 18.000.000 VNĐ.
+Kỳ vọng doanh thu
+• Tăng ít nhất 50% lượng sản phẩm in 3D bán ra mỗi tháng.
+• Tăng doanh thu tối thiểu 20.000.000 VNĐ/tháng.
+• Tối thiểu 1.000 lượt truy cập/tháng và 50 tài khoản mới/tháng.
+1.7.3
+
+Kế hoạch quản lý rủi ro
+
+Các rủi ro chính
+• Thời gian phát triển kéo dài hơn dự kiến.
+• Quy mô phần mềm lớn hơn so với ban đầu.
+• Nhân sự kỹ thuật nghỉ đột xuất.
+• Thay đổi yêu cầu thị trường làm cần điều chỉnh thiết kế hệ thống.
+• Khách hàng không quen với thay đổi giao diện hoặc chức năng.
+• Tài chính không đủ để duy trì tiến độ triển khai.
+Chiến lược ứng phó
+• Dự phòng nhân lực trong đội phát triển để tránh gián đoạn tiến độ.
+• Điều chỉnh phạm vi dự án theo ưu tiên khi phát sinh yêu cầu mới.
+• Thông báo trước cho khách hàng trước khi thay đổi giao diện hoặc chức năng quan trọng.
+Thương mại điện tử - HK251
+
+Trang 20/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+• Chuẩn bị ngân sách dự phòng đủ cho tối thiểu 2 tháng vận hành.
+• Áp dụng quy trình phát triển linh hoạt (Agile) để đáp ứng thay đổi.
+Đo lường hiệu quả triển khai
+• Độ nhận biết thương hiệu: đo bằng khảo sát và lưu lượng truy cập.
+• Khả năng tăng trưởng doanh thu: theo dõi báo cáo bán hàng theo tháng.
+• Tối ưu chi phí vận hành: đo bằng tỷ lệ giảm chi phí chăm sóc khách hàng.
+• Cải thiện chuỗi cung ứng: đánh giá chi phí tồn kho và thời gian giao hàng.
+• Mức độ tương tác cộng đồng: đo bằng lượt bình luận, chia sẻ, đánh giá.
+
+Thương mại điện tử - HK251
+
+Trang 21/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+2
+
+Phân tích và thiết kế
+
+2.1
+
+Lược đồ use case và đặc tả
+
+• Mỗi use case được trình bày dưới dạng bảng nhiều hàng theo cấu trúc PDF, bao gồm các
+trường:
+– ID
+– Tên
+– Actor
+– Mục tiêu
+– Luồng chính
+– Luồng lỗi / ngoại lệ
+– Ví dụ thực tế
+• Các actor tham gia:
+– Guest: người dùng chưa đăng nhập; có thể duyệt, lọc và xem chi tiết sản phẩm.
+– Customer: người dùng đã đăng ký; có đầy đủ quyền của Guest và có thể thêm sản
+phẩm vào giỏ, thanh toán, tải thông tin hồ sơ và theo dõi đơn hàng.
+– Admin: quản trị hệ thống; chịu trách nhiệm quản lý danh mục sản phẩm, biến thể,
+tồn kho và nội dung hiển thị.
+2.1.1
+
+Sơ đồ tổng quan
+
+Hình 3: Sơ đồ use-case tổng quan hệ thống website dịch vụ in 3D
+
+Thương mại điện tử - HK251
+
+Trang 22/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+2.1.2
+
+Khám phá & đánh giá sản phẩm
+
+Hình 4: Sơ đồ use-case tổng quan hệ thống website dịch vụ in 3D
+2.1.2.a
+
+Lọc sản phẩm/dịch vụ
+UC-01
+Duyệt & lọc sản phẩm/dịch vụ
+Guest, Customer
+Giúp người dùng nhanh chóng tìm được mẫu sản phẩm 3D có sẵn hoặc
+gói dịch vụ in 3D phù hợp.
+
+Use case ID
+Tên use case
+Actor chính
+Mục tiêu
+Luồng
+chính
+(Main flow)
+
+• Người dùng mở trang danh mục sản phẩm/dịch vụ.
+• Hệ thống hiển thị danh sách mẫu 3D và nhóm dịch vụ in 3D kèm
+bộ lọc.
+• Người dùng chọn filter và cách sắp xếp.
+• Hệ thống trả về danh sách đã lọc theo trang và lưu filter vào URL.
+
+Luồng
+lỗi
+Ngoại lệ
+
+/
+
+Use-case thực tế
+
+Thương mại điện tử - HK251
+
+• Mạng chậm: hiển thị trạng thái loading và cho phép bấm Thử lại.
+• Không có kết quả phù hợp: gợi ý nới điều kiện hoặc đề xuất sản
+phẩm liên quan.
+Khách doanh nghiệp lọc theo loại “dịch vụ in theo file”, chọn vật liệu
+PLA, giới hạn giá và thời gian giao hàng dưới 5 ngày.
+
+Trang 23/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+2.1.2.b
+
+Xem chi tiết sản phẩm/dịch vụ
+
+Use case ID
+Tên use case
+Actor chính
+Mục tiêu
+
+UC-02
+Xem chi tiết sản phẩm/dịch vụ
+Guest, Customer
+Cung cấp đầy đủ thông tin về mẫu 3D hoặc gói dịch vụ in để người dùng
+ra quyết định đặt hàng.
+
+Luồng chính
+• Người dùng chọn một item trong danh sách.
+• Trang chi tiết hiển thị gallery, mô tả, kích thước, chất liệu và tuỳ
+chọn hoàn thiện.
+• Hiển thị đánh giá, review, mục Hỏi & Đáp và chính sách đổi/trả.
+• Người dùng chọn tuỳ chọn và thêm vào giỏ.
+Ngoại lệ
+• Sản phẩm/dịch vụ tạm ngưng nhận đơn.
+Use-case thực tế
+
+2.1.3
+
+• Tuỳ chọn không hợp lệ (kích thước vượt khả năng in...).
+Khách xem mô hình nhân vật 3D, đọc review, chọn kích thước M và
+màu sơn rồi thêm vào giỏ.
+
+Công cụ hỗ trợ in 3D
+
+Hình 5: Sơ đồ use-case tổng quan hệ thống website dịch vụ in 3D
+Đặt in 3D
+
+Thương mại điện tử - HK251
+
+Trang 24/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+Use case ID
+Tên use case
+Actor chính
+Mục tiêu
+
+UC-03
+Tải profile in (dành cho khách có máy in riêng)
+Customer
+Cho phép khách tải file 3D và chọn các thuộc tính mong muốn để tạo
+sản phẩm cần in.
+
+Luồng chính
+• Khách truy cập mục “Đặt in 3D”.
+• Chọn các thuộc tính: kích thước, vật liệu...
+• Có thể mở phần “Hướng dẫn sử dụng” nếu cần.
+• Lưu cấu hình thành “profile yêu thích”.
+• Xác nhận thông tin và đặt in.
+• Hệ thống thêm job vào giỏ hàng.
+Ngoại lệ
+• Không có profile trùng khớp: hệ thống gợi ý profile gần nhất.
+Use-case thực tế
+2.1.4
+
+• File profile lỗi hoặc bị xoá: ẩn nút tải, hiển thị thông báo.
+Một maker tải file 3D và đặt in theo các thông số mong muốn.
+
+Mua hàng & giao nhận
+
+Hình 6: Sơ đồ use-case tổng quan hệ thống website dịch vụ in 3D
+
+Thương mại điện tử - HK251
+
+Trang 25/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+2.1.4.a
+
+Theo dõi đơn hàng & trạng thái sản xuất
+
+Use case ID
+Tên use case
+Actor chính
+Mục tiêu
+
+UC-04
+Theo dõi đơn hàng & trạng thái sản xuất
+Customer, Guest (với mã đơn)
+Giúp khách biết đơn đang ở bước nào: duyệt file, in, hoàn thiện, đóng
+gói, giao hàng.
+
+Luồng chính
+• Đăng nhập hoặc nhập mã đơn.
+• Hệ thống hiển thị danh sách đơn.
+• Chọn một đơn để xem chi tiết từng item và trạng thái sản xuất.
+• Hiển thị mã tracking và trạng thái giao hàng.
+Ngoại lệ
+• Mã đơn không tồn tại hoặc không khớp thông tin.
+Use-case thực tế
+
+2.1.4.b
+
+• Lỗi kết nối tới hãng vận chuyển.
+Khách xem đơn #IN3D-2025-00123 và thấy job đã chuyển sang trạng
+thái “Đang xử lý bề mặt”.
+
+Thêm vào giỏ hàng
+
+Use case ID
+Tên use case
+Actor chính
+Mục tiêu
+Luồng chính
+
+UC-05
+Thêm vào giỏ hàng
+Guest, Customer
+Lưu các lựa chọn để đặt hàng trong một đơn duy nhất.
+• Người dùng chọn cấu hình sản phẩm.
+• Nhấn “Thêm vào giỏ”.
+• Hệ thống kiểm tra điều kiện nhận đơn.
+• Thêm item hợp lệ vào giỏ và cập nhật mini-cart.
+
+Ngoại lệ
+• Dịch vụ tạm ngưng hoặc vượt giới hạn.
+Use-case thực tế
+
+Thương mại điện tử - HK251
+
+• File 3D bị mất: yêu cầu tải lại trước khi thanh toán.
+Khách thêm figure 3D, móc khoá 3D và một job in theo file vào cùng
+một giỏ hàng.
+
+Trang 26/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+2.1.4.c
+
+Thanh toán (Checkout)
+
+Use case ID
+Tên use case
+Actor chính
+Mục tiêu
+Luồng chính
+
+UC-06
+Thanh toán (Checkout)
+Customer
+Hoàn tất đặt hàng và tạo yêu cầu sản xuất/giao hàng.
+• Mở trang giỏ hàng và chọn “Thanh toán”.
+• Xem tóm tắt đơn.
+• Chọn phương thức thanh toán.
+• Hệ thống tạo Order, OrderItem, yêu cầu sản xuất và vận đơn.
+• Gửi email/SMS xác nhận.
+
+Ngoại lệ
+• Thanh toán thất bại.
+Use-case thực tế
+
+2.1.5
+
+• Lỗi tạo đơn hoặc yêu cầu sản xuất.
+Khách thanh toán online và nhận email xác nhận cùng thời gian dự kiến
+hoàn thành job in.
+
+Quản trị hệ thống & danh mục
+
+Hình 7: Sơ đồ use-case tổng quan hệ thống website dịch vụ in 3D
+
+Thương mại điện tử - HK251
+
+Trang 27/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+2.1.6
+
+Quản trị danh mục sản phẩm & dịch vụ
+
+Use case ID
+Tên use case
+Actor chính
+Mục tiêu
+Luồng chính
+
+UC-07
+Quản trị danh mục sản phẩm & dịch vụ
+Admin
+Quản lý mẫu 3D, dịch vụ in 3D, giá, cấu hình và trạng thái nhận đơn.
+• Admin đăng nhập trang quản trị.
+• Lọc, tìm kiếm danh mục sản phẩm/dịch vụ.
+• Tạo mới mẫu 3D hoặc cập nhật dịch vụ in.
+• Thiết lập giá, vật liệu, kích thước, SLA.
+• Bật/tắt nhận đơn và chỉnh sửa nội dung hiển thị.
+• Lưu thay đổi, ghi log chỉnh sửa.
+
+Ngoại lệ
+• Thiếu thông tin bắt buộc.
+Use-case thực tế
+
+2.2
+2.2.1
+
+• Cấu hình dịch vụ trùng lặp.
+Admin thêm gói dịch vụ “In mô hình figure cao 20cm” với nhiều loại
+vật liệu và SLA khác nhau.
+
+Yêu cầu phi chức năng
+Tính Sẵn Sàng và Ổn Định (Availability & Stability)
+
+Hệ thống phải đảm bảo hoạt động liên tục để phục vụ nhu cầu in ấn và thiết kế, có cơ chế xử lý
+lỗi tự động và quy trình sao lưu dữ liệu nghiêm ngặt.
+• Thời gian hoạt động (Uptime): Cam kết tỷ lệ uptime > 99.9%, tương đương thời gian
+ngừng hoạt động dưới 1 giờ/tháng.
+• Cơ chế Sao lưu và Khôi phục: Backup dữ liệu hàng ngày; thời gian khôi phục hệ thống
+dưới 4 giờ trong trường hợp sự cố nghiêm trọng.
+• Xử lý lỗi tự động: Hệ thống phải tự động xử lý lỗi để duy trì tỷ lệ lỗi hệ thống dưới
+0.1% trên tổng số giao dịch.
+2.2.2
+
+Hiệu Năng và Khả Năng Mở Rộng (Performance & Scalability)
+
+Đảm bảo tốc độ xử lý nhanh chóng cho các tác vụ nặng như xử lý file 3D, đồng thời hệ thống
+phải sẵn sàng mở rộng khi nhu cầu tăng trưởng.
+• Tốc độ phản hồi: Thời gian tải trang dưới 3 giây. Hệ thống phải xử lý file 3D lớn (tới
+100MB) với thời gian upload và preview dưới 10 giây.
+• Khả năng chịu tải: Hỗ trợ đồng thời 500 người dùng truy cập mà không suy giảm tốc
+độ.
+
+Thương mại điện tử - HK251
+
+Trang 28/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+• Khả năng mở rộng (Scalability): Sử dụng dịch vụ đám mây (AWS/Azure) cho Autoscaling. Hỗ trợ Horizontal Scaling khi tải tăng 200% và mở rộng lưu trữ file 3D tới 1TB
+mà không gián đoạn dịch vụ.
+2.2.3
+
+Bảo Mật và Tuân Thủ (Security & Compliance)
+
+Bảo vệ dữ liệu cá nhân, tài sản trí tuệ và tuân thủ quy định pháp lý — đây là yêu cầu ưu tiên
+cao nhất.
+• Bảo vệ dữ liệu và Giao dịch: Mã hóa truyền tải bằng HTTPS; bắt buộc xác thực hai
+lớp (2FA). Ngăn chặn tấn công phổ biến như SQL Injection, XSS.
+• Tuân thủ pháp lý: Tuân thủ GDPR hoặc tiêu chuẩn tương đương; áp dụng Luật An
+ninh mạng và Luật Thương mại điện tử Việt Nam. Đảm bảo tuân thủ Luật Bản quyền đối
+với file thiết kế 3D.
+• Kiểm thử an ninh: Tiến hành kiểm thử xâm nhập (penetration testing) tối thiểu 1
+lần/quý.
+2.2.4
+
+Tính Tương thích và Linh hoạt (Compatibility & Flexibility)
+
+Hệ thống phải hoạt động mượt mà trên đa nền tảng và tương thích với các công cụ thiết kế 3D
+phổ biến.
+• Đa nền tảng và Trình duyệt: Hỗ trợ Windows, macOS, iOS, Android và các trình duyệt
+hiện đại như Chrome, Firefox, Safari, Edge.
+• Hỗ trợ định dạng chuyên ngành: Tương thích với các định dạng STL, OBJ, AMF,
+3MF; hỗ trợ tích hợp với Blender, Tinkercad và các công cụ thiết kế 3D khác.
+2.2.5
+
+Trải nghiệm và Tính Dễ sử dụng (User Experience & Usability)
+
+Thiết kế giao diện thân thiện cho cả người dùng không chuyên, đặc biệt ở tính năng xem trước
+mô hình 3D.
+• Giao diện người dùng: Responsive Design; tối ưu cho mobile, tablet và desktop. Tính
+năng Preview 3D phải hoạt động tốt trên thiết bị di động.
+• Chỉ số khả dụng: Điểm Usability Testing (SUS) phải đạt > 80/100. Thời gian làm quen
+hệ thống cho người mới dưới 5 phút.
+• Đa ngôn ngữ: Hỗ trợ tối thiểu tiếng Việt và tiếng Anh.
+2.2.6
+
+Tính Bảo Trì và Bền Vững (Maintainability & Sustainability)
+
+Mã nguồn phải dễ nâng cấp và tối ưu về tài nguyên, đồng thời hướng đến giảm tác động môi
+trường.
+• Chất lượng mã nguồn: Sử dụng Git; tài liệu API/Codebase phải được cập nhật định
+kỳ. Code coverage > 80% và thời gian sửa lỗi trung bình dưới 24 giờ.
+• Tối ưu tài nguyên: Duy trì mức tiêu thụ năng lượng server dưới 50% công suất. Tích
+hợp tính năng cảnh báo vật liệu thừa khi in 3D nhằm giảm tác động môi trường.
+
+Thương mại điện tử - HK251
+
+Trang 29/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+2.3
+
+Nguyên lí thiết kế theo Gestal
+
+2.3.1
+
+Nguyên tắc thiết kế kiến trúc thông tin
+
+Mục tiêu chính của kiến trúc thông tin là giúp tổ chức nội dung rõ ràng, dễ tìm và dễ hiểu cho
+người dùng.
+2.3.1.1 Nguyên tắc đối tượng (Objects). Các phần nội dung được xem như các “đối
+tượng” độc lập, mỗi đối tượng có thuộc tính riêng, duy nhất và linh hoạt.
+
+Hình 8: Thanh điều hướng của website đặt in 3D
+Trong website đặt in 3D của nhóm, các mục như “Trang chủ", “Đặt in", “Khám phá", . . . đều
+là các đối tượng riêng biệt và khi người dùng truy cập vào từng mục, hệ thống sẽ hiển thị các
+thuộc tính đặc trưng của chúng.
+2.3.1.2 Nguyên tắc lựa chọn (Choices). Giới hạn số lượng lựa chọn để chỉ giữ lại các tùy
+chọn có ý nghĩa nhất, giúp giảm tải nhận thức cho người dùng.
+
+Hình 9: Trang đặt in
+Ví dụ: phần dịch vụ chỉ gồm "Tải file báo giá ngay" hoặc "Mua mẫu có sẵn". Sự tối giản
+này giúp khách hàng không bị phân vân, nâng cao hiệu quả ra quyết định.
+2.3.1.3 Nguyên tắc tiết lộ (Disclosure). Chỉ tiết lộ lượng thông tin vừa đủ để người dùng
+hiểu bước tiếp theo và đưa ra lựa chọn phù hợp. Thường chỉ gồm tiêu đề ngắn và mô tả ngắn
+gọn để kích thích hứng thú.
+
+Thương mại điện tử - HK251
+
+Trang 30/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+Hình 10: Sản phẩm thiết kế sẵn
+Trang “Mẫu thiết kế có sẵn" hiển thị hình ảnh sản phẩm, tên, giá và đánh giá – vừa đủ để
+khách hàng biết trước khi xem chi tiết.
+2.3.1.4 Nguyên tắc mẫu (Exemplars). Cung cấp ví dụ minh họa hoặc icon đại diện để
+người dùng nhanh chóng hiểu chức năng. Điều này giúp giảm thời gian học hệ thống và tăng
+khả năng định hướng.
+2.3.1.5 Nguyên tắc cửa trước (Front Doors). Không phải người dùng nào cũng vào
+website từ trang chủ; họ có thể đến từ quảng cáo hoặc liên kết chia sẻ. Vì vậy, mọi trang phải
+tự giới thiệu tốt và có dẫn hướng hợp lý.
+
+Hình 11: Footer của Website
+Mỗi trang đều có header và footer cố định, chứa logo, tên công ty, nút đăng nhập và liên
+kết quan trọng. Điều này giúp định danh thương hiệu và tránh để người dùng rơi vào “ngõ cụt”.
+2.3.2
+
+Nguyên lý Gestalt trong giao diện website
+
+Nguyên lý Gestalt giúp người dùng nhận thức thông tin trực quan, tự nhiên và hiệu quả thông
+qua cách tổ chức các yếu tố thị giác.
+2.3.2.1 Nguyên tắc tương đồng (Similarity). Các yếu tố giống nhau về màu sắc, kiểu
+chữ hoặc hình dạng sẽ được tiếp nhận như thuộc cùng một nhóm, tạo sự nhất quán.
+
+Thương mại điện tử - HK251
+
+Trang 31/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+Hình 12: Footer của Website
+Ví dụ trên website:
+• Màu xanh lá cho các nút hành động, giúp người dùng nhận biết nhanh những thao tác có
+thể nhấn.
+• Các hộp thông tin và nút bấm sử dụng bo góc và bóng đổ thống nhất để tạo cảm giác
+chuyên nghiệp.
+2.3.2.2 Nguyên tắc liên tục (Continuity). Các yếu tố được sắp xếp thẳng hàng hoặc
+theo đường cong mềm sẽ được nhìn nhận là có liên kết.
+Thanh điều hướng sử dụng bố cục ngang giúp hoạt động mượt mà và dễ theo dõi.
+2.3.2.3 Nguyên tắc điền khuyết (Closure). Khi gặp hình chưa hoàn chỉnh, não có xu
+hướng tự bổ sung phần thiếu. Nguyên tắc này thường dùng trong thiết kế logo hoặc icon.
+
+Hình 13: Logo công ty
+2.3.2.4 Nguyên tắc gần bên (Proximity).
+cùng nhóm thông tin.
+
+Thương mại điện tử - HK251
+
+Các yếu tố gần nhau được nhận thức là thuộc
+
+Trang 32/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+Hình 14: Thông tin thanh toán
+Trong trang Checkout, các trường “Email”, “Số điện thoại”, “Thành phố”, “Địa chỉ” nằm
+trong cùng một khối “Thông tin thanh toán”, giúp người dùng hiểu đây là nhóm dữ liệu cần
+nhập cùng nhau.
+2.3.2.5 Nguyên tắc Chính – Phụ (Figure / Ground). Tách đối tượng chính khỏi nền
+để làm nổi bật nội dung quan trọng.
+Website sử dụng nền trắng, phần tử chính (nút bấm, hình ảnh, tiêu đề) dùng màu đậm hoặc
+khối màu xanh lá để thu hút sự chú ý.
+2.3.2.6 Nguyên tắc Đối xứng và Cân bằng (Symmetry and Balance).
+tiên bố cục cân bằng, dễ chịu và ổn định.
+
+Não người ưu
+
+Hình 15: Trang Checkout
+Phần “Tóm tắt đơn hàng” được chia làm hai cột cân đối, các dòng có khoảng cách đều nhau,
+giúp giao diện trông chuyên nghiệp và đáng tin cậy.
+
+Thương mại điện tử - HK251
+
+Trang 33/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+2.4
+
+Thiết kế giao diện người dùng
+
+2.4.1
+
+Trang chủ
+
+Hình 16: Giao diện trang chủ
+2.4.2
+
+Trang đặt in theo nhu cầu
+
+Hình 17: Giao diện trang đặt in theo mẫu
+
+Thương mại điện tử - HK251
+
+Trang 34/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+2.4.3
+
+Trang giới thiệu vật liệu
+
+Hình 18: Giao diện trang giới thiệu vật liệu
+
+Thương mại điện tử - HK251
+
+Trang 35/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+2.4.4
+
+Trang hướng dẫn sử dụng
+
+Hình 19: Giao diện trang hướng dẫn sử dụng
+
+Thương mại điện tử - HK251
+
+Trang 36/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+2.4.5
+
+Trang Showcase
+
+Hình 20: Giao diện trang showcase
+
+Thương mại điện tử - HK251
+
+Trang 37/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+2.4.6
+
+Trang checkout
+
+Hình 21: Giao diện trang Checkout
+
+Thương mại điện tử - HK251
+
+Trang 38/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+2.4.7
+
+Trang đăng nhập
+
+Hình 22: Giao diện trang đăng nhập
+
+2.5
+
+Lược đồ cơ sở dữ liệu
+
+Cơ sở dữ liệu của hệ thống dịch vụ in và kinh doanh sản phẩm in 3D được thiết kế theo mô hình
+thực thể–liên kết (ERD mở rộng), phản ánh đầy đủ các thành phần cốt lõi của một nền tảng
+thương mại điện tử chuyên biệt. Toàn bộ hệ thống gồm hơn 20 thực thể, được phân nhóm theo
+chức năng: quản lý sản phẩm, giỏ hàng và đơn hàng, thanh toán, vận chuyển, hỗ trợ sau bán
+hàng và quản trị hệ thống. Dưới đây là mô tả tóm tắt các thực thể chính và mối quan hệ của
+chúng.
+
+Thương mại điện tử - HK251
+
+Trang 39/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+Hình 23: Lược đồ cơ sở dữ liệu
+1. User
+Đại diện cho toàn bộ người dùng hệ thống (guest, customer, admin). Thuộc tính chính gồm: mã
+người dùng, thông tin cá nhân, mật khẩu và vai trò. Quan hệ:
+• 1–N với Order, Review, Q&A, Payment, Profile.
+• 1–1 với Cart.
+2. Product
+Đại diện cho các sản phẩm in 3D có sẵn; lưu mô tả, thông số kỹ thuật và trạng thái kinh doanh.
+Quan hệ:
+• 1–N với Variant, Review, Q&A, Profile, MediaAsset.
+• N–M với Tag.
+Thương mại điện tử - HK251
+
+Trang 40/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+3. Variant (SKU)
+Biến thể sản phẩm (màu sắc, kích thước, giá...). Quan hệ:
+• N–1 với Product.
+• 1–1 với Inventory.
+• N–M với Material.
+• 1–N với CartItem và OrderItem.
+4. Material
+Lưu trữ thông tin vật liệu in: loại nhựa, màu sắc, thông số kỹ thuật, mật độ và giá theo gram.
+Quan hệ:
+• N–M với Variant.
+• N–M với Profile.
+5. Tag
+Nhãn phân loại sản phẩm theo chủ đề hoặc đặc tính. Quan hệ: N–M với Product.
+6. Inventory
+Theo dõi tồn kho của từng SKU: số lượng, số lượng đã giữ chỗ, ngưỡng cảnh báo. Quan hệ: 1–1
+với Variant.
+7. Cart
+Giỏ hàng của người dùng. Quan hệ:
+• N–1 với User.
+• 1–N với CartItem.
+• 1–N với Order.
+8. Order
+Lưu trữ thông tin đơn hàng đã đặt: tổng giá trị, thời gian và trạng thái. Quan hệ:
+• N–1 với User.
+• 1–N với OrderItem.
+• 1–1 với Shipment, Payment, Voucher.
+• N–1 với Cart.
+9. CartItem
+Mục chi tiết trong giỏ hàng, lưu số lượng và giá tại thời điểm thêm vào. Quan hệ:
+• N–1 với Cart.
+• N–1 với Variant.
+Thương mại điện tử - HK251
+
+Trang 41/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+10. OrderItem
+Chi tiết sản phẩm trong đơn hàng. Quan hệ:
+• N–1 với Order.
+• N–1 với Variant.
+• 1–1 với ServiceTicket.
+11. Shipment
+Theo dõi quá trình giao hàng: đơn vị vận chuyển, mã tracking, trạng thái. Quan hệ: 1–1 với
+Order.
+12. Payment
+Thông tin thanh toán: phương thức, số tiền, mã giao dịch, thời gian thanh toán. Quan hệ:
+• 1–1 với Order.
+• N–1 với User.
+13. Voucher
+Quản lý mã giảm giá: loại, giá trị, hiệu lực, điều kiện áp dụng. Quan hệ: 1–1 với Order.
+14. Review
+Đánh giá sản phẩm của người dùng. Quan hệ:
+• N–1 với Product.
+• N–1 với User.
+15. Q&A
+Câu hỏi và câu trả lời liên quan đến sản phẩm. Quan hệ:
+• N–1 với Product.
+• N–1 với User.
+16. Profile
+Tệp cấu hình in (Cura/PrusaSlicer) có thể tải về: layer height, nozzle size, slicer, file URL. Quan
+hệ:
+• N–1 với Product.
+• N–M với Material.
+17. MediaAsset
+Tệp hình ảnh/video của sản phẩm. Quan hệ: N–1 với Product.
+
+Thương mại điện tử - HK251
+
+Trang 42/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+3
+
+Hiện thực hệ thống
+
+Nhóm đã xây dựng website / mobile app demo có mock dữ liệu. Nhóm deploy thành phẩm ở
+[link]
+
+Thương mại điện tử - HK251
+
+Trang 43/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+4
+
+Kết luận
+
+Báo cáo đã trình bày quá trình tìm hiểu yêu cầu, phân tích khảo sát và xây dựng mô hình dữ
+liệu cho hệ thống website đặt in 3D và mua bán sản phẩm in 3D. Các nội dung thiết kế được
+xây dựng dựa trên nhu cầu thực tế thu thập từ người dùng, cùng với việc tham khảo các nguyên
+tắc cơ bản về kiến trúc thông tin và thiết kế giao diện. Mô hình cơ sở dữ liệu phản ánh những
+chức năng cốt lõi mà hệ thống cần hỗ trợ, bao gồm quản lý sản phẩm, xử lý đơn hàng, thanh
+toán, vận chuyển và tương tác sau bán hàng.
+Nhìn chung, bản thiết kế hiện tại mới dừng ở mức đáp ứng các chức năng nền tảng. Một số
+phần trong thiết kế vẫn có thể được hoàn thiện thêm khi đi vào triển khai thực tế, đặc biệt là
+những điểm liên quan đến tối ưu trải nghiệm người dùng, mô hình dữ liệu dành cho dịch vụ in
+theo yêu cầu và khả năng mở rộng hệ thống khi lượng người dùng tăng lên.
+Trong tương lai, hệ thống có thể phát triển theo nhiều hướng:
+• Tích hợp công cụ xem trước mô hình 3D trực tiếp trên trình duyệt, giúp người dùng hiểu
+rõ hơn sản phẩm trước khi đặt in.
+• Phát triển tính năng báo giá tự động dựa trên khối lượng, vật liệu và cấu hình in mà người
+dùng cung cấp.
+• Bổ sung chatbot hoặc hệ thống hỗ trợ tự động để trả lời nhanh các câu hỏi cơ bản về vật
+liệu, thời gian in hoặc lỗi thường gặp.
+• Mở rộng mô-đun quản lý sản xuất, theo dõi từng bước xử lý (duyệt file, in, hậu kỳ) một
+cách chi tiết hơn.
+• Tối ưu cơ sở dữ liệu để hỗ trợ phân tích hành vi người dùng, từ đó đề xuất gợi ý sản phẩm
+và cải thiện quy trình vận hành.
+Những hướng mở rộng này giúp hệ thống hoàn thiện hơn khi triển khai thực tế và tạo nền
+tảng để phát triển thành một nền tảng in 3D trực tuyến đầy đủ chức năng.
+
+Thương mại điện tử - HK251
+
+Trang 44/45
+
+University of Technology, Ho Chi Minh City
+Faculty of Computer Science and Engineering
+
+5
+
+Phụ lục
+
+5.1
+
+Kết quả khảo sát người dùng
+
+Phần khảo sát được thực hiện với 53 người tham gia nhằm thu thập thông tin về độ tuổi, mức
+thu nhập, nhận thức về công nghệ in 3D, nhu cầu và kỳ vọng đối với một nền tảng đặt in 3D
+trực tuyến. Kết quả khảo sát chi tiết có thể xem tại: [link] Dưới đây là tóm tắt một số biểu đồ
+khảo sát được sử dụng trong phân tích:
+• Phân bố độ tuổi và nghề nghiệp của người tham gia.
+• Mức độ nhận thức và tần suất sử dụng dịch vụ in 3D.
+• Mục đích in 3D phổ biến và loại vật liệu được quan tâm nhiều nhất.
+• Các yếu tố ảnh hưởng đến quyết định lựa chọn dịch vụ.
+• Mức ngân sách trung bình cho một sản phẩm in 3D.
+
+5.2
+
+Giao diện demo
+
+Link giao diện demo: [link]
+
+5.3
+
+Source code
+
+Frontend: [link]
+Backend: [link]
+
+5.4
+
+Tài liệu tham khảo
+
+1. MangoAds. (2022). Kiến trúc thông tin là gì? Tại sao quan trọng trong thiết kế trải nghiệm
+người dùng. Truy cập tại: https://mangoads.vn/learn/kien-truc-thong-tin-la-g
+i-tai-sao-quan-trong-trong-thiet-ke-trai-nghiem-nguoi-dung-2
+2. Kstudy.edu.vn. (2024). 6 Nguyên tắc thiết kế UX/UI bất cứ designer nào cũng cần biết.
+Truy cập tại: https://kstudy.edu.vn/6-nguyen-tac-thiet-ke-ux-ui/#5_Contrast_
+Similarity
+3. Beau.vn. (2019). Những nguyên tắc Gestalt - Khai thác quy luật thị giác trong thiết kế UI.
+Truy cập tại: https://beau.vn/vi/goc-nhin/nhung-nguyen-tac-gestalt-khai-tha
+c-quy-luat-thi-giac-trong-thiet-ke-ui
+4. IMARC Group. (2025). Vietnam 3D Printing Market Report by Technology, Process, Material,
+Offering, Application, End User and Region 2025–2033. Truy cập tại: https://www.imar
+cgroup.com/vietnam-3d-printing-market
+
+Thương mại điện tử - HK251
+
+Trang 45/45
+
+
