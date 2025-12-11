@@ -52,7 +52,10 @@ interface ChatMessage {
 }
 
 // Fallback responses khi API fail - Rule-based chatbot
-const RULE_BASED_RESPONSES: Record<string, { patterns: RegExp[]; response: string }> = {
+const RULE_BASED_RESPONSES: Record<
+  string,
+  { patterns: RegExp[]; response: string }
+> = {
   greeting: {
     patterns: [/xin chào/i, /hello/i, /hi\b/i, /chào/i, /hey/i, /alo/i],
     response: `Xin chào! 👋 Tôi là trợ lý của Print3D.vn. Tôi có thể giúp bạn:
@@ -63,9 +66,18 @@ const RULE_BASED_RESPONSES: Record<string, { patterns: RegExp[]; response: strin
 
 Bạn cần hỗ trợ gì ạ?`,
   },
-  
+
   price: {
-    patterns: [/giá/i, /bao nhiêu/i, /chi phí/i, /báo giá/i, /phí/i, /tiền/i, /cost/i, /price/i],
+    patterns: [
+      /giá/i,
+      /bao nhiêu/i,
+      /chi phí/i,
+      /báo giá/i,
+      /phí/i,
+      /tiền/i,
+      /cost/i,
+      /price/i,
+    ],
     response: `💰 **Bảng giá vật liệu in 3D:**
 
 • **PLA**: 300.000đ - 500.000đ/kg (phổ biến, dễ in)
@@ -78,7 +90,17 @@ Bạn cần hỗ trợ gì ạ?`,
   },
 
   material: {
-    patterns: [/vật liệu/i, /chất liệu/i, /pla/i, /abs/i, /resin/i, /petg/i, /nylon/i, /nhựa/i, /material/i],
+    patterns: [
+      /vật liệu/i,
+      /chất liệu/i,
+      /pla/i,
+      /abs/i,
+      /resin/i,
+      /petg/i,
+      /nylon/i,
+      /nhựa/i,
+      /material/i,
+    ],
     response: `🎨 **Tư vấn vật liệu in 3D:**
 
 • **PLA**: Thân thiện môi trường, màu đẹp, dễ in → Đồ trang trí, prototype
@@ -91,7 +113,16 @@ Bạn muốn in gì? Tôi sẽ tư vấn vật liệu phù hợp! 😊`,
   },
 
   time: {
-    patterns: [/thời gian/i, /bao lâu/i, /mấy ngày/i, /khi nào/i, /nhanh/i, /gấp/i, /urgent/i, /deadline/i],
+    patterns: [
+      /thời gian/i,
+      /bao lâu/i,
+      /mấy ngày/i,
+      /khi nào/i,
+      /nhanh/i,
+      /gấp/i,
+      /urgent/i,
+      /deadline/i,
+    ],
     response: `⏱️ **Thời gian in 3D:**
 
 • Sản phẩm nhỏ/đơn giản: 1-2 ngày
@@ -104,7 +135,14 @@ Thời gian cụ thể phụ thuộc vào kích thước và độ phức tạp 
   },
 
   shipping: {
-    patterns: [/vận chuyển/i, /giao hàng/i, /ship/i, /delivery/i, /phí ship/i, /freeship/i],
+    patterns: [
+      /vận chuyển/i,
+      /giao hàng/i,
+      /ship/i,
+      /delivery/i,
+      /phí ship/i,
+      /freeship/i,
+    ],
     response: `🚚 **Thông tin vận chuyển:**
 
 • **Nội thành**: 25.000đ - 35.000đ (2-3 ngày)
@@ -115,7 +153,15 @@ Chúng tôi hỗ trợ giao hàng toàn quốc qua GHTK, GHN, ViettelPost!`,
   },
 
   file: {
-    patterns: [/file/i, /upload/i, /tải lên/i, /định dạng/i, /format/i, /stl/i, /obj/i],
+    patterns: [
+      /file/i,
+      /upload/i,
+      /tải lên/i,
+      /định dạng/i,
+      /format/i,
+      /stl/i,
+      /obj/i,
+    ],
     response: `📁 **Hướng dẫn upload file:**
 
 **Định dạng hỗ trợ:**
@@ -133,7 +179,14 @@ Bạn có thể thiết kế bằng Tinkercad, Blender, Fusion 360... 🎨`,
   },
 
   order: {
-    patterns: [/đặt hàng/i, /order/i, /mua/i, /thanh toán/i, /payment/i, /đặt in/i],
+    patterns: [
+      /đặt hàng/i,
+      /order/i,
+      /mua/i,
+      /thanh toán/i,
+      /payment/i,
+      /đặt in/i,
+    ],
     response: `🛒 **Cách đặt hàng in 3D:**
 
 1️⃣ Upload file 3D (STL, OBJ...)
@@ -146,7 +199,15 @@ Bạn có thể thiết kế bằng Tinkercad, Blender, Fusion 360... 🎨`,
   },
 
   contact: {
-    patterns: [/liên hệ/i, /hotline/i, /số điện thoại/i, /email/i, /hỗ trợ/i, /contact/i, /tư vấn/i],
+    patterns: [
+      /liên hệ/i,
+      /hotline/i,
+      /số điện thoại/i,
+      /email/i,
+      /hỗ trợ/i,
+      /contact/i,
+      /tư vấn/i,
+    ],
     response: `📞 **Thông tin liên hệ Print3D.vn:**
 
 • **Hotline**: 1900 xxxx (8:00-18:00, T2-T7)
@@ -158,7 +219,15 @@ Bạn có thể thiết kế bằng Tinkercad, Blender, Fusion 360... 🎨`,
   },
 
   refund: {
-    patterns: [/đổi trả/i, /hoàn tiền/i, /bảo hành/i, /refund/i, /warranty/i, /lỗi/i, /hỏng/i],
+    patterns: [
+      /đổi trả/i,
+      /hoàn tiền/i,
+      /bảo hành/i,
+      /refund/i,
+      /warranty/i,
+      /lỗi/i,
+      /hỏng/i,
+    ],
     response: `🔄 **Chính sách đổi trả & bảo hành:**
 
 ✅ **Đổi trả miễn phí** nếu sản phẩm lỗi do Print3D
@@ -173,7 +242,14 @@ Liên hệ hotline 1900 xxxx để được hỗ trợ!`,
   },
 
   technology: {
-    patterns: [/fdm/i, /sla/i, /sls/i, /công nghệ/i, /technology/i, /kỹ thuật in/i],
+    patterns: [
+      /fdm/i,
+      /sla/i,
+      /sls/i,
+      /công nghệ/i,
+      /technology/i,
+      /kỹ thuật in/i,
+    ],
     response: `⚙️ **Công nghệ in 3D tại Print3D:**
 
 • **FDM**: In lớp nhựa, giá rẻ, phổ biến → Prototype, đồ dùng
@@ -208,13 +284,13 @@ Xin lỗi vì sự bất tiện này!`;
 // Detect intent cho fallback - trả về response phù hợp
 function getRuleBasedResponse(message: string): string {
   const lowerMessage = message.toLowerCase();
-  
+
   for (const [, rule] of Object.entries(RULE_BASED_RESPONSES)) {
-    if (rule.patterns.some(pattern => pattern.test(lowerMessage))) {
+    if (rule.patterns.some((pattern) => pattern.test(lowerMessage))) {
       return rule.response;
     }
   }
-  
+
   return DEFAULT_FALLBACK;
 }
 
