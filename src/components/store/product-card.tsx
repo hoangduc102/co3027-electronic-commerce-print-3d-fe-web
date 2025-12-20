@@ -3,8 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import type { Product } from "@/lib/types";
 import { MATERIALS } from "@/lib/constants";
+import { Product } from "@/schemas/product.schema";
 
 interface ProductCardProps {
   product: Product;
@@ -15,7 +15,7 @@ export function ProductCard({ product }: ProductCardProps) {
     return new Intl.NumberFormat("vi-VN").format(value) + "đ";
   };
 
-  const materialNames = product.materials
+  const materialNames = product.variants
     .map((id) => MATERIALS.find((m) => m.id === id)?.name)
     .filter(Boolean)
     .slice(0, 2);
@@ -26,7 +26,7 @@ export function ProductCard({ product }: ProductCardProps) {
         {/* Image */}
         <div className="aspect-square relative overflow-hidden bg-secondary">
           <Image
-            src={product.images[0] || "/placeholder.svg"}
+            src={product.images[0]?.url || "/placeholder.svg"}
             alt={product.name}
             fill
             className="object-cover transition-transform group-hover:scale-105"
