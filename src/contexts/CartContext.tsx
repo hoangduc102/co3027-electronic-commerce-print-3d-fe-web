@@ -108,7 +108,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
         // Nếu chưa có, thêm mới với id unique
         const newItem: CartItem = {
           ...item,
-          id: `${item.productId}-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
+          id: `${item.productId}`,
         };
         return [...prevCart, newItem];
       }

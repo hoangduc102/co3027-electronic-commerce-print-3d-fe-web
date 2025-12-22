@@ -10,6 +10,7 @@ import { PromoBanner } from "@/components/home/promo-banner";
 import { ChatbotWidget } from "@/components/chatbot/chatbot-widget";
 import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/seo/JsonLd";
 import { defaultSEO } from "@/lib/seo.config";
+import QueryProvider from "@/components/provider/query-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,16 +38,18 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background text-foreground flex flex-col`}
       >
-        <AuthProvider>
-          <CartProvider>
-            <PromoBanner />
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
-            <CookieConsent />
-            <ChatbotWidget />
-          </CartProvider>
-        </AuthProvider>
+        <QueryProvider>
+          <AuthProvider>
+            <CartProvider>
+              <PromoBanner />
+              <Header />
+              <main className="flex-1">{children}</main>
+              <Footer />
+              <CookieConsent />
+              <ChatbotWidget />
+            </CartProvider>
+          </AuthProvider>
+        </QueryProvider>
       </body>
     </html>
   );

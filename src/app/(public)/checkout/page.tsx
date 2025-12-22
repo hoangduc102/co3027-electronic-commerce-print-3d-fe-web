@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,7 +23,13 @@ import {
   CheckCircle,
   Loader2,
 } from "lucide-react";
+
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { createOrder } from "@/services/order.api";
+import { createPayment, getVnPayUrl } from "@/services/payment.api";
+import { mapPaymentMethodToBE } from "@/types/payment.type";
+
 import {
   Dialog,
   DialogContent,
@@ -29,176 +38,182 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+import { checkoutSchema, CheckoutFormValues } from "@/schemas/checkout.schema";
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { cart, updateQuantity, removeFromCart, clearCart, getCartTotal } =
     useCart();
-  const [technicalNotes, setTechnicalNotes] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("cod");
-  const [agreements, setAgreements] = useState({
-    copyright: false,
-    expectations: false,
-  });
+  const { user, isAuthenticated, isLoading } = useAuth();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [orderNumber, setOrderNumber] = useState("");
 
-  // Hàm xử lý đặt hàng
-  const handlePlaceOrder = async () => {
-    if (!canCheckout) return;
+  const [agreements, setAgreements] = useState({
+    copyright: false,
+    expectations: false,
+  });
 
-    setIsSubmitting(true);
+  /* ================= FORM ================= */
+  const form = useForm<CheckoutFormValues>({
+    resolver: zodResolver(checkoutSchema),
+    defaultValues: {
+      recipient: "",
+      phone: "",
+      email: "",
+      addressText: "",
+      paymentMethod: "cod",
+    },
+  });
 
-    // Giả lập thời gian xử lý đơn hàng
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = form;
 
-    // Tạo mã đơn hàng
-    const newOrderNumber = `IN3D-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 100000)).padStart(5, "0")}`;
-    setOrderNumber(newOrderNumber);
+  /* ================= SUBMIT ================= */
+  const onSubmit = async (values: CheckoutFormValues) => {
+    if (!user || cart.length === 0) return;
 
-    // Xóa giỏ hàng
-    clearCart();
+    try {
+      setIsSubmitting(true);
 
-    // Hiển thị dialog thành công
-    setIsSubmitting(false);
-    setShowSuccessDialog(true);
+      const order = await createOrder({
+        shippingAddress: {
+          recipient: values.recipient,
+          phone: values.phone,
+          email: values.email,
+          addressText: values.addressText,
+        },
+        items: cart.map((item) => ({
+          variantId: item.id,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+      });
+
+      // 2️⃣ Create Payment
+      const payment = await createPayment({
+        orderId: order.data.id,
+        method: mapPaymentMethodToBE(values.paymentMethod),
+      });
+
+      // 3️⃣ VNPay → redirect
+      if (values.paymentMethod === "vnpay") {
+        const { data } = await getVnPayUrl(payment.data.id);
+        window.location.href = data.url;
+        console.log(data);
+        return;
+      }
+
+      // 4️⃣ COD → done
+      clearCart();
+      setOrderNumber(order.data.id);
+      // setShowSuccessDialog(true);
+    } catch (err) {
+      console.error(err);
+      alert("Không thể đặt hàng, vui lòng thử lại");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const formatPrice = (value: number) => {
-    return new Intl.NumberFormat("vi-VN").format(value) + "đ";
-  };
-
+  /* ================= CALC ================= */
   const subtotal = getCartTotal();
   const shippingFee = cart.length > 0 ? 35000 : 0;
   const total = subtotal + shippingFee;
 
   const canCheckout =
-    agreements.copyright && agreements.expectations && cart.length > 0;
+    agreements.copyright &&
+    agreements.expectations &&
+    cart.length > 0 &&
+    !isSubmitting;
+
+  const formatPrice = (value: number) =>
+    new Intl.NumberFormat("vi-VN").format(value) + "đ";
+
+  /* ================= UI ================= */
+  const onInvalid = (errs: any) => {
+    console.log("INVALID FORM:", errs);
+  };
+  if (!isAuthenticated) {
+    return (
+      <div className="container mx-auto p-8 text-center">
+        <p className="mb-4">Bạn cần đăng nhập để đặt hàng</p>
+        <Button onClick={() => router.push("/login")}>Đăng nhập</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* <Header /> */}
-
       <main className="flex-1 py-8">
         <div className="container mx-auto px-4">
-          {/* Breadcrumb */}
           <Breadcrumb />
 
           <h1 className="text-3xl md:text-4xl font-bold mb-8">Thanh toán</h1>
 
-          {/* Trust Badges */}
-          <div className="mb-8">
-            <TrustBadges variant="horizontal" />
-          </div>
+          <TrustBadges variant="horizontal" className="mb-8" />
 
-          <div className="grid lg:grid-cols-[1fr_400px] gap-8">
-            {/* Left: Cart & Forms */}
+          <form
+            onSubmit={handleSubmit(onSubmit, onInvalid)}
+            onSubmitCapture={() => console.log("FORM SUBMIT CAPTURE")}
+            className="grid lg:grid-cols-[1fr_400px] gap-8"
+          >
+            {/* ================= LEFT ================= */}
             <div className="space-y-8">
-              {/* Cart Items */}
+              {/* Cart */}
               <div>
-                <h2 className="font-bold text-xl uppercase tracking-wide mb-4">
+                <h2 className="font-bold text-xl mb-4">
                   Giỏ hàng ({cart.length})
                 </h2>
-                <div className="space-y-4">
-                  {cart.map((item) => (
-                    <CartItem
-                      key={item.id}
-                      id={item.id}
-                      name={item.name}
-                      image={item.image}
-                      price={item.price}
-                      quantity={item.quantity}
-                      specs={item.specs}
-                      onUpdateQuantity={(qty) => updateQuantity(item.id, qty)}
-                      onRemove={() => removeFromCart(item.id)}
-                    />
-                  ))}
-                  {cart.length === 0 && (
-                    <div className="text-center py-8 border-2 border-dashed border-foreground">
-                      <p className="text-muted-foreground">Giỏ hàng trống</p>
-                    </div>
-                  )}
-                </div>
+                {cart.map((item) => (
+                  <CartItem
+                    key={item.id}
+                    {...item}
+                    onUpdateQuantity={(qty) => updateQuantity(item.id, qty)}
+                    onRemove={() => removeFromCart(item.id)}
+                  />
+                ))}
               </div>
 
-              {/* Shipping Info */}
-              <div className="border-2 border-foreground p-6">
-                <h2 className="font-bold text-xl uppercase tracking-wide mb-4">
-                  Thông tin giao hàng
-                </h2>
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="name" className="mb-2 block">
-                      Họ và tên
-                    </Label>
-                    <Input
-                      id="name"
-                      placeholder="Nguyễn Văn A"
-                      className="border-2 border-foreground"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="phone" className="mb-2 block">
-                      Số điện thoại
-                    </Label>
-                    <Input
-                      id="phone"
-                      placeholder="0912 345 678"
-                      className="border-2 border-foreground"
-                    />
-                  </div>
-                  <div className="sm:col-span-2">
-                    <Label htmlFor="email" className="mb-2 block">
-                      Email
-                    </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="email@example.com"
-                      className="border-2 border-foreground"
-                    />
-                  </div>
-                  <div className="sm:col-span-2">
-                    <Label htmlFor="address" className="mb-2 block">
-                      Địa chỉ giao hàng
-                    </Label>
-                    <Textarea
-                      id="address"
-                      placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố"
-                      className="border-2 border-foreground min-h-20"
-                    />
-                  </div>
-                </div>
-              </div>
+              {/* Shipping */}
+              <div className="border-2 border-foreground p-6 space-y-4">
+                <h2 className="font-bold text-xl">Thông tin giao hàng</h2>
 
-              {/* Technical Notes */}
-              <div className="border-2 border-foreground p-6">
-                <h2 className="font-bold text-xl uppercase tracking-wide mb-4">
-                  Ghi chú kỹ thuật
-                </h2>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Ghi chú cho kỹ thuật viên về yêu cầu đặc biệt (tùy chọn)
-                </p>
+                <Input {...register("recipient")} placeholder="Họ và tên" />
+                {errors.recipient && (
+                  <p className="text-red-500 text-sm">
+                    {errors.recipient.message}
+                  </p>
+                )}
+
+                <Input {...register("phone")} placeholder="Số điện thoại" />
+                <Input {...register("email")} placeholder="Email" />
+
                 <Textarea
-                  value={technicalNotes}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                    setTechnicalNotes(e.target.value)
-                  }
-                  placeholder="Ví dụ: Vui lòng chà nhám kỹ mặt tiền, giữ nguyên support để vận chuyển an toàn..."
-                  className="border-2 border-foreground min-h-[100px]"
+                  {...register("addressText")}
+                  placeholder="Địa chỉ giao hàng"
                 />
               </div>
 
-              {/* Payment Method */}
+              {/* Payment */}
               <div className="border-2 border-foreground p-6">
                 <h2 className="font-bold text-xl uppercase tracking-wide mb-4">
                   Phương thức thanh toán
                 </h2>
+
                 <RadioGroup
-                  value={paymentMethod}
-                  onValueChange={setPaymentMethod}
+                  value={watch("paymentMethod")}
+                  onValueChange={(value) =>
+                    form.setValue("paymentMethod", value as "cod" | "vnpay")
+                  }
                   className="space-y-3"
                 >
+                  {/* COD */}
                   <div className="flex items-center gap-3 p-4 border-2 border-foreground cursor-pointer hover:bg-secondary">
                     <RadioGroupItem value="cod" id="cod" />
                     <Label
@@ -216,17 +231,19 @@ export default function CheckoutPage() {
                       </div>
                     </Label>
                   </div>
+
+                  {/* VNPay */}
                   <div className="flex items-center gap-3 p-4 border-2 border-foreground cursor-pointer hover:bg-secondary">
-                    <RadioGroupItem value="bank" id="bank" />
+                    <RadioGroupItem value="vnpay" id="vnpay" />
                     <Label
-                      htmlFor="bank"
+                      htmlFor="vnpay"
                       className="flex items-center gap-2 cursor-pointer flex-1"
                     >
                       <CreditCard className="h-5 w-5" />
                       <div>
-                        <p className="font-medium">Chuyển khoản ngân hàng</p>
+                        <p className="font-medium">Thanh toán qua VNPay</p>
                         <p className="text-sm text-muted-foreground">
-                          Chuyển khoản trước khi sản xuất
+                          QR / ATM / Internet Banking
                         </p>
                       </div>
                     </Label>
@@ -234,181 +251,91 @@ export default function CheckoutPage() {
                 </RadioGroup>
               </div>
 
-              {/* Legal Agreements */}
-              <div className="border-2 border-foreground p-6 bg-amber-50">
-                <div className="flex items-start gap-2 mb-4">
-                  <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+              {/* Agreements */}
+              <div className="border-2 border-foreground p-6 bg-amber-50 space-y-4">
+                <div className="flex items-start gap-2 mb-2">
+                  <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5" />
                   <h2 className="font-bold text-lg">Điều khoản quan trọng</h2>
                 </div>
-                <div className="space-y-4">
-                  <label className="flex items-start gap-3 cursor-pointer">
-                    <Checkbox
-                      checked={agreements.copyright}
-                      onCheckedChange={(checked: boolean) =>
-                        setAgreements((prev) => ({
-                          ...prev,
-                          copyright: checked,
-                        }))
-                      }
-                      className="mt-1 border-foreground data-[state=checked]:bg-primary"
-                    />
-                    <span className="text-sm leading-relaxed">
-                      <strong>Bản quyền:</strong> Tôi xác nhận rằng tôi có quyền
-                      sở hữu trí tuệ hoặc quyền sử dụng hợp pháp đối với các
-                      file 3D đã tải lên. Tôi chịu trách nhiệm hoàn toàn nếu vi
-                      phạm bản quyền.
-                    </span>
-                  </label>
-                  <label className="flex items-start gap-3 cursor-pointer">
-                    <Checkbox
-                      checked={agreements.expectations}
-                      onCheckedChange={(checked: boolean) =>
-                        setAgreements((prev) => ({
-                          ...prev,
-                          expectations: checked,
-                        }))
-                      }
-                      className="mt-1 border-foreground data-[state=checked]:bg-primary"
-                    />
-                    <span className="text-sm leading-relaxed">
-                      <strong>Kỳ vọng:</strong> Tôi hiểu rằng in 3D FDM sẽ có
-                      các đường vân (layer lines) và không mịn hoàn toàn như đúc
-                      nhựa. Chất lượng bề mặt phụ thuộc vào công nghệ và vật
-                      liệu được chọn.
-                    </span>
-                  </label>
-                </div>
+
+                {/* Copyright */}
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <Checkbox
+                    checked={agreements.copyright}
+                    onCheckedChange={(v) =>
+                      setAgreements((p) => ({ ...p, copyright: !!v }))
+                    }
+                    className="mt-1 border-foreground data-[state=checked]:bg-primary"
+                  />
+                  <span className="text-sm leading-relaxed">
+                    <strong>Bản quyền:</strong> Tôi xác nhận rằng tôi có quyền
+                    sở hữu trí tuệ hoặc quyền sử dụng hợp pháp đối với các file
+                    3D đã tải lên. Tôi chịu trách nhiệm hoàn toàn nếu vi phạm
+                    bản quyền.
+                  </span>
+                </label>
+
+                {/* Expectations */}
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <Checkbox
+                    checked={agreements.expectations}
+                    onCheckedChange={(v) =>
+                      setAgreements((p) => ({ ...p, expectations: !!v }))
+                    }
+                    className="mt-1 border-foreground data-[state=checked]:bg-primary"
+                  />
+                  <span className="text-sm leading-relaxed">
+                    <strong>Kỳ vọng:</strong> Tôi hiểu rằng in 3D FDM sẽ có các
+                    đường vân (layer lines) và không mịn hoàn toàn như đúc nhựa.
+                    Chất lượng bề mặt phụ thuộc vào công nghệ và vật liệu được
+                    chọn.
+                  </span>
+                </label>
               </div>
             </div>
 
-            {/* Right: Order Summary */}
-            <div className="lg:self-start">
-              <div className="border-2 border-foreground bg-card sticky top-32">
-                <div className="p-4 border-b-2 border-foreground bg-secondary">
-                  <h3 className="font-bold text-lg">Tóm tắt đơn hàng</h3>
-                </div>
-
-                <div className="p-4 space-y-4">
-                  {cart.map((item) => (
-                    <div key={item.id} className="flex justify-between text-sm">
-                      <span className="truncate flex-1 mr-2">
-                        {item.name}{" "}
-                        <span className="text-muted-foreground">
-                          ×{item.quantity}
-                        </span>
-                      </span>
-                      <span className="font-medium">
-                        {formatPrice(item.price * item.quantity)}
-                      </span>
-                    </div>
-                  ))}
-
-                  <div className="border-t-2 border-foreground pt-4 space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Tạm tính</span>
-                      <span>{formatPrice(subtotal)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">
-                        Phí vận chuyển
-                      </span>
-                      <span>{formatPrice(shippingFee)}</span>
-                    </div>
-                    <div className="flex justify-between text-lg font-bold pt-2 border-t border-foreground">
-                      <span>Tổng cộng</span>
-                      <span className="text-primary">{formatPrice(total)}</span>
-                    </div>
-                  </div>
-
-                  <Button
-                    className="w-full h-14 bg-primary hover:bg-primary/90 text-primary-foreground border-2 border-foreground font-semibold text-base"
-                    disabled={!canCheckout || isSubmitting}
-                    onClick={handlePlaceOrder}
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                        Đang xử lý...
-                      </>
-                    ) : (
-                      "Đặt hàng"
-                    )}
-                  </Button>
-
-                  {!canCheckout && !isSubmitting && (
-                    <p className="text-xs text-center text-muted-foreground">
-                      Vui lòng đồng ý với các điều khoản để tiếp tục
-                    </p>
-                  )}
-
-                  {/* Payment Methods */}
-                  <div className="pt-4 border-t border-foreground/20">
-                    <PaymentMethods variant="text" />
-                  </div>
-
-                  {/* Warranty Badges */}
-                  <div className="pt-4">
-                    <WarrantyBadges />
-                  </div>
-
-                  {/* Trust Badges Compact */}
-                  <TrustBadges variant="compact" />
-                </div>
+            {/* ================= RIGHT ================= */}
+            <div className="sticky top-32 border-2 border-foreground p-4 flex flex-col  gap-2   ">
+              <div className="flex justify-between font-bold text-lg">
+                <span>Tổng cộng</span>
+                <span>{formatPrice(total)}</span>
               </div>
+
+              <Button
+                type="submit"
+                className="w-full mt-4"
+                disabled={!canCheckout}
+              >
+                {isSubmitting ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  "Đặt hàng"
+                )}
+              </Button>
+
+              <PaymentMethods />
+              <WarrantyBadges />
+              <TrustBadges variant="compact" />
             </div>
-          </div>
+          </form>
         </div>
       </main>
 
-      {/* Dialog đặt hàng thành công */}
+      {/* SUCCESS DIALOG */}
       <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
-        <DialogContent className="sm:max-w-md border-2 border-foreground">
+        <DialogContent>
           <DialogHeader>
-            <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-              <CheckCircle className="h-10 w-10 text-green-600" />
-            </div>
-            <DialogTitle className="text-center text-2xl">
-              Đặt hàng thành công!
-            </DialogTitle>
-            <DialogDescription asChild>
-              <div className="text-center space-y-2 text-muted-foreground text-sm">
-                <p>Cảm ơn bạn đã đặt hàng tại Print3D.</p>
-                <p className="font-semibold text-foreground">
-                  Mã đơn hàng:{" "}
-                  <span className="text-primary">{orderNumber}</span>
-                </p>
-                <p>
-                  Chúng tôi sẽ liên hệ với bạn trong vòng 24 giờ để xác nhận đơn
-                  hàng.
-                </p>
-              </div>
+            <DialogTitle>Đặt hàng thành công</DialogTitle>
+            <DialogDescription>
+              Mã đơn hàng: <strong>{orderNumber}</strong>
             </DialogDescription>
           </DialogHeader>
-          <div className="flex flex-col gap-3 mt-4">
-            <Button
-              className="w-full border-2 border-foreground font-semibold"
-              onClick={() => {
-                setShowSuccessDialog(false);
-                router.push("/dashboard/orders");
-              }}
-            >
-              Xem đơn hàng của tôi
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full border-2 border-foreground"
-              onClick={() => {
-                setShowSuccessDialog(false);
-                router.push("/store");
-              }}
-            >
-              Tiếp tục mua sắm
-            </Button>
-          </div>
+
+          <Button onClick={() => router.push("/dashboard/orders")}>
+            Xem đơn hàng
+          </Button>
         </DialogContent>
       </Dialog>
-
-      {/* <Footer /> */}
     </div>
   );
 }
