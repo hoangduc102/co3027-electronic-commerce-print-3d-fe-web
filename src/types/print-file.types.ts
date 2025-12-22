@@ -1,3 +1,10 @@
+export type ProductMinimal = {
+  id: string;
+  name: string;
+  basePrice: number;
+  image?: string;
+};
+
 export type PrintFile = {
   id: string;
   productId: string | null;
