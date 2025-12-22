@@ -37,7 +37,6 @@ export default function ProductDetailPage({
   const { id } = use(params);
   const { addToCart } = useCart();
 
-  // 1. Fetching real data using the ID
   const {
     data: product,
     isLoading,
@@ -47,30 +46,37 @@ export default function ProductDetailPage({
     queryFn: () => productService.getById(id),
   });
 
-  const [selectedSize, setSelectedSize] = useState<any>(null);
-  const [selectedMaterial, setSelectedMaterial] = useState("");
-  const [selectedColor, setSelectedColor] = useState("");
+  const [selectedVariantId, setSelectedVariantId] = useState<string>("");
+
+  const selectedVariant = useMemo(() => {
+    return product?.variants?.find((v) => v.id === selectedVariantId) ?? null;
+  }, [product, selectedVariantId]);
+
+  // keep these (scale/qty)
   const [customScale, setCustomScale] = useState(100);
   const [quantity, setQuantity] = useState(1);
-  const [useCustomScale, setUseCustomScale] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
 
-  // 3. Derived values based on the backend schema relations
+  // ✅ materialInfo derived from selectedVariant.material.name
   const materialInfo = useMemo(() => {
-    // If you have a list of materials in your constants to match backend names
+    const matName = selectedVariant?.material?.name ?? "";
     return MATERIALS.find(
-      (m) => m.name.toLowerCase() === selectedMaterial.toLowerCase()
+      (m) => m.name.toLowerCase() === matName.toLowerCase()
     );
-  }, [selectedMaterial]);
+  }, [selectedVariant]);
 
-  // Handle price calculation (keeping your scale logic as requested)
-  const calculatedPrice = product
-    ? Math.round(product.basePrice * (customScale / 100) * quantity)
-    : 0;
+  // ✅ unit price from variant.price (fallback to product.basePrice)
+  const unitPrice = useMemo(() => {
+    if (selectedVariant?.price != null) return Number(selectedVariant.price);
+    return product ? Number(product.basePrice) : 0;
+  }, [selectedVariant, product]);
 
-  const formatPrice = (value: number) => {
-    return new Intl.NumberFormat("vi-VN").format(value) + "đ";
-  };
+  const calculatedPrice = Math.round(
+    unitPrice * (customScale / 100) * quantity
+  );
+
+  const formatPrice = (value: number) =>
+    new Intl.NumberFormat("vi-VN").format(value) + "đ";
 
   // 4. Loading & Error States
   if (isLoading) {
@@ -105,11 +111,9 @@ export default function ProductDetailPage({
           <Breadcrumb />
 
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
-            {/* Left: Images & 3D Viewer */}
             <div className="space-y-4">
               <div className="aspect-square border-2 border-foreground bg-secondary relative overflow-hidden">
                 <Image
-                  // FIXED: accessing .url property
                   src={product.images[0]?.url || "/placeholder.svg"}
                   alt={product.name}
                   fill
@@ -128,7 +132,6 @@ export default function ProductDetailPage({
               </div>
             </div>
 
-            {/* Right: Product Info */}
             <div>
               <Badge className="mb-4 bg-primary text-primary-foreground border-0">
                 In theo yêu cầu
@@ -168,31 +171,45 @@ export default function ProductDetailPage({
 
                 {/* Material Selection from Backend Variants */}
                 <div>
-                  <Label className="font-bold mb-3 block">
-                    Vật liệu khả dụng
-                  </Label>
+                  <Label className="font-bold mb-3 block">Chọn biến thể</Label>
+
                   <RadioGroup
-                    value={selectedMaterial}
-                    onValueChange={setSelectedMaterial}
+                    value={selectedVariantId}
+                    onValueChange={setSelectedVariantId}
                     className="flex flex-wrap gap-3"
                   >
-                    {/* Extracting materials from your backend variants relation */}
-                    {product.variants.map((v, idx) => (
-                      <div key={idx}>
-                        <RadioGroupItem
-                          value={v.material?.name || ""}
-                          id={`mat-${idx}`}
-                          className="peer sr-only"
-                        />
-                        <Label
-                          htmlFor={`mat-${idx}`}
-                          className="flex items-center justify-center px-4 py-3 border-2 border-foreground cursor-pointer peer-data-[state=checked]:bg-foreground peer-data-[state=checked]:text-background hover:bg-secondary transition-colors"
-                        >
-                          {v.material?.name || "Tiêu chuẩn"}
-                        </Label>
-                      </div>
-                    ))}
+                    {product.variants.map((v) => {
+                      const label =
+                        v.name ||
+                        `${v.material?.name ?? "Material"}${v.material?.color ? ` (${v.material.color})` : ""}`;
+
+                      return (
+                        <div key={v.id}>
+                          <RadioGroupItem
+                            value={v.id}
+                            id={`variant-${v.id}`}
+                            className="peer sr-only"
+                          />
+                          <Label
+                            htmlFor={`variant-${v.id}`}
+                            className="flex items-center justify-center px-4 py-3 border-2 border-foreground cursor-pointer peer-data-[state=checked]:bg-foreground peer-data-[state=checked]:text-background hover:bg-secondary transition-colors"
+                          >
+                            {label}
+                          </Label>
+                        </div>
+                      );
+                    })}
                   </RadioGroup>
+
+                  {/* (optional) show stock */}
+                  {selectedVariant && (
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      Tồn kho:{" "}
+                      <span className="font-medium text-foreground">
+                        {selectedVariant.stock}
+                      </span>
+                    </p>
+                  )}
                 </div>
 
                 {/* Quantity */}
@@ -226,22 +243,25 @@ export default function ProductDetailPage({
                   </div>
                 </div>
 
-                {/* Add to Cart */}
                 <Button
                   className="w-full h-14 bg-primary hover:bg-primary/90 text-primary-foreground border-2 border-foreground font-semibold gap-2 text-base"
+                  disabled={!selectedVariantId}
                   onClick={() => {
+                    if (!selectedVariant) return;
+
                     addToCart({
-                      productId: product.id,
+                      productId: selectedVariantId,
                       name: product.name,
                       image: product.images[0]?.url || "/placeholder.svg",
                       price: calculatedPrice,
                       quantity: quantity,
                       specs: {
-                        material: selectedMaterial || "Mặc định",
+                        material: selectedVariant.material.name,
                         color: "Theo vật liệu",
                         size: `${customScale}%`,
                       },
                     });
+
                     setIsAdded(true);
                     setTimeout(() => setIsAdded(false), 2000);
                   }}
