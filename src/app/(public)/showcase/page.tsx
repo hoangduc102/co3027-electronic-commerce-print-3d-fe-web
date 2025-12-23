@@ -8,6 +8,7 @@ import {
   DialogContent,
   DialogTrigger,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { ZoomIn, Layers, Clock, Ruler } from "lucide-react";
@@ -164,6 +165,9 @@ export default function ShowcasePage() {
 
                 <DialogContent className="max-w-3xl border-2 border-foreground p-0">
                   <DialogTitle className="sr-only">{project.title}</DialogTitle>
+                  <DialogDescription className="sr-only">
+                    Chi tiết dự án {project.title} - {project.category}
+                  </DialogDescription>
                   <div className="grid md:grid-cols-2">
                     <div className="aspect-square relative">
                       <Image
