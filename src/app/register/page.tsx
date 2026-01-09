@@ -5,15 +5,11 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
-import { Eye, EyeOff } from "lucide-react";
+import Image from "next/image";
+import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
 
 export default function RegisterPage() {
   const { register, isAuthenticated, isLoading } = useAuth();
@@ -25,6 +21,7 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const [validationErrors, setValidationErrors] = useState<{
     username?: string;
     email?: string;
@@ -39,11 +36,13 @@ export default function RegisterPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-white">
-        <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
-          <p className="mt-4 text-gray-600">Đang tải...</p>
-        </div>
+      <div className="min-h-screen flex flex-col">
+        <main className="flex-1 flex items-center justify-center py-12 px-4">
+          <div className="text-center">
+            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
+            <p className="mt-4 text-muted-foreground">Đang tải...</p>
+          </div>
+        </main>
       </div>
     );
   }
@@ -114,103 +113,116 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-white p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2 text-gray-900">
-            3D Print Service
-          </h1>
-          <p className="text-gray-600">Dịch vụ đặt in 3D trực tuyến</p>
-        </div>
-
-        <Card className="border border-gray-200 shadow-lg">
-          <CardHeader className="space-y-1 pb-4">
-            <h2 className="text-2xl font-semibold text-center text-gray-900">
-              Đăng ký
-            </h2>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {error && (
-                <div className="p-3 text-sm text-red-600 bg-red-50 rounded-md border border-red-200">
-                  {error}
-                </div>
-              )}
-              {success && (
-                <div className="p-3 text-sm text-green-600 bg-green-50 rounded-md border border-green-200 flex items-center gap-2">
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  Đăng ký thành công! Đang chuyển đến trang chủ...
-                </div>
-              )}
-              <div className="space-y-2">
-                <Label htmlFor="username" className="text-gray-700">
-                  Username
-                </Label>
-                <Input
-                  id="username"
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="john_doe"
-                  pattern="[a-zA-Z0-9_]+"
-                  required
-                  className="h-11 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-primary focus:ring-primary"
+    <div className="min-h-screen flex flex-col">
+      <main className="flex-1 flex items-center justify-center py-12 px-4">
+        <div className="w-full max-w-md">
+          <div className="border-2 border-foreground bg-card p-8">
+            {/* Header */}
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                <Image
+                  src="/logo.svg"
+                  alt="Logo"
+                  width={64}
+                  height={64}
+                  className="object-contain"
                 />
+              </div>
+              <h1 className="text-2xl font-bold">Đăng ký tài khoản</h1>
+              <p className="text-muted-foreground mt-2">
+                Tạo tài khoản để theo dõi đơn hàng và lưu file
+              </p>
+            </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="p-3 mb-6 text-sm text-red-600 bg-red-50 rounded-md border border-red-200">
+                {error}
+              </div>
+            )}
+
+            {/* Success Message */}
+            {success && (
+              <div className="p-3 mb-6 text-sm text-green-600 bg-green-50 rounded-md border border-green-200 flex items-center gap-2">
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                Đăng ký thành công! Đang chuyển đến trang đăng nhập...
+              </div>
+            )}
+
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="username"
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="john_doe"
+                    pattern="[a-zA-Z0-9_]+"
+                    className="pl-10 border-2 border-foreground"
+                    required
+                  />
+                </div>
                 {validationErrors.username && (
                   <p className="text-sm text-red-600">
                     {validationErrors.username}
                   </p>
                 )}
               </div>
+
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-gray-700">
-                  Email
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="email@example.com"
-                  required
-                  className="h-11 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-primary focus:ring-primary"
-                />
+                <Label htmlFor="email">Email</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="email@example.com"
+                    className="pl-10 border-2 border-foreground"
+                    required
+                  />
+                </div>
                 {validationErrors.email && (
                   <p className="text-sm text-red-600">
                     {validationErrors.email}
                   </p>
                 )}
               </div>
+
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-gray-700">
-                  Mật khẩu
-                </Label>
+                <Label htmlFor="password">Mật khẩu</Label>
                 <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Nhập mật khẩu"
+                    placeholder="Tối thiểu 8 ký tự"
+                    className="pl-10 pr-10 border-2 border-foreground"
                     required
-                    className="h-11 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-primary focus:ring-primary pr-10"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4" />
@@ -225,35 +237,78 @@ export default function RegisterPage() {
                   </p>
                 )}
               </div>
+
+              <div className="space-y-3 pt-2">
+                <div className="flex items-start gap-2">
+                  <Checkbox
+                    id="terms"
+                    className="mt-1"
+                    checked={acceptTerms}
+                    onCheckedChange={(checked) =>
+                      setAcceptTerms(checked === true)
+                    }
+                  />
+                  <Label
+                    htmlFor="terms"
+                    className="text-sm font-normal leading-relaxed cursor-pointer"
+                  >
+                    Tôi đồng ý với{" "}
+                    <Link
+                      href="/terms"
+                      className="text-primary hover:underline"
+                    >
+                      Điều khoản dịch vụ
+                    </Link>{" "}
+                    và{" "}
+                    <Link
+                      href="/privacy"
+                      className="text-primary hover:underline"
+                    >
+                      Chính sách bảo mật
+                    </Link>
+                  </Label>
+                </div>
+
+                <div className="flex items-start gap-2">
+                  <Checkbox id="newsletter" className="mt-1" />
+                  <Label
+                    htmlFor="newsletter"
+                    className="text-sm font-normal leading-relaxed cursor-pointer"
+                  >
+                    Nhận email thông báo về khuyến mãi và sản phẩm mới
+                  </Label>
+                </div>
+              </div>
+
               <Button
                 type="submit"
-                className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-medium"
-                disabled={loading}
+                className="w-full bg-primary hover:bg-primary/90 border-2 border-foreground font-semibold mt-4"
+                disabled={loading || !acceptTerms}
               >
                 {loading ? (
                   <span className="flex items-center gap-2">
                     <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
-                    Đang đăng ký...
+                    Đang tạo tài khoản...
                   </span>
                 ) : (
-                  "Đăng ký"
+                  "Tạo tài khoản"
                 )}
               </Button>
             </form>
-          </CardContent>
-          <CardFooter className="flex flex-col gap-4 pt-0">
-            <div className="text-sm text-center text-gray-600">
+
+            {/* Login Link */}
+            <p className="text-center mt-6 text-sm text-muted-foreground">
               Đã có tài khoản?{" "}
               <Link
                 href="/login"
-                className="text-primary hover:underline font-medium"
+                className="text-primary font-medium hover:underline"
               >
                 Đăng nhập
               </Link>
-            </div>
-          </CardFooter>
-        </Card>
-      </div>
+            </p>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

@@ -2,6 +2,15 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { CartProvider } from "@/contexts/CartContext";
+import { Header } from "@/components/layout/header";
+import { Footer } from "@/components/layout/footer";
+import { CookieConsent } from "@/components/ui/cookie-consent";
+import { PromoBanner } from "@/components/home/promo-banner";
+import { ChatbotWidget } from "@/components/chatbot/chatbot-widget";
+import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/seo/JsonLd";
+import { defaultSEO } from "@/lib/seo.config";
+import QueryProvider from "@/components/provider/query-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,10 +22,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "3D Print Service",
-  description: "Nền tảng cung cấp dịch vụ đặt in 3D trực tuyến",
-};
+export const metadata: Metadata = defaultSEO;
 
 export default function RootLayout({
   children,
@@ -25,10 +31,25 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi">
+      <head>
+        <OrganizationJsonLd />
+        <WebsiteJsonLd />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background text-foreground flex flex-col`}
       >
-        <AuthProvider>{children}</AuthProvider>
+        <QueryProvider>
+          <AuthProvider>
+            <CartProvider>
+              <PromoBanner />
+              <Header />
+              <main className="flex-1">{children}</main>
+              <Footer />
+              <CookieConsent />
+              <ChatbotWidget />
+            </CartProvider>
+          </AuthProvider>
+        </QueryProvider>
       </body>
     </html>
   );

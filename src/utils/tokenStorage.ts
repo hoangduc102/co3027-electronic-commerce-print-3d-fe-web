@@ -56,4 +56,5 @@ export interface User {
   email: string;
   username: string;
   role: "CUSTOMER" | "ADMIN";
+  addresses: any;
 }
