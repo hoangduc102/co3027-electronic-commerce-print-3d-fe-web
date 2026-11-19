@@ -1,237 +1,308 @@
-# 🖨️ 3D Print Service
+# 3D Print Service
 
-> Nền tảng cung cấp dịch vụ đặt in 3D trực tuyến - cho phép người dùng tải mô hình 3D, cấu hình thông số in, báo giá tức thì và đặt hàng online.
+> Nen tang cung cap dich vu dat in 3D truc tuyen - cho phep nguoi dung tai mo hinh 3D, cau hinh thong so in, bao gia tuc thi va dat hang online.
 
-![Next.js](https://img.shields.io/badge/Next.js-16.0.1-black?logo=next.js)
-![React](https://img.shields.io/badge/React-19.2.0-61DAFB?logo=react)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?logo=typescript)
-![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.0-06B6D4?logo=tailwindcss)
-![License](https://img.shields.io/badge/License-MIT-green)
-
----
-
-## 📋 Mục lục
-
-- [Tổng quan](#-tổng-quan)
-- [Tính năng](#-tính-năng)
-- [Công nghệ sử dụng](#-công-nghệ-sử-dụng)
-- [Cài đặt](#-cài-đặt)
-- [Cấu trúc dự án](#-cấu-trúc-dự-án)
-- [Authentication](#-authentication)
-- [Scripts](#-scripts)
-- [Triển khai Docker](#-triển-khai-docker)
-- [Giấy phép](#-giấy-phép)
+| Cong nghe | Phien ban |
+|-----------|-----------|
+| Next.js | 16.0.7 |
+| React | 19.2.0 |
+| TypeScript | 5.x |
+| TailwindCSS | 4.x |
+| License | MIT |
 
 ---
 
-## 🎯 Tổng quan
+## Muc luc
 
-**3D Print Service** là một ứng dụng web hiện đại được xây dựng trên **Next.js App Router**, cung cấp trải nghiệm đặt in 3D hoàn chỉnh từ upload file đến thanh toán và theo dõi đơn hàng.
-
-### Điểm nổi bật:
-
-- 🚀 **Next.js 16** với App Router và React 19
-- 🎨 **Radix UI** + **TailwindCSS** cho giao diện đẹp, responsive
-- 🔐 **JWT Authentication** với auto token refresh
-- 📦 **Three.js** cho xem trước mô hình 3D
-- 🐳 **Docker ready** với multi-stage build
+- [Tong quan](#tong-quan)
+- [Tinh nang](#tinh-nang)
+- [Cong nghe su dung](#cong-nghe-su-dung)
+- [Cai dat](#cai-dat)
+- [Cau truc du an](#cau-truc-du-an)
+- [Authentication](#authentication)
+- [Scripts](#scripts)
+- [Trien khai Docker](#trien-khai-docker)
+- [Giay phep](#giay-phep)
 
 ---
 
-## ✨ Tính năng
+## Tong quan
 
-### Người dùng
+**3D Print Service** la mot ung dung web hien dai duoc xay dung tren **Next.js App Router**, cung cap trai nghiem dat in 3D hoan chinh tu upload file den thanh toan va theo doi don hang.
 
-| Tính năng | Mô tả |
+### Diem noi bat
+
+- **Next.js 16** voi App Router va React 19
+- **Radix UI** + **TailwindCSS** cho giao dien dep, responsive
+- **JWT Authentication** voi auto token refresh
+- **Three.js** cho xem truoc mo hinh 3D
+- **React Hook Form** + **Zod** cho form validation
+- **TanStack React Query** cho server state management
+- **Docker ready** voi multi-stage build
+- **SEO** voi robots.ts va sitemap.ts tich hop san
+
+---
+
+## Tinh nang
+
+### Nguoi dung
+
+| Tinh nang | Mo ta |
 |-----------|-------|
-| 📤 **Upload mô hình 3D** | Hỗ trợ định dạng STL/OBJ với xem trước 3D |
-| ⚙️ **Cấu hình in** | Chọn công nghệ (FDM/SLA/SLS), vật liệu, màu sắc, infill |
-| 💰 **Báo giá tự động** | Tính giá theo thể tích, thời gian in và vật liệu |
-| 🛒 **Giỏ hàng & Thanh toán** | Quản lý đơn hàng, checkout online |
-| 📊 **Dashboard** | Theo dõi trạng thái đơn hàng, lịch sử in |
-| 🔍 **Tìm kiếm & Lọc** | Tìm sản phẩm, bộ lọc nâng cao |
+| Upload mo hinh 3D | Ho tro dinh dang STL/OBJ voi xem truoc 3D |
+| Cau hinh in | Chon cong nghe (FDM/SLA/SLS), vat lieu, mau sac, infill |
+| Bao gia tu dong | Tinh gia theo the tich, thoi gian in va vat lieu |
+| Gio hang va Thanh toan | Quan ly don hang, checkout online |
+| Dashboard | Theo doi trang thai don hang, lich su in |
+| Tim kiem va Loc | Tim san pham, bo loc nang cao |
+| Chatbot ho tro | Tro chuyen truc tuyen voi he thong |
 
-### Trang công khai
+### Trang cong khai
 
-- 🏠 Trang chủ với banner khuyến mãi
-- 🏪 Cửa hàng sản phẩm mẫu
-- 📖 Blog & Tin tức
-- 📚 Hướng dẫn in 3D
-- 🧪 Thư viện vật liệu
-- 📞 Liên hệ & Hỗ trợ
-- 📜 Chính sách (Điều khoản, Bảo mật, Hoàn tiền, Vận chuyển)
+- Trang chu voi banner khuyen mai
+- Cua hang san pham mau
+- Blog va Tin tuc
+- Huong dan in 3D
+- Thu vien vat lieu
+- Showcase (trung bay san pham)
+- Lien he va Ho tro
+- Tim kiem san pham
+- Doi tac
+- Tuyen dung
+- Chinh sach (Dieu khoan, Bao mat, Hoan tien, Van chuyen)
 
 ---
 
-## 🛠 Công nghệ sử dụng
+## Cong nghe su dung
 
 ### Frontend
 
-| Công nghệ | Phiên bản | Mô tả |
+| Cong nghe | Phien ban | Mo ta |
 |-----------|-----------|-------|
-| **Next.js** | 16.0.1 | React framework với App Router |
-| **React** | 19.2.0 | UI library |
-| **TypeScript** | 5.x | Type-safe JavaScript |
-| **TailwindCSS** | 4.x | Utility-first CSS |
-| **Radix UI** | Latest | Accessible UI components |
-| **Three.js** | 0.181 | 3D visualization |
-| **Lucide React** | 0.552 | Icon library |
+| Next.js | 16.0.7 | React framework voi App Router |
+| React | 19.2.0 | UI library |
+| TypeScript | 5.x | Type-safe JavaScript |
+| TailwindCSS | 4.x | Utility-first CSS |
+| Radix UI | Latest | Accessible UI components |
+| Three.js | 0.181 | 3D visualization |
+| React Three Fiber | 9.4 | React renderer cho Three.js |
+| React Three Drei | 10.7 | Helpers cho React Three Fiber |
+| TanStack React Query | 5.90 | Server state management |
+| React Hook Form | 7.69 | Form management |
+| Zod | 4.2 | Schema validation |
+| Lucide React | 0.552 | Icon library |
+| class-variance-authority | 0.7 | Component variant management |
 
 ### Development
 
-| Tool | Mô tả |
+| Tool | Mo ta |
 |------|-------|
-| **pnpm** | Package manager (khuyến nghị) |
-| **ESLint** | Linting |
-| **Prettier** | Code formatting |
-| **Docker** | Containerization |
+| pnpm | Package manager (khuyen nghi) |
+| ESLint | Linting |
+| Prettier | Code formatting |
+| Docker | Containerization |
+| React Compiler (babel-plugin) | Tu dong toi uu component |
 
 ---
 
-## 🚀 Cài đặt
+## Cai dat
 
-### Yêu cầu hệ thống
+### Yeu cau he thong
 
 - **Node.js** >= 18
-- **pnpm** (khuyến nghị) hoặc npm/yarn
-- **Backend API** đang chạy (mặc định: `http://localhost:8000`)
+- **pnpm** (khuyen nghi) hoac npm/yarn
+- **Backend API** dang chay (mac dinh: `http://localhost:8000`)
 
-### Bước 1: Clone repository
+### Buoc 1: Clone repository
 
 ```bash
 git clone https://github.com/hoangduc102/co3027-electronic-commerce-print-3d.git
 cd co3027-electronic-commerce-print-3d
 ```
 
-### Bước 2: Cài đặt dependencies
+### Buoc 2: Cai dat dependencies
 
 ```bash
 pnpm install
 ```
 
-### Bước 3: Cấu hình môi trường
+### Buoc 3: Cau hinh moi truong
 
-Tạo file `.env.local`:
+Tao file `.env.local`:
 
-```env
+```
 NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
 
-### Bước 4: Chạy development server
+### Buoc 4: Chay development server
 
 ```bash
 pnpm dev
 ```
 
-Mở trình duyệt: **http://localhost:3000**
+Mo trinh duyet: **http://localhost:3000**
 
 ---
 
-## 📁 Cấu trúc dự án
+## Cau truc du an
 
 ```
 src/
-├── app/                    # Next.js App Router
-│   ├── (public)/           # Các trang công khai
-│   │   ├── about/          # Giới thiệu
-│   │   ├── blog/           # Blog & tin tức
-│   │   ├── checkout/       # Thanh toán
-│   │   ├── materials/      # Thư viện vật liệu
-│   │   ├── quote/          # Báo giá
-│   │   ├── store/          # Cửa hàng
-│   │   └── ...
-│   ├── dashboard/          # Dashboard người dùng
-│   ├── login/              # Đăng nhập
-│   ├── register/           # Đăng ký
-│   └── user/               # Hồ sơ người dùng
-│
-├── components/             # React components
-│   ├── auth/               # Components xác thực
-│   ├── checkout/           # Components thanh toán
-│   ├── dashboard/          # Components dashboard
-│   ├── layout/             # Header, Footer
-│   ├── quote/              # Components báo giá
-│   ├── store/              # Components cửa hàng
-│   └── ui/                 # UI primitives (shadcn/ui)
-│
-├── config/                 # Cấu hình
-│   └── api.config.ts       # API endpoints
-│
-├── contexts/               # React Contexts
-│   └── AuthContext.tsx     # Quản lý authentication
-│
-├── hooks/                  # Custom hooks
-│   ├── use-file-upload.ts  # Upload file
-│   └── use-price-calculator.ts
-│
-├── lib/                    # Utilities
-│   ├── constants.ts        # Hằng số
-│   ├── data.ts             # Mock data
-│   ├── types.ts            # TypeScript types
-│   └── utils.ts            # Helper functions
-│
-├── services/               # API services
-│   ├── auth.service.ts     # Authentication API
-│   ├── httpClient.ts       # HTTP client với interceptors
-│   └── user-profile.service.ts
-│
-└── utils/                  # Tiện ích
-    ├── tokenRefresh.ts     # Auto refresh token
-    └── tokenStorage.ts     # Quản lý localStorage
+|-- app/                          # Next.js App Router
+|   |-- (public)/                 # Cac trang cong khai
+|   |   |-- about/                # Gioi thieu
+|   |   |-- blog/                 # Blog & tin tuc
+|   |   |-- careers/              # Tuyen dung
+|   |   |-- checkout/             # Thanh toan
+|   |   |-- contact/              # Lien he
+|   |   |-- guidelines/           # Huong dan
+|   |   |-- materials/            # Thu vien vat lieu
+|   |   |-- partners/             # Doi tac
+|   |   |-- privacy/              # Chinh sach bao mat
+|   |   |-- quote/                # Bao gia
+|   |   |-- refund/               # Chinh sach hoan tien
+|   |   |-- search/               # Tim kiem
+|   |   |-- shipping/             # Chinh sach van chuyen
+|   |   |-- showcase/             # Trung bay san pham
+|   |   |-- store/                # Cua hang
+|   |   |-- support/              # Ho tro
+|   |   +-- terms/                # Dieu khoan
+|   |-- api/chat/                 # API route cho chatbot
+|   |-- dashboard/                # Dashboard nguoi dung
+|   |-- login/                    # Dang nhap
+|   |-- register/                 # Dang ky
+|   |-- user/                     # Ho so nguoi dung
+|   |-- layout.tsx                # Root layout
+|   |-- page.tsx                  # Trang chu
+|   |-- globals.css               # Global styles
+|   |-- robots.ts                 # SEO robots config
+|   +-- sitemap.ts                # SEO sitemap config
+|
+|-- components/                   # React components
+|   |-- auth/                     # Components xac thuc
+|   |-- chatbot/                  # Components chatbot
+|   |-- checkout/                 # Components thanh toan
+|   |-- dashboard/                # Components dashboard
+|   |-- home/                     # Components trang chu
+|   |-- layout/                   # Header, Footer
+|   |-- navigation/               # Components dieu huong
+|   |-- provider/                 # Context providers
+|   |-- quote/                    # Components bao gia
+|   |-- seo/                      # Components SEO
+|   |-- store/                    # Components cua hang
+|   +-- ui/                       # UI primitives (shadcn/ui)
+|
+|-- config/                       # Cau hinh
+|   +-- api.config.ts             # API endpoints & auth endpoints
+|
+|-- contexts/                     # React Contexts
+|   |-- AuthContext.tsx            # Quan ly authentication
+|   +-- CartContext.tsx            # Quan ly gio hang
+|
+|-- hooks/                        # Custom hooks
+|   |-- use-file-upload.ts        # Upload file
+|   +-- use-price-calculator.ts   # Tinh gia
+|
+|-- lib/                          # Utilities
+|   |-- constants.ts              # Hang so
+|   |-- data.ts                   # Mock data
+|   |-- seo.config.ts             # SEO configuration
+|   |-- types.ts                  # TypeScript types
+|   +-- utils.ts                  # Helper functions
+|
+|-- schemas/                      # Zod validation schemas
+|   |-- checkout.schema.ts        # Schema thanh toan
+|   |-- order.schema.ts           # Schema don hang
+|   |-- payment.schema.ts         # Schema thanh toan
+|   |-- print-files.schema.ts     # Schema file in
+|   +-- product.schema.ts         # Schema san pham
+|
+|-- services/                     # API services
+|   |-- auth.service.ts           # Authentication API
+|   |-- httpClient.ts             # HTTP client voi interceptors
+|   |-- order.api.ts              # Order API
+|   |-- payment.api.ts            # Payment API
+|   |-- product.api.ts            # Product API
+|   +-- user-profile.service.ts   # User profile API
+|
+|-- types/                        # TypeScript type definitions
+|   |-- order.ts                  # Order types
+|   |-- payment.type.ts           # Payment types
+|   |-- print-file.types.ts       # Print file types
+|   |-- product.types.ts          # Product types
+|   +-- user.types.ts             # User types
+|
++-- utils/                        # Tien ich
+    |-- tokenRefresh.ts           # Auto refresh token
+    +-- tokenStorage.ts           # Quan ly localStorage
 ```
 
 ---
 
-## 🔐 Authentication
+## Authentication
 
-Hệ thống xác thực sử dụng **JWT (JSON Web Tokens)**:
+He thong xac thuc su dung **JWT (JSON Web Tokens)**:
 
-| Token | Thời hạn | Mô tả |
+| Token | Thoi han | Mo ta |
 |-------|----------|-------|
-| **Access Token** | 15 phút | Xác thực API requests |
-| **Refresh Token** | 7 ngày | Làm mới access token |
+| Access Token | 15 phut | Xac thuc API requests |
+| Refresh Token | 7 ngay | Lam moi access token |
 
-### Tính năng:
+### Tinh nang
 
-- ✅ Tự động refresh token khi hết hạn
-- ✅ Tokens lưu trong localStorage
-- ✅ Protected routes với `ProtectedRoute` component
-- ✅ Global auth state với React Context
+- Tu dong refresh token khi het han
+- Tu dong retry request khi token het han (HTTP interceptor)
+- Tokens luu trong localStorage
+- Protected routes voi `ProtectedRoute` component
+- Global auth state voi React Context (`AuthContext`)
+- Cart state persist vao localStorage (`CartContext`)
 
-### Cấu trúc files:
+### API Endpoints
+
+| Endpoint | Mo ta |
+|----------|-------|
+| `/auth/register` | Dang ky tai khoan |
+| `/auth/login` | Dang nhap |
+| `/auth/refresh` | Lam moi token |
+| `/auth/logout` | Dang xuat |
+| `/auth/me` | Lay thong tin user hien tai |
+
+### Cau truc files
 
 ```
 src/
-├── config/api.config.ts        # API endpoints
-├── contexts/AuthContext.tsx    # Auth state management
-├── services/
-│   ├── auth.service.ts         # Auth API calls
-│   └── httpClient.ts           # HTTP client với interceptors
-├── utils/
-│   ├── tokenStorage.ts         # Token CRUD
-│   └── tokenRefresh.ts         # Auto refresh logic
-└── components/auth/
-    └── ProtectedRoute.tsx      # Route protection
+|-- config/api.config.ts          # API endpoints
+|-- contexts/
+|   |-- AuthContext.tsx            # Auth state management
+|   +-- CartContext.tsx            # Cart state management
+|-- services/
+|   |-- auth.service.ts           # Auth API calls
+|   +-- httpClient.ts             # HTTP client voi interceptors
+|-- utils/
+|   |-- tokenStorage.ts           # Token CRUD
+|   +-- tokenRefresh.ts           # Auto refresh logic
++-- components/auth/
+    +-- ProtectedRoute.tsx        # Route protection
 ```
 
 ---
 
-## 📜 Scripts
+## Scripts
 
-| Script | Lệnh | Mô tả |
+| Script | Lenh | Mo ta |
 |--------|------|-------|
-| **dev** | `pnpm dev` | Chạy development server |
-| **build** | `pnpm build` | Build production |
-| **start** | `pnpm start` | Chạy production build |
-| **lint** | `pnpm lint` | Kiểm tra ESLint |
-| **lint:fix** | `pnpm lint:fix` | Sửa lỗi ESLint + format |
-| **format** | `pnpm format` | Format code với Prettier |
+| dev | `pnpm dev` | Chay development server |
+| build | `pnpm build` | Build production |
+| start | `pnpm start` | Chay production build |
+| lint | `pnpm lint` | Kiem tra ESLint |
+| lint:fix | `pnpm lint:fix` | Sua loi ESLint + format |
+| format | `pnpm format` | Format code voi Prettier |
 
 ---
 
-## 🐳 Triển khai Docker
+## Trien khai Docker
 
-### Yêu cầu
+### Yeu cau
 
 - **Docker** >= 20.10
 - **Docker Compose** >= 2.0
@@ -239,69 +310,75 @@ src/
 ### Quick Start
 
 ```bash
-# 1. Tạo file môi trường
+# 1. Tao file moi truong
 echo "NEXT_PUBLIC_API_URL=http://localhost:8000" > .env.production
 
-# 2. Build và chạy
+# 2. Build va chay
 docker-compose up -d --build
 
-# 3. Truy cập http://localhost:3000
+# 3. Truy cap http://localhost:3000
 ```
 
-### Kiến trúc Docker
+### Kien truc Docker
 
-Dockerfile sử dụng **multi-stage build** để tối ưu:
+Dockerfile su dung **multi-stage build** de toi uu:
 
-```
-Stage 1 (deps)     → Cài đặt dependencies với pnpm
-Stage 2 (builder)  → Build Next.js standalone
-Stage 3 (runner)   → Production image (~200-300MB)
-```
+| Stage | Mo ta |
+|-------|-------|
+| Stage 1 (deps) | Cai dat dependencies voi pnpm |
+| Stage 2 (builder) | Build Next.js standalone |
+| Stage 3 (runner) | Production image (~200-300MB) |
 
-**Lợi ích:**
-- 📦 Image nhỏ gọn
-- 🔒 Chạy với non-root user
-- ⚡ Layer caching tăng tốc build
+**Loi ich:**
 
-### Các lệnh thường dùng
+- Image nho gon
+- Chay voi non-root user (bao mat)
+- Layer caching tang toc build
+- Standalone output tu dong bundle dependencies
+
+### Cac lenh thuong dung
 
 ```bash
 # Xem logs
 docker-compose logs -f print-3d
 
-# Dừng container
+# Dung container
 docker-compose down
 
-# Rebuild không cache
+# Rebuild khong cache
 docker-compose build --no-cache && docker-compose up -d
 
-# Vào container debug
+# Vao container debug
 docker exec -it print-3d-app sh
 ```
 
 ### Health Check
 
-Container tự động kiểm tra sức khỏe:
+Container tu dong kiem tra suc khoe:
 
-| Cấu hình | Giá trị |
+| Cau hinh | Gia tri |
 |----------|---------|
 | Interval | 30s |
 | Timeout | 10s |
 | Start period | 40s |
 | Retries | 3 |
 
+### Docker Compose Configuration
+
+- Container name: `print-3d-app`
+- Port mapping: `3000:3000`
+- Network: `print-3d-network` (bridge)
+- Restart policy: `unless-stopped`
+- Environment variables duoc inject tu `.env.production`
+
 ---
 
-## 📄 Giấy phép
+## Giay phep
 
-Dự án được phát hành theo giấy phép **MIT**. Xem file [LICENSE](LICENSE) để biết thêm chi tiết.
+Du an duoc phat hanh theo giay phep **MIT**. Xem file [LICENSE](LICENSE) de biet them chi tiet.
 
 ---
 
-<div align="center">
-
-**Made with ❤️ by HCMUT Students**
+**Made with love by HCMUT Students**
 
 *CO3027 - Electronic Commerce*
-
-</div>
