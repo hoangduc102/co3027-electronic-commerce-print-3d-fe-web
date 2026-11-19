@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,13 +17,7 @@ import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { TrustBadges } from "@/components/ui/trust-badges";
 import { PaymentMethods } from "@/components/ui/payment-methods";
 import { WarrantyBadges } from "@/components/store/warranty-info";
-import {
-  CreditCard,
-  Truck,
-  AlertTriangle,
-  CheckCircle,
-  Loader2,
-} from "lucide-react";
+import { CreditCard, Truck, AlertTriangle, Loader2 } from "lucide-react";
 
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -39,6 +34,8 @@ import {
 } from "@/components/ui/dialog";
 
 import { checkoutSchema, CheckoutFormValues } from "@/schemas/checkout.schema";
+import { formatPrice } from "@/lib/utils";
+import { SHIPPING_FEE } from "@/lib/constants";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -47,6 +44,9 @@ export default function CheckoutPage() {
   const { user, isAuthenticated, isLoading } = useAuth();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  /** Đơn đã tạo nhưng bước thanh toán lỗi → cho người dùng vào trang đơn để thử lại */
+  const [pendingOrderId, setPendingOrderId] = useState<string | null>(null);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [orderNumber, setOrderNumber] = useState("");
 
@@ -71,15 +71,27 @@ export default function CheckoutPage() {
     register,
     handleSubmit,
     watch,
+    getValues,
+    setValue,
     formState: { errors },
   } = form;
+
+  // Điền sẵn email của tài khoản nếu người dùng chưa nhập
+  useEffect(() => {
+    if (user?.email && !getValues("email")) {
+      setValue("email", user.email);
+    }
+  }, [user, getValues, setValue]);
 
   /* ================= SUBMIT ================= */
   const onSubmit = async (values: CheckoutFormValues) => {
     if (!user || cart.length === 0) return;
 
+    let createdOrderId: string | null = null;
     try {
       setIsSubmitting(true);
+      setSubmitError(null);
+      setPendingOrderId(null);
 
       const order = await createOrder({
         shippingAddress: {
@@ -89,15 +101,18 @@ export default function CheckoutPage() {
           addressText: values.addressText,
         },
         items: cart.map((item) => ({
-          variantId: item.id,
+          variantId: item.variantId,
           quantity: item.quantity,
-          price: item.price,
+          scale: item.scale ?? 100,
         })),
       });
+      // Đơn đã nằm trên server → xoá giỏ để tránh đặt trùng khi thử lại
+      createdOrderId = order.id;
+      clearCart();
 
       // 2️⃣ Create Payment
       const payment = await createPayment({
-        orderId: order.data.id,
+        orderId: order.id,
         method: mapPaymentMethodToBE(values.paymentMethod),
       });
 
@@ -105,17 +120,27 @@ export default function CheckoutPage() {
       if (values.paymentMethod === "vnpay") {
         const { data } = await getVnPayUrl(payment.data.id);
         window.location.href = data.url;
-        console.log(data);
         return;
       }
 
       // 4️⃣ COD → done
-      clearCart();
-      setOrderNumber(order.data.id);
-      // setShowSuccessDialog(true);
+      setOrderNumber(order.id);
+      setShowSuccessDialog(true);
     } catch (err) {
       console.error(err);
-      alert("Không thể đặt hàng, vui lòng thử lại");
+      const reason = err instanceof Error && err.message ? err.message : "";
+      if (createdOrderId) {
+        setPendingOrderId(createdOrderId);
+        setSubmitError(
+          `Đơn hàng đã được tạo nhưng chưa khởi tạo được thanh toán${reason ? ` (${reason})` : ""}.`
+        );
+      } else {
+        setSubmitError(
+          reason
+            ? `Không thể đặt hàng: ${reason}`
+            : "Không thể đặt hàng, vui lòng thử lại"
+        );
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -123,7 +148,7 @@ export default function CheckoutPage() {
 
   /* ================= CALC ================= */
   const subtotal = getCartTotal();
-  const shippingFee = cart.length > 0 ? 35000 : 0;
+  const shippingFee = cart.length > 0 ? SHIPPING_FEE : 0;
   const total = subtotal + shippingFee;
 
   const canCheckout =
@@ -132,13 +157,15 @@ export default function CheckoutPage() {
     cart.length > 0 &&
     !isSubmitting;
 
-  const formatPrice = (value: number) =>
-    new Intl.NumberFormat("vi-VN").format(value) + "đ";
-
   /* ================= UI ================= */
-  const onInvalid = (errs: any) => {
-    console.log("INVALID FORM:", errs);
-  };
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   if (!isAuthenticated) {
     return (
       <div className="container mx-auto p-8 text-center">
@@ -159,8 +186,7 @@ export default function CheckoutPage() {
           <TrustBadges variant="horizontal" className="mb-8" />
 
           <form
-            onSubmit={handleSubmit(onSubmit, onInvalid)}
-            onSubmitCapture={() => console.log("FORM SUBMIT CAPTURE")}
+            onSubmit={handleSubmit(onSubmit)}
             className="grid lg:grid-cols-[1fr_400px] gap-8"
           >
             {/* ================= LEFT ================= */}
@@ -192,12 +218,24 @@ export default function CheckoutPage() {
                 )}
 
                 <Input {...register("phone")} placeholder="Số điện thoại" />
+                {errors.phone && (
+                  <p className="text-red-500 text-sm">{errors.phone.message}</p>
+                )}
+
                 <Input {...register("email")} placeholder="Email" />
+                {errors.email && (
+                  <p className="text-red-500 text-sm">{errors.email.message}</p>
+                )}
 
                 <Textarea
                   {...register("addressText")}
                   placeholder="Địa chỉ giao hàng"
                 />
+                {errors.addressText && (
+                  <p className="text-red-500 text-sm">
+                    {errors.addressText.message}
+                  </p>
+                )}
               </div>
 
               {/* Payment */}
@@ -296,10 +334,32 @@ export default function CheckoutPage() {
 
             {/* ================= RIGHT ================= */}
             <div className="sticky top-32 border-2 border-foreground p-4 flex flex-col  gap-2   ">
-              <div className="flex justify-between font-bold text-lg">
+              <div className="flex justify-between text-sm text-muted-foreground">
+                <span>Tạm tính</span>
+                <span>{formatPrice(subtotal)}</span>
+              </div>
+              <div className="flex justify-between text-sm text-muted-foreground">
+                <span>Phí vận chuyển</span>
+                <span>{formatPrice(shippingFee)}</span>
+              </div>
+              <div className="flex justify-between font-bold text-lg border-t-2 border-foreground pt-2">
                 <span>Tổng cộng</span>
                 <span>{formatPrice(total)}</span>
               </div>
+
+              {submitError && (
+                <div className="text-sm text-red-600" role="alert">
+                  <p>{submitError}</p>
+                  {pendingOrderId && (
+                    <Link
+                      href={`/dashboard/orders/${pendingOrderId}`}
+                      className="underline font-medium"
+                    >
+                      Xem đơn hàng và thanh toán lại
+                    </Link>
+                  )}
+                </div>
+              )}
 
               <Button
                 type="submit"

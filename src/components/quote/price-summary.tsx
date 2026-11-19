@@ -1,19 +1,31 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, ArrowRight } from "lucide-react";
+import { ShoppingCart, ArrowRight, Loader2 } from "lucide-react";
 import type { PriceBreakdown } from "@/lib/types";
+import { formatPrice } from "@/lib/utils";
 
 interface PriceSummaryProps {
   items: { name: string; price: PriceBreakdown; quantity: number }[];
-  onCheckout: () => void;
+  onAddToCart: () => void;
+  onCheckoutNow: () => void;
+  isProcessing?: boolean;
+  /** Lý do không đặt được (hiện dưới nút, nút bị vô hiệu) */
+  disabledReason?: string | null;
+  /** Thông báo kết quả (thành công / lỗi) */
+  message?: ReactNode;
 }
 
-export function PriceSummary({ items, onCheckout }: PriceSummaryProps) {
-  const formatPrice = (value: number) => {
-    return new Intl.NumberFormat("vi-VN").format(value) + "đ";
-  };
-
+export function PriceSummary({
+  items,
+  onAddToCart,
+  onCheckoutNow,
+  isProcessing = false,
+  disabledReason,
+  message,
+}: PriceSummaryProps) {
+  const disabled = isProcessing || !!disabledReason;
   const totalItems = items.reduce((acc, item) => acc + item.quantity, 0);
   const subtotal = items.reduce((acc, item) => acc + item.price.total, 0);
   const hasItems = items.length > 0;
@@ -56,22 +68,36 @@ export function PriceSummary({ items, onCheckout }: PriceSummaryProps) {
               </div>
             </div>
 
+            <p className="text-xs text-muted-foreground">
+              Chưa gồm phí vận chuyển. Giá cuối cùng hiển thị ở bước thanh toán.
+            </p>
+
             <Button
               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground border-2 border-foreground font-semibold gap-2"
-              onClick={onCheckout}
+              onClick={onAddToCart}
+              disabled={disabled}
             >
-              <ShoppingCart className="h-4 w-4" />
+              {isProcessing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <ShoppingCart className="h-4 w-4" />
+              )}
               Thêm vào giỏ hàng
             </Button>
 
             <Button
               variant="outline"
               className="w-full border-2 border-foreground font-semibold gap-2 bg-transparent"
-              onClick={onCheckout}
+              onClick={onCheckoutNow}
+              disabled={disabled}
             >
               Thanh toán ngay
               <ArrowRight className="h-4 w-4" />
             </Button>
+
+            {disabledReason && (
+              <p className="text-sm text-amber-700">{disabledReason}</p>
+            )}
           </>
         ) : (
           <div className="text-center py-8 text-muted-foreground">
@@ -79,6 +105,7 @@ export function PriceSummary({ items, onCheckout }: PriceSummaryProps) {
             <p className="text-sm">Upload file để bắt đầu</p>
           </div>
         )}
+        {message}
       </div>
     </div>
   );

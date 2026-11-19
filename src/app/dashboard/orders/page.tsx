@@ -1,91 +1,33 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { OrderCard } from "@/components/dashboard/order-card";
-import { ArrowLeft, Filter } from "lucide-react";
-import { useState } from "react";
+import { AlertCircle, ArrowLeft, Filter, Loader2 } from "lucide-react";
+import { useMyOrders } from "@/hooks/use-orders";
+import { ORDER_STATUSES } from "@/lib/constants";
+import type { OrderStatus } from "@/types/order";
 
-// Mock data
-const allOrders = [
-  {
-    id: "ORD-2024-001",
-    date: new Date("2024-12-01"),
-    status: "printing" as const,
-    items: [
-      {
-        name: "Tượng Rồng Phong Thủy",
-        image: "/dragon-statue-gold-3d-printed.jpg",
-        quantity: 1,
-      },
-      {
-        name: "Núm vặn Hexagon",
-        image: "/hexagon-cabinet-knob-black-3d-printed.jpg",
-        quantity: 4,
-      },
-    ],
-    total: 450000,
-  },
-  {
-    id: "ORD-2024-002",
-    date: new Date("2024-11-28"),
-    status: "delivered" as const,
-    items: [
-      {
-        name: "Figure Chibi Anime",
-        image: "/chibi-anime-figure-3d-printed-colorful.jpg",
-        quantity: 2,
-      },
-    ],
-    total: 360000,
-  },
-  {
-    id: "ORD-2024-003",
-    date: new Date("2024-11-20"),
-    status: "delivered" as const,
-    items: [
-      {
-        name: "Giá đỡ điện thoại",
-        image: "/phone-stand-holder-3d-printed-adjustable.jpg",
-        quantity: 1,
-      },
-    ],
-    total: 85000,
-  },
-  {
-    id: "ORD-2024-004",
-    date: new Date("2024-11-15"),
-    status: "delivered" as const,
-    items: [
-      {
-        name: "Mặt nạ Samurai",
-        image: "/samurai-mask-wall-decor-3d-printed-gold-black.jpg",
-        quantity: 1,
-      },
-    ],
-    total: 280000,
-  },
-];
-
-const statusFilters = [
+const statusFilters: { value: OrderStatus | "all"; label: string }[] = [
   { value: "all", label: "Tất cả" },
-  { value: "printing", label: "Đang in" },
-  { value: "post-processing", label: "Xử lý nguội" },
-  { value: "shipping", label: "Đang giao" },
-  { value: "delivered", label: "Đã giao" },
+  ...(Object.keys(ORDER_STATUSES) as OrderStatus[]).map((status) => ({
+    value: status,
+    label: ORDER_STATUSES[status].label,
+  })),
 ];
 
 export default function OrdersPage() {
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
+  const { data: orders = [], isLoading, isError, error } = useMyOrders();
 
   const filteredOrders =
     statusFilter === "all"
-      ? allOrders
-      : allOrders.filter((order) => order.status === statusFilter);
+      ? orders
+      : orders.filter((order) => order.status === statusFilter);
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Back Link */}
       <div>
         <Link
           href="/dashboard"
@@ -99,7 +41,6 @@ export default function OrdersPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-3xl font-bold">Tất cả đơn hàng</h1>
 
-        {/* Status Filter */}
         <div className="flex items-center gap-2">
           <Filter className="h-4 w-4 text-muted-foreground" />
           <div className="flex flex-wrap gap-2">
@@ -120,18 +61,28 @@ export default function OrdersPage() {
         </div>
       </div>
 
-      {/* Orders List */}
-      {filteredOrders.length > 0 ? (
-        <div className="space-y-4">
+      {isLoading ? (
+        <div className="flex justify-center py-16">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : isError ? (
+        <div className="flex flex-col items-center py-16 text-destructive">
+          <AlertCircle className="h-10 w-10 mb-2" />
+          <p>{(error as Error).message}</p>
+        </div>
+      ) : filteredOrders.length > 0 ? (
+        <div className="grid md:grid-cols-2 gap-4">
           {filteredOrders.map((order) => (
-            <OrderCard key={order.id} {...order} />
+            <OrderCard key={order.id} order={order} />
           ))}
         </div>
       ) : (
         <div className="text-center py-16 border-2 border-dashed border-foreground">
           <p className="text-lg font-medium mb-2">Không có đơn hàng nào</p>
           <p className="text-muted-foreground mb-4">
-            Thử thay đổi bộ lọc trạng thái
+            {orders.length > 0
+              ? "Thử thay đổi bộ lọc trạng thái"
+              : "Bạn chưa đặt đơn hàng nào"}
           </p>
           <Button
             asChild

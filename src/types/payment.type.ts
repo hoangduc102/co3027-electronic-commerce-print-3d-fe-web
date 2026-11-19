@@ -1,6 +1,6 @@
 // ===== Payment enums (match Prisma) =====
 
-export type PaymentStatus = "UNPAID" | "PAID" | "FAILED" | "CANCELLED";
+export type PaymentStatus = "UNPAID" | "PAID" | "REFUNDED" | "FAILED";
 
 export type PaymentMethodBE = "BANK_TRANSFER" | "CASH_ON_DELIVERY";
 

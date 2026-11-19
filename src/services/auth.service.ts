@@ -23,233 +23,148 @@ export interface LoginDto {
   password: string;
 }
 
+/**
+ * Backend (TransformInterceptor) bọc mọi response thành
+ * `{ data, timestamp, path }`. Hàm này bóc lớp `data` ra.
+ */
+export function unwrapData<T>(json: unknown): T {
+  if (json && typeof json === "object" && "data" in json) {
+    return (json as { data: T }).data;
+  }
+  return json as T;
+}
+
+/** Lấy message lỗi từ response của NestJS (string hoặc string[]). */
+export async function readErrorMessage(
+  response: Response,
+  fallback: string
+): Promise<string> {
+  const body = await response.json().catch(() => null);
+  const message = body?.message;
+  if (Array.isArray(message)) return message.join(", ");
+  if (typeof message === "string" && message) return message;
+  return fallback;
+}
+
+async function parseResponse<T>(
+  response: Response,
+  fallbackError: string
+): Promise<T> {
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response, fallbackError));
+  }
+  return unwrapData<T>(await response.json());
+}
+
 class AuthService {
   private readonly baseUrl = API_CONFIG.API_BASE_URL;
+  /** Promise refresh đang chạy — dùng chung để tránh gọi refresh song song. */
+  private refreshPromise: Promise<TokenResponse> | null = null;
+  /** Được AuthContext đăng ký để biết khi phiên đăng nhập hết hạn. */
+  private sessionExpiredHandler: (() => void) | null = null;
 
-  async register(data: RegisterDto): Promise<AuthResponse> {
-    const response = await fetch(`${this.baseUrl}${AUTH_ENDPOINTS.REGISTER}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({
-        message: "Đăng ký thất bại",
-      }));
-      // Backend có thể trả về message là string hoặc array
-      const errorMessage = Array.isArray(error.message)
-        ? error.message.join(", ")
-        : error.message || "Đăng ký thất bại";
-      throw new Error(errorMessage);
-    }
-
-    return response.json();
+  onSessionExpired(handler: (() => void) | null): void {
+    this.sessionExpiredHandler = handler;
   }
 
-  async login(loginData: LoginDto): Promise<AuthResponse> {
-    const url = `${this.baseUrl}${AUTH_ENDPOINTS.LOGIN}`;
-
-    const response = await fetch(url, {
+  private post(endpoint: string, body?: unknown, accessToken?: string) {
+    return fetch(`${this.baseUrl}${endpoint}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
       },
-      body: JSON.stringify(loginData),
+      body: body === undefined ? undefined : JSON.stringify(body),
     });
+  }
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => {
-        // Nếu không parse được JSON, thử lấy text
-        return response.text().then((text) => ({
-          message: text || "Đăng nhập thất bại",
-        }));
-      });
+  async register(data: RegisterDto): Promise<AuthResponse> {
+    const response = await this.post(AUTH_ENDPOINTS.REGISTER, data);
+    return parseResponse<AuthResponse>(response, "Đăng ký thất bại");
+  }
 
-      // Backend có thể trả về message là string hoặc array
-      const errorMessage = Array.isArray(error.message)
-        ? error.message.join(", ")
-        : error.message || "Đăng nhập thất bại";
-      throw new Error(errorMessage);
+  async login(data: LoginDto): Promise<AuthResponse> {
+    const response = await this.post(AUTH_ENDPOINTS.LOGIN, data);
+    const result = await parseResponse<AuthResponse>(
+      response,
+      "Đăng nhập thất bại"
+    );
+
+    if (!result?.accessToken || !result?.refreshToken || !result?.user) {
+      throw new Error("Phản hồi đăng nhập từ server không hợp lệ");
     }
-
-    const responseData = await response.json().catch((parseError) => {
-      console.error("Failed to parse JSON response:", parseError);
-      throw new Error("Không thể parse response từ server");
-    });
-
-    // Validate response structure
-    if (!responseData || typeof responseData !== "object") {
-      console.error("Invalid response format:", responseData);
-      throw new Error("Response không hợp lệ từ server");
-    }
-
-    // Try to extract tokens from various possible structures
-    // 1. Direct access
-    let accessToken = responseData.accessToken || responseData.access_token;
-    let refreshToken = responseData.refreshToken || responseData.refresh_token;
-
-    // 2. Nested in data property
-    if (!accessToken && responseData.data) {
-      accessToken =
-        responseData.data.accessToken || responseData.data.access_token;
-      refreshToken =
-        responseData.data.refreshToken || responseData.data.refresh_token;
-    }
-
-    // 3. Nested in result property
-    if (!accessToken && responseData.result) {
-      accessToken =
-        responseData.result.accessToken || responseData.result.access_token;
-      refreshToken =
-        responseData.result.refreshToken || responseData.result.refresh_token;
-    }
-
-    if (!accessToken || !refreshToken) {
-      console.error("Missing tokens in response:", {
-        hasAccessToken: !!responseData.accessToken,
-        hasRefreshToken: !!responseData.refreshToken,
-        hasAccess_token: !!responseData.access_token,
-        hasRefresh_token: !!responseData.refresh_token,
-        hasData: !!responseData.data,
-        hasResult: !!responseData.result,
-        fullResponse: responseData,
-      });
-      throw new Error(
-        `Không nhận được tokens từ server. Response structure: ${JSON.stringify(Object.keys(responseData))}`
-      );
-    }
-
-    // Extract user from response
-    const user =
-      responseData.user || responseData.data?.user || responseData.result?.user;
-
-    if (!user) {
-      console.error("Missing user in response:", responseData);
-      throw new Error("Không nhận được thông tin user từ server");
-    }
-
-    // Normalize response to camelCase
-    return {
-      accessToken,
-      refreshToken,
-      user,
-    } as AuthResponse;
+    return result;
   }
 
   async refresh(refreshToken: string): Promise<TokenResponse> {
-    const response = await fetch(`${this.baseUrl}${AUTH_ENDPOINTS.REFRESH}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ refreshToken }),
-    });
+    const response = await this.post(AUTH_ENDPOINTS.REFRESH, { refreshToken });
+    return parseResponse<TokenResponse>(
+      response,
+      "Token đã hết hạn. Vui lòng đăng nhập lại."
+    );
+  }
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({
-        message: "Làm mới token thất bại",
-      }));
-      // Refresh token hết hạn, cần đăng nhập lại
-      const errorMessage = Array.isArray(error.message)
-        ? error.message.join(", ")
-        : error.message || "Token đã hết hạn. Vui lòng đăng nhập lại.";
-      throw new Error(errorMessage);
+  /**
+   * Refresh token dùng refresh token trong storage và lưu token mới.
+   * Backend xoay vòng (rotate) refresh token: token cũ bị xoá ngay sau khi dùng,
+   * nên mọi nơi trong app PHẢI đi qua hàm này để chỉ có 1 request refresh tại một thời điểm.
+   * Nếu thất bại sẽ xoá token và ném lỗi.
+   */
+  refreshTokens(): Promise<TokenResponse> {
+    if (this.refreshPromise) return this.refreshPromise;
+
+    const refreshToken = tokenStorage.getRefreshToken();
+    if (!refreshToken) {
+      tokenStorage.clear();
+      this.sessionExpiredHandler?.();
+      return Promise.reject(new Error("Không có refresh token"));
     }
 
-    return response.json();
+    this.refreshPromise = this.refresh(refreshToken)
+      .then((tokens) => {
+        tokenStorage.setTokens(tokens.accessToken, tokens.refreshToken);
+        return tokens;
+      })
+      .catch((error) => {
+        tokenStorage.clear();
+        this.sessionExpiredHandler?.();
+        throw error;
+      })
+      .finally(() => {
+        this.refreshPromise = null;
+      });
+
+    return this.refreshPromise;
   }
 
   async getCurrentUser(accessToken: string): Promise<User> {
-    const response = await fetch(`${this.baseUrl}${AUTH_ENDPOINTS.ME}`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-    });
+    const fetchMe = (token: string) =>
+      fetch(`${this.baseUrl}${AUTH_ENDPOINTS.ME}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-    // Nếu token hết hạn (401), thử refresh token
+    let response = await fetchMe(accessToken);
+
     if (response.status === 401) {
-      const refreshToken = tokenStorage.getRefreshToken();
-
-      if (refreshToken) {
-        try {
-          // Refresh token
-          const tokens = await this.refresh(refreshToken);
-          tokenStorage.setTokens(tokens.accessToken, tokens.refreshToken);
-
-          // Retry request với token mới
-          const retryResponse = await fetch(
-            `${this.baseUrl}${AUTH_ENDPOINTS.ME}`,
-            {
-              method: "GET",
-              headers: {
-                Authorization: `Bearer ${tokens.accessToken}`,
-                "Content-Type": "application/json",
-              },
-            }
-          );
-
-          if (!retryResponse.ok) {
-            const error = await retryResponse.json().catch(() => ({
-              message: "Không thể lấy thông tin người dùng",
-            }));
-            const errorMessage = Array.isArray(error.message)
-              ? error.message.join(", ")
-              : error.message || "Không thể lấy thông tin người dùng";
-            throw new Error(errorMessage);
-          }
-
-          return retryResponse.json();
-        } catch {
-          // Refresh token cũng không hợp lệ, xóa tokens
-          tokenStorage.clear();
-          throw new Error(
-            "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
-          );
-        }
-      } else {
-        // Không có refresh token, xóa storage
-        tokenStorage.clear();
+      try {
+        const tokens = await this.refreshTokens();
+        response = await fetchMe(tokens.accessToken);
+      } catch {
         throw new Error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
       }
     }
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({
-        message: "Không thể lấy thông tin người dùng",
-      }));
-      const errorMessage = Array.isArray(error.message)
-        ? error.message.join(", ")
-        : error.message || "Không thể lấy thông tin người dùng";
-      throw new Error(errorMessage);
-    }
-
-    return response.json();
+    return parseResponse<User>(response, "Không thể lấy thông tin người dùng");
   }
 
   async logout(accessToken: string, refreshToken?: string): Promise<void> {
-    const headers: HeadersInit = {
-      Authorization: `Bearer ${accessToken}`,
-      "Content-Type": "application/json",
-    };
-
-    const body = refreshToken ? JSON.stringify({ refreshToken }) : undefined;
-
-    const response = await fetch(`${this.baseUrl}${AUTH_ENDPOINTS.LOGOUT}`, {
-      method: "POST",
-      headers,
-      body,
-    });
-
+    const response = await this.post(
+      AUTH_ENDPOINTS.LOGOUT,
+      refreshToken ? { refreshToken } : undefined,
+      accessToken
+    );
     if (!response.ok) {
-      const error = await response.json().catch(() => ({
-        message: "Logout failed",
-      }));
-      throw new Error(error.message || "Logout failed");
+      throw new Error(await readErrorMessage(response, "Đăng xuất thất bại"));
     }
   }
 }

@@ -23,6 +23,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "www.shutterstock.com", // Add this
       },
+      {
+        protocol: "https",
+        hostname: "encrypted-tbn0.gstatic.com", // Google Images (dữ liệu seed)
+      },
     ],
   },
 };

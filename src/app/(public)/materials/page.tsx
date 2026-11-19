@@ -2,6 +2,7 @@ import { MATERIALS, TECHNOLOGIES } from "@/lib/constants";
 import { Info } from "lucide-react";
 import type { Metadata } from "next";
 import { generatePageMetadata, pagesSEO } from "@/lib/seo.config";
+import { formatPrice } from "@/lib/utils";
 
 export const metadata: Metadata = generatePageMetadata({
   title: pagesSEO.materials.title,
@@ -25,9 +26,6 @@ const PropertyBar = ({ value, label }: { value: number; label: string }) => (
 );
 
 export default function MaterialsPage() {
-  const formatPrice = (value: number) =>
-    new Intl.NumberFormat("vi-VN").format(value) + "đ";
-
   return (
     <div className="min-h-screen flex flex-col">
       <main className="flex-1 py-8">

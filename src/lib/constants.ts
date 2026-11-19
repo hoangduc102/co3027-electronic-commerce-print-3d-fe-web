@@ -1,6 +1,8 @@
 import type { Material } from "./types";
 
-export const SUPPORTED_FILE_TYPES = [".stl", ".obj", ".step", ".3mf"];
+/** Backend hiện chỉ phân tích được file STL để báo giá tự động */
+export const SUPPORTED_FILE_TYPES = [".stl"];
+export const MAX_UPLOAD_SIZE_MB = 50;
 
 export const TECHNOLOGIES = [
   { id: "FDM", name: "FDM (Nhựa dây)", description: "Phổ biến, giá rẻ" },
@@ -86,23 +88,24 @@ export const LAYER_HEIGHT_OPTIONS = [
   { value: 0.3, label: "0.3mm - Thô", description: "In nhanh" },
 ];
 
+/** Trạng thái đơn hàng — khớp enum OrderStatus ở backend */
 export const ORDER_STATUSES = {
-  received: { label: "Đã tiếp nhận", description: "File đã lên hệ thống" },
-  reviewing: {
-    label: "Đang kiểm tra",
-    description: "Kỹ thuật viên đang check lỗi file",
+  PENDING: { label: "Chờ xác nhận", description: "Đơn hàng đã được tiếp nhận" },
+  CONFIRMED: {
+    label: "Đã xác nhận",
+    description: "Kỹ thuật viên đã kiểm tra file và xác nhận đơn",
   },
-  printing: { label: "Đang in", description: "File đang chạy trên máy" },
-  "post-processing": {
-    label: "Xử lý nguội",
-    description: "Gỡ support, đánh nhám",
-  },
-  shipping: {
+  PRINTING: { label: "Đang in", description: "Mô hình đang được in và xử lý" },
+  SHIPPED: {
     label: "Đang giao hàng",
     description: "Đã bàn giao cho đơn vị vận chuyển",
   },
-  delivered: { label: "Đã giao", description: "Hoàn thành" },
-};
+  DELIVERED: { label: "Đã giao", description: "Hoàn thành" },
+  CANCELLED: { label: "Đã huỷ", description: "Đơn hàng đã bị huỷ" },
+} as const;
+
+/** Phí vận chuyển cố định (VND) — phải khớp APP_CONSTANTS.ORDER.SHIPPING_FEE ở backend */
+export const SHIPPING_FEE = 35000;
 
 export const PRODUCT_CATEGORIES = [
   { id: "decor", name: "Decor & Trang trí", icon: "🏠" },

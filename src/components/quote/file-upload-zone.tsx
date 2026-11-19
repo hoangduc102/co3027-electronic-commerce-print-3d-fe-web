@@ -5,10 +5,10 @@ import type React from "react";
 import { useCallback, useState } from "react";
 import { Upload, FileType, AlertCircle, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { SUPPORTED_FILE_TYPES } from "@/lib/constants";
+import { MAX_UPLOAD_SIZE_MB, SUPPORTED_FILE_TYPES } from "@/lib/constants";
 
 interface FileUploadZoneProps {
-  onFilesSelected: (files: FileList) => void;
+  onFilesSelected: (files: File[]) => void;
   isUploading: boolean;
   error: string | null;
   onClearError: () => void;
@@ -37,7 +37,7 @@ export function FileUploadZone({
       e.preventDefault();
       setIsDragOver(false);
       if (e.dataTransfer.files.length > 0) {
-        onFilesSelected(e.dataTransfer.files);
+        onFilesSelected(Array.from(e.dataTransfer.files));
       }
     },
     [onFilesSelected]
@@ -46,8 +46,10 @@ export function FileUploadZone({
   const handleFileInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.files && e.target.files.length > 0) {
-        onFilesSelected(e.target.files);
+        onFilesSelected(Array.from(e.target.files));
       }
+      // Cho phép chọn lại cùng một file
+      e.target.value = "";
     },
     [onFilesSelected]
   );
@@ -92,7 +94,10 @@ export function FileUploadZone({
 
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <FileType className="h-4 w-4" />
-            <span>Hỗ trợ: {SUPPORTED_FILE_TYPES.join(", ").toUpperCase()}</span>
+            <span>
+              Hỗ trợ: {SUPPORTED_FILE_TYPES.join(", ").toUpperCase()} • Tối đa{" "}
+              {MAX_UPLOAD_SIZE_MB}MB
+            </span>
           </div>
         </div>
       </div>
@@ -100,7 +105,7 @@ export function FileUploadZone({
       {error && (
         <div className="flex items-center gap-2 p-4 bg-destructive/10 border-2 border-destructive text-destructive">
           <AlertCircle className="h-5 w-5 flex-shrink-0" />
-          <p className="flex-1 text-sm">{error}</p>
+          <p className="flex-1 text-sm whitespace-pre-line">{error}</p>
           <button
             onClick={onClearError}
             className="p-1 hover:bg-destructive/20"

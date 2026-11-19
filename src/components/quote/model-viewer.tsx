@@ -1,7 +1,7 @@
 "use client";
 
-import { Suspense, useRef } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Component, Suspense, useMemo, useRef, type ReactNode } from "react";
+import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import {
   OrbitControls,
   Center,
@@ -9,10 +9,16 @@ import {
   PerspectiveCamera,
 } from "@react-three/drei";
 import * as THREE from "three";
+import { STLLoader } from "three/examples/jsm/loaders/STLLoader.js";
 
 interface ModelViewerProps {
+  /** URL tới file STL (object URL hoặc URL từ server). Bỏ trống → mô hình mẫu */
   url?: string;
+  color?: string;
 }
+
+/** Kích thước lớn nhất của mô hình sau khi chuẩn hoá (đơn vị scene) */
+const TARGET_SIZE = 2;
 
 function PlaceholderModel() {
   const meshRef = useRef<THREE.Mesh>(null);
@@ -33,7 +39,63 @@ function PlaceholderModel() {
   );
 }
 
-export function ModelViewer({ url: _url }: ModelViewerProps) {
+function StlModel({ url, color }: { url: string; color: string }) {
+  const geometry = useLoader(STLLoader, url);
+
+  // Chuẩn hoá để mọi mô hình (1mm hay 300mm) đều vừa khung nhìn
+  const scale = useMemo(() => {
+    geometry.computeBoundingBox();
+    geometry.computeVertexNormals();
+    const size = new THREE.Vector3();
+    geometry.boundingBox?.getSize(size);
+    const maxDim = Math.max(size.x, size.y, size.z) || 1;
+    return TARGET_SIZE / maxDim;
+  }, [geometry]);
+
+  return (
+    <Center>
+      {/* STL dùng trục Z hướng lên, three.js dùng trục Y */}
+      <mesh
+        geometry={geometry}
+        scale={scale}
+        rotation={[-Math.PI / 2, 0, 0]}
+        castShadow
+        receiveShadow
+      >
+        <meshStandardMaterial color={color} roughness={0.5} metalness={0.1} />
+      </mesh>
+    </Center>
+  );
+}
+
+/** Nếu file lỗi không đọc được thì hiển thị mô hình mẫu thay vì làm sập trang */
+class ModelErrorBoundary extends Component<
+  { children: ReactNode; fallback: ReactNode; resetKey?: string },
+  { hasError: boolean; resetKey?: string }
+> {
+  state = { hasError: false, resetKey: this.props.resetKey };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  static getDerivedStateFromProps(
+    props: { resetKey?: string },
+    state: { hasError: boolean; resetKey?: string }
+  ) {
+    // Đổi file → thử render lại
+    if (props.resetKey !== state.resetKey) {
+      return { hasError: false, resetKey: props.resetKey };
+    }
+    return null;
+  }
+
+  render() {
+    return this.state.hasError ? this.props.fallback : this.props.children;
+  }
+}
+
+export function ModelViewer({ url, color = "#F97316" }: ModelViewerProps) {
   return (
     <div className="w-full h-full relative">
       <Canvas shadows>
@@ -45,8 +107,12 @@ export function ModelViewer({ url: _url }: ModelViewerProps) {
           castShadow
           shadow-mapSize={[1024, 1024]}
         />
+        <ModelErrorBoundary fallback={<PlaceholderModel />} resetKey={url}>
+          <Suspense fallback={null}>
+            {url ? <StlModel url={url} color={color} /> : <PlaceholderModel />}
+          </Suspense>
+        </ModelErrorBoundary>
         <Suspense fallback={null}>
-          <PlaceholderModel />
           <Environment preset="studio" />
         </Suspense>
         <OrbitControls

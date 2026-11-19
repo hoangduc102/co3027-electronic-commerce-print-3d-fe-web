@@ -3,15 +3,18 @@ export interface UploadedFile {
   name: string;
   size: number;
   type: string;
+  /** Object URL để xem trước mô hình 3D */
   url: string;
+  /** File gốc — upload lên server khi đặt in */
+  file: File;
+  /** Kích thước bao (mm) do backend đọc từ file */
   dimensions?: {
     x: number;
     y: number;
     z: number;
   };
+  /** Thể tích (cm³) */
   volume?: number;
-  isManifold?: boolean;
-  thumbnail?: string;
 }
 
 export interface PrintConfig {
@@ -46,45 +49,4 @@ export interface Material {
   };
   description: string;
   recommended: string[];
-}
-
-export interface OrderStatus {
-  id: string;
-  status:
-    | "received"
-    | "reviewing"
-    | "printing"
-    | "post-processing"
-    | "shipping"
-    | "delivered";
-  updatedAt: Date;
-  message?: string;
-}
-
-export interface Order {
-  id: string;
-  items: OrderItem[];
-  status: OrderStatus;
-  totalPrice: number;
-  createdAt: Date;
-  shippingAddress: string;
-  technicalNotes?: string;
-}
-
-export interface OrderItem {
-  file: UploadedFile;
-  config: PrintConfig;
-  price: PriceBreakdown;
-}
-
-export interface Product {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  images: string[];
-  basePrice: number;
-  sizes: { name: string; scale: number }[];
-  materials: string[];
-  colors: string[];
 }

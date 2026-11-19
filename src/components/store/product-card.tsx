@@ -3,22 +3,22 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { MATERIALS } from "@/lib/constants";
 import { Product } from "@/schemas/product.schema";
+import { formatPrice } from "@/lib/utils";
 
 interface ProductCardProps {
   product: Product;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const formatPrice = (value: number) => {
-    return new Intl.NumberFormat("vi-VN").format(value) + "đ";
-  };
-
-  const materialNames = product.variants
-    .map((id) => MATERIALS.find((m) => m.id === id)?.name)
-    .filter(Boolean)
-    .slice(0, 2);
+  // Tên vật liệu (không trùng) từ các variant
+  const materialNames = [
+    ...new Set(
+      product.variants
+        .map((v) => v.material?.name)
+        .filter((name): name is string => !!name)
+    ),
+  ].slice(0, 2);
 
   return (
     <Link href={`/store/${product.id}`} className="group block">
