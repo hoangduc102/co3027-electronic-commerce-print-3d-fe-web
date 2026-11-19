@@ -14,10 +14,19 @@ import {
 } from "@/components/ui/sheet";
 import { Filter, Search, X } from "lucide-react";
 import { PRODUCT_CATEGORIES, MATERIALS } from "@/lib/constants";
+import { formatPrice } from "@/lib/utils";
+
+/** Khoảng giá mặc định: không giới hạn trên */
+export const DEFAULT_PRICE_RANGE: [number, number] = [
+  0,
+  Number.POSITIVE_INFINITY,
+];
 
 interface ProductFiltersProps {
   onFilterChange: (filters: FilterState) => void;
   filters: FilterState;
+  /** Giá cao nhất của slider (theo sản phẩm đắt nhất) */
+  maxPrice: number;
 }
 
 export interface FilterState {
@@ -37,10 +46,12 @@ interface FilterContentProps {
   ) => void;
   clearFilters: () => void;
   activeFiltersCount: number;
+  maxPrice: number;
 }
 
 function FilterContent({
   filters,
+  maxPrice,
   toggleCategory,
   toggleMaterial,
   updateFilter,
@@ -100,10 +111,13 @@ function FilterContent({
         </h4>
         <div className="px-2">
           <Slider
-            value={filters.priceRange}
+            value={[
+              Math.min(filters.priceRange[0], maxPrice),
+              Math.min(filters.priceRange[1], maxPrice),
+            ]}
             min={0}
-            max={1000000}
-            step={50000}
+            max={maxPrice}
+            step={Math.max(1000, Math.round(maxPrice / 50 / 1000) * 1000)}
             onValueChange={(value) =>
               updateFilter("priceRange", value as [number, number])
             }
@@ -111,10 +125,10 @@ function FilterContent({
           />
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <span>
-              {new Intl.NumberFormat("vi-VN").format(filters.priceRange[0])}đ
+              {formatPrice(Math.min(filters.priceRange[0], maxPrice))}
             </span>
             <span>
-              {new Intl.NumberFormat("vi-VN").format(filters.priceRange[1])}đ
+              {formatPrice(Math.min(filters.priceRange[1], maxPrice))}
             </span>
           </div>
         </div>
@@ -137,6 +151,7 @@ function FilterContent({
 export function ProductFilters({
   onFilterChange,
   filters,
+  maxPrice,
 }: ProductFiltersProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -166,14 +181,14 @@ export function ProductFilters({
       search: "",
       categories: [],
       materials: [],
-      priceRange: [0, 1000000],
+      priceRange: DEFAULT_PRICE_RANGE,
     });
   };
 
   const activeFiltersCount =
     filters.categories.length +
     filters.materials.length +
-    (filters.priceRange[0] > 0 || filters.priceRange[1] < 1000000 ? 1 : 0);
+    (filters.priceRange[0] > 0 || filters.priceRange[1] < maxPrice ? 1 : 0);
 
   return (
     <>
@@ -220,6 +235,7 @@ export function ProductFilters({
                 updateFilter={updateFilter}
                 clearFilters={clearFilters}
                 activeFiltersCount={activeFiltersCount}
+                maxPrice={maxPrice}
               />
             </div>
           </SheetContent>
@@ -236,6 +252,7 @@ export function ProductFilters({
           updateFilter={updateFilter}
           clearFilters={clearFilters}
           activeFiltersCount={activeFiltersCount}
+          maxPrice={maxPrice}
         />
       </div>
     </>

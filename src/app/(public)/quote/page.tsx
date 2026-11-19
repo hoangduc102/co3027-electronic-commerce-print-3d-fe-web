@@ -1,12 +1,20 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { FileUploadZone } from "@/components/quote/file-upload-zone";
 import { FileCard } from "@/components/quote/file-card";
 import { PriceSummary } from "@/components/quote/price-summary";
 import { useFileUpload } from "@/hooks/use-file-upload";
-import type { PrintConfig } from "@/lib/types";
+import { calculatePrice } from "@/hooks/use-price-calculator";
+import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
+import { createCustomPrintItem, findBackendMaterial } from "@/lib/custom-print";
 import { MATERIALS } from "@/lib/constants";
+import type { PrintConfig } from "@/lib/types";
+import { getMaterials } from "@/services/material.api";
 
 // Metadata được export từ layout.tsx do đây là client component
 
@@ -20,93 +28,171 @@ const defaultConfig: PrintConfig = {
   scale: 100,
 };
 
-export default function QuotePage() {
-  const { files, isUploading, error, uploadFiles, removeFile, clearFiles } =
-    useFileUpload();
-  const [configs, setConfigs] = useState<Record<string, PrintConfig>>({});
+type ResultMessage = { type: "success" | "error"; text: string } | null;
 
-  const getConfig = (fileId: string): PrintConfig => {
-    return configs[fileId] || defaultConfig;
-  };
+export default function QuotePage() {
+  const router = useRouter();
+  const { isAuthenticated } = useAuth();
+  const { addToCart } = useCart();
+  const {
+    files,
+    isUploading,
+    error,
+    uploadFiles,
+    removeFile,
+    clearFiles,
+    clearError,
+  } = useFileUpload();
+  const [configs, setConfigs] = useState<Record<string, PrintConfig>>({});
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [result, setResult] = useState<ResultMessage>(null);
+
+  // Vật liệu thật ở backend — dùng để tạo variant khi đặt in
+  const materialsQuery = useQuery({
+    queryKey: ["materials"],
+    queryFn: getMaterials,
+    staleTime: 5 * 60 * 1000,
+  });
+  const backendMaterials = materialsQuery.data ?? [];
+
+  const getConfig = (fileId: string): PrintConfig =>
+    configs[fileId] ?? defaultConfig;
 
   const updateConfig = (fileId: string, config: PrintConfig) => {
     setConfigs((prev) => ({ ...prev, [fileId]: config }));
   };
 
-  const handleFilesSelected = useCallback(
-    (fileList: FileList) => {
-      uploadFiles(fileList);
-    },
-    [uploadFiles]
-  );
-
-  const handleCheckout = () => {
-    // TODO: Navigate to checkout with files and configs
-    console.log("Checkout", { files, configs });
+  const handleRemoveFile = (fileId: string) => {
+    removeFile(fileId);
+    setConfigs(({ [fileId]: _removed, ...rest }) => rest);
   };
 
-  // Calculate prices for summary
+  /** Lý do file chưa đặt được với cấu hình hiện tại */
+  const getOrderWarning = (fileId: string): string | null => {
+    if (!materialsQuery.isSuccess) return null;
+    const config = getConfig(fileId);
+    if (findBackendMaterial(config, backendMaterials)) return null;
+    const name = MATERIALS.find((m) => m.id === config.material)?.name;
+    return `Vật liệu ${name ?? config.material} hiện chỉ báo giá tham khảo, chưa đặt online được. Vui lòng chọn vật liệu khác hoặc liên hệ để được hỗ trợ.`;
+  };
+
+  const disabledReason = !isAuthenticated
+    ? null // vẫn cho bấm để hiện hướng dẫn đăng nhập
+    : materialsQuery.isError
+      ? "Không tải được danh sách vật liệu, vui lòng thử lại sau."
+      : files.some((f) => getOrderWarning(f.id))
+        ? "Có file đang chọn vật liệu chưa hỗ trợ đặt online."
+        : null;
+
+  /** Tạo sản phẩm in theo yêu cầu cho từng file rồi thêm vào giỏ */
+  const handleAddToCart = async (goToCheckout: boolean) => {
+    setResult(null);
+    if (!isAuthenticated) {
+      setResult({
+        type: "error",
+        text: "Vui lòng đăng nhập để đặt in.",
+      });
+      return;
+    }
+
+    setIsProcessing(true);
+    const errors: string[] = [];
+    let added = 0;
+
+    // Chạy tuần tự để lỗi ở 1 file không ảnh hưởng các file khác
+    for (const file of files) {
+      try {
+        const item = await createCustomPrintItem(
+          file,
+          getConfig(file.id),
+          backendMaterials
+        );
+        addToCart(item);
+        handleRemoveFile(file.id);
+        added++;
+      } catch (err) {
+        errors.push(
+          `${file.name}: ${err instanceof Error ? err.message : "lỗi không xác định"}`
+        );
+      }
+    }
+
+    setIsProcessing(false);
+
+    if (errors.length === 0 && goToCheckout) {
+      router.push("/checkout");
+      return;
+    }
+    setResult(
+      errors.length > 0
+        ? {
+            type: "error",
+            text: `${added > 0 ? `Đã thêm ${added} file vào giỏ. ` : ""}Không thêm được:\n${errors.join("\n")}`,
+          }
+        : { type: "success", text: `Đã thêm ${added} file vào giỏ hàng.` }
+    );
+  };
+
   const priceItems = files.map((file) => {
     const config = getConfig(file.id);
-    // Simple price calculation inline for summary
-    const material = MATERIALS.find((m) => m.id === config.material);
-    const scaleFactor = config.scale / 100;
-    const scaledVolume = (file.volume || 10) * Math.pow(scaleFactor, 3);
-    const weight = scaledVolume * 1.25 * (config.infill / 100);
-    const materialCost = weight * (material?.pricePerGram || 500);
-    const printTimeCost =
-      scaledVolume * 0.5 * (0.2 / config.layerHeight) * 5000;
-    const total = (20000 + materialCost + printTimeCost) * config.quantity;
-
     return {
       name: file.name,
       quantity: config.quantity,
-      price: {
-        setupFee: 20000,
-        materialCost: Math.round(materialCost),
-        printTimeCost: Math.round(printTimeCost),
-        total: Math.round(total),
-        estimatedTime: "2-4 giờ",
-      },
+      price: calculatePrice(file, config),
     };
   });
+
+  const resultMessage = result && (
+    <div
+      className={`text-sm whitespace-pre-line ${result.type === "error" ? "text-red-600" : "text-green-700"}`}
+      role="status"
+    >
+      {result.text}{" "}
+      {result.type === "success" && (
+        <Link href="/checkout" className="underline font-medium">
+          Xem giỏ hàng
+        </Link>
+      )}
+      {!isAuthenticated && (
+        <Link href="/login" className="underline font-medium">
+          Đăng nhập
+        </Link>
+      )}
+    </div>
+  );
 
   return (
     <div className="min-h-screen flex flex-col">
       <main className="flex-1 py-8">
         <div className="container mx-auto px-4">
-          {/* Page Header */}
           <div className="mb-8">
             <h1 className="text-3xl md:text-4xl font-bold mb-2">
               Công cụ Báo giá In 3D
             </h1>
             <p className="text-muted-foreground">
-              Upload file 3D của bạn để nhận báo giá tức thì. Hỗ trợ STL, OBJ,
-              STEP, 3MF.
+              Upload file STL để nhận báo giá tức thì dựa trên thể tích thật của
+              mô hình.
             </p>
           </div>
 
           <div className="grid lg:grid-cols-[1fr_320px] gap-8">
-            {/* Main Content */}
             <div className="space-y-6">
-              {/* Upload Zone */}
               <div className="border-2 border-foreground p-6 bg-card">
                 <h2 className="font-bold text-xl mb-4 uppercase tracking-wide">
                   Bước 1: Tải lên File
                 </h2>
                 <p className="text-muted-foreground mb-4">
-                  Để xem chi phí in theo thời gian thực, tải lên file .STL,
-                  .OBJ, .STEP hoặc .3MF
+                  Tải lên file .STL để xem chi phí in theo thời gian thực. File
+                  OBJ/STEP/3MF vui lòng xuất sang STL trước.
                 </p>
                 <FileUploadZone
-                  onFilesSelected={handleFilesSelected}
+                  onFilesSelected={uploadFiles}
                   isUploading={isUploading}
                   error={error}
-                  onClearError={() => {}}
+                  onClearError={clearError}
                 />
               </div>
 
-              {/* File Cards */}
               {files.length > 0 && (
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
@@ -115,7 +201,10 @@ export default function QuotePage() {
                     </h2>
                     {files.length > 1 && (
                       <button
-                        onClick={clearFiles}
+                        onClick={() => {
+                          clearFiles();
+                          setConfigs({});
+                        }}
                         className="text-sm text-muted-foreground hover:text-destructive transition-colors"
                       >
                         Xóa tất cả
@@ -129,16 +218,23 @@ export default function QuotePage() {
                       file={file}
                       config={getConfig(file.id)}
                       onConfigChange={(config) => updateConfig(file.id, config)}
-                      onRemove={() => removeFile(file.id)}
+                      onRemove={() => handleRemoveFile(file.id)}
+                      orderWarning={getOrderWarning(file.id)}
                     />
                   ))}
                 </div>
               )}
             </div>
 
-            {/* Sticky Price Summary */}
             <div className="lg:self-start">
-              <PriceSummary items={priceItems} onCheckout={handleCheckout} />
+              <PriceSummary
+                items={priceItems}
+                onAddToCart={() => void handleAddToCart(false)}
+                onCheckoutNow={() => void handleAddToCart(true)}
+                isProcessing={isProcessing}
+                disabledReason={disabledReason}
+                message={resultMessage}
+              />
             </div>
           </div>
         </div>

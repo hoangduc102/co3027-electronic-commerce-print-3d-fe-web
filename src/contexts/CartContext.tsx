@@ -12,12 +12,17 @@ import React, {
 
 // Định nghĩa interface cho item trong giỏ hàng
 export interface CartItem {
+  /** Khoá duy nhất của dòng trong giỏ (variant + specs) */
   id: string;
-  productId: string;
+  /** ID variant ở backend — gửi lên khi tạo đơn hàng */
+  variantId: string;
   name: string;
   image: string;
+  /** Đơn giá cho 1 sản phẩm (đã gồm tỉ lệ in) — chỉ để hiển thị, server tự tính lại */
   price: number;
   quantity: number;
+  /** Tỉ lệ in (%) gửi lên server khi tạo đơn, mặc định 100 */
+  scale?: number;
   specs: {
     material: string;
     color: string;
@@ -40,6 +45,19 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 // Key để lưu giỏ hàng vào localStorage
 const CART_STORAGE_KEY = "print3d-cart";
+
+const buildCartItemId = (item: Omit<CartItem, "id">): string =>
+  [item.variantId, item.specs.material, item.specs.color, item.specs.size].join(
+    "|"
+  );
+
+const isValidCartItem = (item: unknown): item is CartItem =>
+  !!item &&
+  typeof item === "object" &&
+  typeof (item as CartItem).id === "string" &&
+  typeof (item as CartItem).variantId === "string" &&
+  typeof (item as CartItem).price === "number" &&
+  typeof (item as CartItem).quantity === "number";
 
 // Hàm helper để lưu giỏ hàng vào localStorage
 const saveCartToStorage = (cart: CartItem[]): void => {
@@ -64,7 +82,9 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
       try {
         const savedCart = localStorage.getItem(CART_STORAGE_KEY);
         if (savedCart) {
-          setCart(JSON.parse(savedCart));
+          const parsed: unknown = JSON.parse(savedCart);
+          // Bỏ các item định dạng cũ / hỏng để tránh lỗi khi checkout
+          setCart(Array.isArray(parsed) ? parsed.filter(isValidCartItem) : []);
         }
       } catch (error) {
         console.error("Lỗi khi đọc giỏ hàng từ localStorage:", error);
@@ -86,14 +106,11 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
 
   // Thêm sản phẩm vào giỏ hàng
   const addToCart = useCallback((item: Omit<CartItem, "id">) => {
+    const id = buildCartItemId(item);
     setCart((prevCart) => {
-      // Kiểm tra xem sản phẩm đã có trong giỏ chưa (cùng productId và specs)
+      // Cùng variant và specs → cộng dồn số lượng
       const existingItemIndex = prevCart.findIndex(
-        (cartItem) =>
-          cartItem.productId === item.productId &&
-          cartItem.specs.material === item.specs.material &&
-          cartItem.specs.color === item.specs.color &&
-          cartItem.specs.size === item.specs.size
+        (cartItem) => cartItem.id === id
       );
 
       if (existingItemIndex > -1) {
@@ -105,12 +122,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
         };
         return updatedCart;
       } else {
-        // Nếu chưa có, thêm mới với id unique
-        const newItem: CartItem = {
-          ...item,
-          id: `${item.productId}`,
-        };
-        return [...prevCart, newItem];
+        return [...prevCart, { ...item, id }];
       }
     });
   }, []);

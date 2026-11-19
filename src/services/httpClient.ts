@@ -1,110 +1,78 @@
 import { API_CONFIG } from "../config/api.config";
 import { tokenStorage } from "../utils/tokenStorage";
-import { authService } from "./auth.service";
-import { isTokenExpiringSoon, isTokenExpired } from "../utils/tokenRefresh";
+import { authService, readErrorMessage } from "./auth.service";
+import { isTokenExpiringSoon } from "../utils/tokenRefresh";
+
+function redirectToLogin() {
+  if (globalThis.window !== undefined) {
+    globalThis.window.location.href = "/login";
+  }
+}
 
 class HttpClient {
   private readonly baseUrl = API_CONFIG.API_BASE_URL;
-  private isRefreshing = false;
-  private refreshPromise: Promise<void> | null = null;
 
+  /**
+   * Gọi API backend. Trả về nguyên body JSON (vẫn còn lớp `{ data }`),
+   * các service tự lấy `.data` theo kiểu dữ liệu của mình.
+   */
   async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
     let accessToken = tokenStorage.getAccessToken();
 
-    // Kiểm tra token trước khi gọi API (trừ endpoint refresh)
-    if (accessToken && !endpoint.includes("/auth/")) {
-      // Nếu token đã hết hạn hoặc sắp hết hạn, refresh trước
-      if (isTokenExpired(accessToken) || isTokenExpiringSoon(accessToken, 60)) {
-        if (!this.isRefreshing) {
-          this.isRefreshing = true;
-          this.refreshPromise = this.handleTokenRefresh();
-        }
-        await this.refreshPromise;
-        accessToken = tokenStorage.getAccessToken();
-      }
+    // Refresh chủ động nếu token đã/sắp hết hạn.
+    // Thất bại thì gửi request không kèm token (endpoint public vẫn chạy được).
+    if (accessToken && isTokenExpiringSoon(accessToken, 60)) {
+      accessToken = await this.tryRefresh(false);
     }
 
-    // Tự động thêm Authorization header nếu có token
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-      ...(options.headers as Record<string, string>),
+    const send = (token: string | null) => {
+      const headers = new Headers(options.headers);
+      // Không set Content-Type cho FormData để browser tự thêm boundary
+      if (!(options.body instanceof FormData) && !headers.has("Content-Type")) {
+        headers.set("Content-Type", "application/json");
+      }
+      if (token) headers.set("Authorization", `Bearer ${token}`);
+      return fetch(url, { ...options, headers });
     };
 
-    if (accessToken) {
-      headers["Authorization"] = `Bearer ${accessToken}`;
-    }
+    let response = await send(accessToken);
 
-    let response = await fetch(url, {
-      ...options,
-      headers,
-    });
-
-    // Nếu token hết hạn (401), thử refresh token
-    if (
-      response.status === 401 &&
-      accessToken &&
-      !endpoint.includes("/auth/refresh")
-    ) {
-      // Chỉ refresh một lần nếu đang refresh
-      if (!this.isRefreshing) {
-        this.isRefreshing = true;
-        this.refreshPromise = this.handleTokenRefresh();
-      }
-
-      await this.refreshPromise;
-
-      // Retry request với token mới
-      const newAccessToken = tokenStorage.getAccessToken();
-      if (newAccessToken) {
-        headers["Authorization"] = `Bearer ${newAccessToken}`;
-        response = await fetch(url, {
-          ...options,
-          headers,
-        });
-      }
+    // Token bị từ chối → refresh 1 lần rồi gọi lại
+    if (response.status === 401 && accessToken) {
+      const newToken = await this.tryRefresh(true);
+      if (newToken) response = await send(newToken);
     }
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({
-        message: `HTTP ${response.status}: ${response.statusText}`,
-      }));
-      throw new Error(error.message || "Request failed");
+      throw new Error(
+        await readErrorMessage(
+          response,
+          `HTTP ${response.status}: ${response.statusText}`
+        )
+      );
     }
 
-    return response.json();
+    // 204 No Content hoặc body rỗng
+    const text = await response.text();
+    return (text ? JSON.parse(text) : undefined) as T;
   }
 
-  private async handleTokenRefresh(): Promise<void> {
-    const refreshToken = tokenStorage.getRefreshToken();
-
-    if (refreshToken) {
-      try {
-        const tokens = await authService.refresh(refreshToken);
-        tokenStorage.setTokens(tokens.accessToken, tokens.refreshToken);
-      } catch (error) {
-        // Refresh token cũng không hợp lệ, xóa tokens
-        tokenStorage.clear();
-        this.isRefreshing = false;
-        this.refreshPromise = null;
-        // Import và dừng token refresh service
-        if (typeof globalThis.window !== "undefined") {
-          import("../utils/tokenRefresh").then((module) => {
-            module.tokenRefreshService.stop();
-          });
-          globalThis.window.location.href = "/login";
-        }
-        throw error;
-      }
-    } else {
-      tokenStorage.clear();
-      if (typeof globalThis.window !== "undefined") {
-        globalThis.window.location.href = "/login";
-      }
+  /** Refresh token; trả về access token mới hoặc null nếu thất bại. */
+  private async tryRefresh(redirectOnFail: boolean): Promise<string | null> {
+    try {
+      const tokens = await authService.refreshTokens();
+      return tokens.accessToken;
+    } catch {
+      if (redirectOnFail) redirectToLogin();
+      return null;
     }
+  }
 
-    this.isRefreshing = false;
-    this.refreshPromise = null;
+  private withBody(data: unknown): BodyInit | undefined {
+    if (data === undefined) return undefined;
+    if (data instanceof FormData) return data;
+    return JSON.stringify(data);
   }
 
   get<T>(endpoint: string, options?: RequestInit): Promise<T> {
@@ -115,7 +83,7 @@ class HttpClient {
     return this.request<T>(endpoint, {
       ...options,
       method: "POST",
-      body: data ? JSON.stringify(data) : undefined,
+      body: this.withBody(data),
     });
   }
 
@@ -123,7 +91,7 @@ class HttpClient {
     return this.request<T>(endpoint, {
       ...options,
       method: "PUT",
-      body: data ? JSON.stringify(data) : undefined,
+      body: this.withBody(data),
     });
   }
 
@@ -135,7 +103,7 @@ class HttpClient {
     return this.request<T>(endpoint, {
       ...options,
       method: "PATCH",
-      body: data ? JSON.stringify(data) : undefined,
+      body: this.withBody(data),
     });
   }
 

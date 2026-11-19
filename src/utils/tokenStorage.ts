@@ -37,7 +37,12 @@ export const tokenStorage = {
   getUser(): User | null {
     if (typeof globalThis.window !== "undefined") {
       const userStr = globalThis.window.localStorage.getItem(USER_KEY);
-      return userStr ? JSON.parse(userStr) : null;
+      if (!userStr) return null;
+      try {
+        return JSON.parse(userStr) as User;
+      } catch {
+        return null;
+      }
     }
     return null;
   },
@@ -56,5 +61,5 @@ export interface User {
   email: string;
   username: string;
   role: "CUSTOMER" | "ADMIN";
-  addresses: any;
+  addresses?: unknown;
 }

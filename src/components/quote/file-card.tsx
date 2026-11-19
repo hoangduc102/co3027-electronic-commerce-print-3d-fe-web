@@ -16,7 +16,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { X, AlertTriangle, Wrench, Minus, Plus, Info } from "lucide-react";
+import { X, AlertTriangle, Minus, Plus, Info } from "lucide-react";
 import type { UploadedFile, PrintConfig } from "@/lib/types";
 import {
   MATERIALS,
@@ -26,19 +26,26 @@ import {
 } from "@/lib/constants";
 import { usePriceCalculator } from "@/hooks/use-price-calculator";
 import { ModelViewer } from "./model-viewer";
+import { formatPrice } from "@/lib/utils";
 
 interface FileCardProps {
   file: UploadedFile;
   onRemove: () => void;
   onConfigChange: (config: PrintConfig) => void;
   config: PrintConfig;
+  /** Lý do chưa đặt in được với cấu hình hiện tại (vd. vật liệu chưa bán online) */
+  orderWarning?: string | null;
 }
+
+const clampScale = (value: number) =>
+  Math.min(500, Math.max(10, Math.round(value) || 100));
 
 export function FileCard({
   file,
   onRemove,
   onConfigChange,
   config,
+  orderWarning,
 }: FileCardProps) {
   const price = usePriceCalculator(file, config);
   const currentMaterial = MATERIALS.find((m) => m.id === config.material);
@@ -50,43 +57,27 @@ export function FileCard({
     onConfigChange({ ...config, ...updates });
   };
 
-  const formatPrice = (value: number) => {
-    return new Intl.NumberFormat("vi-VN").format(value) + "đ";
-  };
-
   return (
     <Card className="border-2 border-foreground overflow-hidden">
       <div className="grid lg:grid-cols-[300px_1fr] gap-0">
         {/* 3D Preview */}
         <div className="bg-secondary border-b-2 lg:border-b-0 lg:border-r-2 border-foreground p-4">
           <div className="aspect-square bg-background border-2 border-foreground relative">
-            <ModelViewer url={file.url} />
+            <ModelViewer url={file.url} color={config.color} />
 
             {/* File info overlay */}
             <div className="absolute bottom-2 left-2 right-2 bg-background/90 border border-foreground p-2 text-xs">
               <p className="font-medium truncate">{file.name}</p>
-              <p className="text-muted-foreground">
-                {file.dimensions?.x.toFixed(1)} ×{" "}
-                {file.dimensions?.y.toFixed(1)} ×{" "}
-                {file.dimensions?.z.toFixed(1)} mm
-              </p>
+              {file.dimensions && (
+                <p className="text-muted-foreground">
+                  {/* Kích thước sau khi áp tỉ lệ in */}
+                  {[file.dimensions.x, file.dimensions.y, file.dimensions.z]
+                    .map((d) => ((d * config.scale) / 100).toFixed(1))
+                    .join(" × ")}{" "}
+                  mm
+                </p>
+              )}
             </div>
-
-            {/* Non-manifold warning */}
-            {!file.isManifold && (
-              <div className="absolute top-2 left-2 right-2 bg-amber-100 border border-amber-500 p-2 flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0" />
-                <span className="text-xs text-amber-800">Lưới có lỗi</span>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="ml-auto h-6 text-xs border-amber-500 bg-transparent"
-                >
-                  <Wrench className="h-3 w-3 mr-1" />
-                  Sửa tự động
-                </Button>
-              </div>
-            )}
           </div>
 
           {/* Transform controls */}
@@ -101,7 +92,7 @@ export function FileCard({
                   variant="outline"
                   className="h-8 w-8 border-foreground bg-transparent"
                   onClick={() =>
-                    updateConfig({ scale: Math.max(10, config.scale - 10) })
+                    updateConfig({ scale: clampScale(config.scale - 10) })
                   }
                 >
                   <Minus className="h-3 w-3" />
@@ -110,7 +101,16 @@ export function FileCard({
                   type="number"
                   value={config.scale}
                   onChange={(e) =>
-                    updateConfig({ scale: Number(e.target.value) })
+                    updateConfig({
+                      scale: Math.min(
+                        500,
+                        Math.max(0, Math.round(Number(e.target.value) || 0))
+                      ),
+                    })
+                  }
+                  // Chuẩn hoá về 10–500% khi rời ô (để vẫn gõ được "150")
+                  onBlur={() =>
+                    updateConfig({ scale: clampScale(config.scale) })
                   }
                   className="h-8 text-center border-foreground"
                   min={10}
@@ -121,7 +121,7 @@ export function FileCard({
                   variant="outline"
                   className="h-8 w-8 border-foreground bg-transparent"
                   onClick={() =>
-                    updateConfig({ scale: Math.min(500, config.scale + 10) })
+                    updateConfig({ scale: clampScale(config.scale + 10) })
                   }
                 >
                   <Plus className="h-3 w-3" />
@@ -174,8 +174,8 @@ export function FileCard({
             <div>
               <h3 className="font-bold text-lg">{file.name}</h3>
               <p className="text-sm text-muted-foreground">
-                {(file.size / 1024 / 1024).toFixed(2)} MB • Thể tích: ~
-                {file.volume?.toFixed(1)} cm³
+                {(file.size / 1024 / 1024).toFixed(2)} MB • Thể tích gốc: ~
+                {file.volume?.toFixed(1) ?? "?"} cm³
               </p>
             </div>
             <Button
@@ -339,6 +339,13 @@ export function FileCard({
               </Select>
             </div>
           </div>
+
+          {orderWarning && (
+            <div className="mb-4 p-3 border-2 border-amber-500 bg-amber-50 flex gap-2 text-sm text-amber-900">
+              <AlertTriangle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+              <span>{orderWarning}</span>
+            </div>
+          )}
 
           {/* Price Summary for this file */}
           <div className="bg-secondary border-2 border-foreground p-4">

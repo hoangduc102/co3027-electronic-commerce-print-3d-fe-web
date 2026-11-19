@@ -24,7 +24,6 @@ import {
   Package,
   CreditCard,
 } from "lucide-react";
-import { FAQJsonLd } from "@/components/seo/JsonLd";
 
 const faqs = [
   {

@@ -3,14 +3,23 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ProductCard } from "@/components/store/product-card";
-import { ProductFilters, type FilterState } from "@/components/store/product-filters";
+import {
+  DEFAULT_PRICE_RANGE,
+  ProductFilters,
+  type FilterState,
+} from "@/components/store/product-filters";
 import { PRODUCT_CATEGORIES } from "@/lib/constants";
 import { Loader2, AlertCircle } from "lucide-react";
 import { productService } from "@/services/product.api";
 
 export default function StorePage() {
   // 1. CALL QUERY DIRECTLY IN COMPONENT
-  const { data: products = [], isLoading, isError, error } = useQuery({
+  const {
+    data: products = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     queryKey: ["products"],
     queryFn: () => productService.getAll(),
   });
@@ -19,8 +28,14 @@ export default function StorePage() {
     search: "",
     categories: [],
     materials: [],
-    priceRange: [0, 1000000],
+    priceRange: DEFAULT_PRICE_RANGE,
   });
+
+  // Mốc cao nhất của slider = giá sản phẩm đắt nhất, làm tròn lên 50.000đ
+  const maxPrice = useMemo(() => {
+    const highest = Math.max(0, ...products.map((p) => p.basePrice));
+    return Math.max(50000, Math.ceil(highest / 50000) * 50000);
+  }, [products]);
 
   // 2. CLIENT-SIDE FILTERING LOGIC
   const filteredProducts = useMemo(() => {
@@ -29,40 +44,55 @@ export default function StorePage() {
       if (filters.search) {
         const searchLower = filters.search.toLowerCase();
         const matchesName = product.name.toLowerCase().includes(searchLower);
-        const matchesDesc = product.description?.toLowerCase().includes(searchLower) ?? false;
+        const matchesDesc =
+          product.description?.toLowerCase().includes(searchLower) ?? false;
         if (!matchesName && !matchesDesc) return false;
       }
 
       // Categories: Compare against product tags
       if (filters.categories.length > 0) {
-        const productTagNames = product.tags.map(t => t.tag.name.toLowerCase());
-        const hasMatch = filters.categories.some(cat => productTagNames.includes(cat.toLowerCase()));
+        const productTagNames = product.tags.map((t) => t.name.toLowerCase());
+        const hasMatch = filters.categories.some((cat) =>
+          productTagNames.includes(cat.toLowerCase())
+        );
         if (!hasMatch) return false;
       }
 
       // Materials: Compare against variant materials
       if (filters.materials.length > 0) {
         const productMaterials = product.variants
-          .map(v => v.material?.name.toLowerCase())
-          .filter(Boolean);
-        const hasMatch = filters.materials.some(mat => productMaterials.includes(mat.toLowerCase()));
+          .map((v) => v.material?.name.toLowerCase())
+          .filter((name): name is string => !!name);
+        const hasMatch = filters.materials.some((mat) =>
+          productMaterials.includes(mat.toLowerCase())
+        );
         if (!hasMatch) return false;
       }
 
       // Price Range
-      if (product.basePrice < filters.priceRange[0] || product.basePrice > filters.priceRange[1]) {
+      // Kéo slider tới mốc cao nhất = không giới hạn trên
+      const upper =
+        filters.priceRange[1] >= maxPrice
+          ? Number.POSITIVE_INFINITY
+          : filters.priceRange[1];
+      if (
+        product.basePrice < filters.priceRange[0] ||
+        product.basePrice > upper
+      ) {
         return false;
       }
 
       return true;
     });
-  }, [filters, products]);
+  }, [filters, products, maxPrice]);
 
   if (isLoading) {
     return (
       <div className="flex h-[50vh] flex-col items-center justify-center gap-4">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <p className="text-muted-foreground animate-pulse">Đang tải danh sách sản phẩm...</p>
+        <p className="text-muted-foreground animate-pulse">
+          Đang tải danh sách sản phẩm...
+        </p>
       </div>
     );
   }
@@ -81,16 +111,22 @@ export default function StorePage() {
     <div className="min-h-screen flex flex-col py-8">
       <div className="container mx-auto px-4">
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">Cửa hàng Mẫu có sẵn</h1>
-          <p className="text-muted-foreground">Khám phá và tùy chỉnh mẫu in 3D của bạn.</p>
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">
+            Cửa hàng Mẫu có sẵn
+          </h1>
+          <p className="text-muted-foreground">
+            Khám phá và tùy chỉnh mẫu in 3D của bạn.
+          </p>
         </div>
 
         {/* Category Filter Pills */}
         <div className="flex flex-wrap gap-2 mb-8">
           <button
-            onClick={() => setFilters(p => ({ ...p, categories: [] }))}
+            onClick={() => setFilters((p) => ({ ...p, categories: [] }))}
             className={`px-4 py-2 rounded-md border text-sm font-medium transition-all ${
-              filters.categories.length === 0 ? "bg-primary text-white" : "hover:bg-secondary"
+              filters.categories.length === 0
+                ? "bg-primary text-white"
+                : "hover:bg-secondary"
             }`}
           >
             Tất cả
@@ -98,12 +134,16 @@ export default function StorePage() {
           {PRODUCT_CATEGORIES.map((cat) => (
             <button
               key={cat.id}
-              onClick={() => setFilters(p => ({
-                ...p,
-                categories: p.categories.includes(cat.id) ? [] : [cat.id]
-              }))}
+              onClick={() =>
+                setFilters((p) => ({
+                  ...p,
+                  categories: p.categories.includes(cat.id) ? [] : [cat.id],
+                }))
+              }
               className={`px-4 py-2 rounded-md border text-sm font-medium transition-all ${
-                filters.categories.includes(cat.id) ? "bg-primary text-white" : "hover:bg-secondary"
+                filters.categories.includes(cat.id)
+                  ? "bg-primary text-white"
+                  : "hover:bg-secondary"
               }`}
             >
               {cat.name}
@@ -112,7 +152,13 @@ export default function StorePage() {
         </div>
 
         <div className="grid lg:grid-cols-[280px_1fr] gap-10">
-          <aside><ProductFilters filters={filters} onFilterChange={setFilters} /></aside>
+          <aside>
+            <ProductFilters
+              filters={filters}
+              onFilterChange={setFilters}
+              maxPrice={maxPrice}
+            />
+          </aside>
 
           <section>
             <div className="mb-4 text-sm text-muted-foreground">
@@ -122,18 +168,14 @@ export default function StorePage() {
             {filteredProducts.length > 0 ? (
               <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
                 {filteredProducts.map((product) => (
-                  <ProductCard 
-                    key={product.id} 
-                    product={{
-                      ...product,
-                      image: product.images[0]?.url || "/placeholder.png"
-                    }} 
-                  />
+                  <ProductCard key={product.id} product={product} />
                 ))}
               </div>
             ) : (
               <div className="text-center py-20 border-2 border-dashed rounded-lg">
-                <p className="text-lg font-medium">Không tìm thấy sản phẩm nào khớp với bộ lọc</p>
+                <p className="text-lg font-medium">
+                  Không tìm thấy sản phẩm nào khớp với bộ lọc
+                </p>
               </div>
             )}
           </section>

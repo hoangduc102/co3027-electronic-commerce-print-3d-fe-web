@@ -6,8 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Search, FileText, Package, BookOpen, ImageIcon } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { MATERIALS } from "@/lib/constants";
-import { SAMPLE_PRODUCTS } from "@/lib/data";
+import { formatPrice } from "@/lib/utils";
+import { productService } from "@/services/product.api";
+import type { Product } from "@/schemas/product.schema";
+
+const productCategory = (p: Product) => p.tags.map((t) => t.name).join(", ");
 
 const guidelineResults = [
   {
@@ -27,15 +32,20 @@ const guidelineResults = [
 export default function SearchPage() {
   const [query, setQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
+  const { data: products = [] } = useQuery({
+    queryKey: ["products"],
+    queryFn: () => productService.getAll(),
+  });
 
   const filteredProducts = useMemo(() => {
-    if (!query.trim()) return SAMPLE_PRODUCTS.slice(0, 6);
-    return SAMPLE_PRODUCTS.filter(
+    if (!query.trim()) return products.slice(0, 6);
+    const q = query.toLowerCase();
+    return products.filter(
       (p) =>
-        p.name.toLowerCase().includes(query.toLowerCase()) ||
-        p.category.toLowerCase().includes(query.toLowerCase())
+        p.name.toLowerCase().includes(q) ||
+        productCategory(p).toLowerCase().includes(q)
     );
-  }, [query]);
+  }, [query, products]);
 
   const filteredMaterials = useMemo(() => {
     if (!query.trim()) return MATERIALS.slice(0, 4);
@@ -156,13 +166,10 @@ export default function SearchPage() {
                         </div>
                         <h3 className="font-semibold">{product.name}</h3>
                         <p className="text-sm text-muted-foreground">
-                          {product.category}
+                          {productCategory(product)}
                         </p>
                         <p className="font-bold text-primary mt-1">
-                          {new Intl.NumberFormat("vi-VN").format(
-                            product.basePrice
-                          )}
-                          đ
+                          {formatPrice(product.basePrice)}
                         </p>
                       </Link>
                     ))}
@@ -253,11 +260,10 @@ export default function SearchPage() {
                     </div>
                     <h3 className="font-semibold">{product.name}</h3>
                     <p className="text-sm text-muted-foreground">
-                      {product.category}
+                      {productCategory(product)}
                     </p>
                     <p className="font-bold text-primary mt-1">
-                      {new Intl.NumberFormat("vi-VN").format(product.basePrice)}
-                      đ
+                      {formatPrice(product.basePrice)}
                     </p>
                   </Link>
                 ))}

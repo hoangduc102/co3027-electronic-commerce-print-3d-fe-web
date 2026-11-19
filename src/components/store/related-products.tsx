@@ -3,11 +3,24 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Check } from "lucide-react";
-import { SAMPLE_PRODUCTS } from "@/lib/data";
 import { useCart } from "@/contexts/CartContext";
-import { MATERIALS } from "@/lib/constants";
+import { productService } from "@/services/product.api";
+import type { Product } from "@/schemas/product.schema";
+import { formatPrice } from "@/lib/utils";
+
+/** Dùng chung cache ["products"] với trang cửa hàng */
+function useProducts() {
+  return useQuery({
+    queryKey: ["products"],
+    queryFn: () => productService.getAll(),
+  });
+}
+
+const productImage = (product: Product) =>
+  product.images[0]?.url || "/placeholder.svg";
 
 interface RelatedProductsProps {
   currentProductId: string;
@@ -20,26 +33,17 @@ export function RelatedProducts({
   category,
   maxItems = 4,
 }: Readonly<RelatedProductsProps>) {
-  // Lọc sản phẩm liên quan (cùng category, khác ID)
-  const relatedProducts = SAMPLE_PRODUCTS.filter((product) => {
-    if (product.id === currentProductId) return false;
-    if (category && product.category !== category) return false;
-    return true;
-  }).slice(0, maxItems);
+  const { data: products = [] } = useProducts();
 
-  // Nếu không đủ sản phẩm cùng category, thêm sản phẩm khác
-  if (relatedProducts.length < maxItems) {
-    const additionalProducts = SAMPLE_PRODUCTS.filter(
-      (product) =>
-        product.id !== currentProductId &&
-        !relatedProducts.some((rp) => rp.id === product.id)
-    ).slice(0, maxItems - relatedProducts.length);
-    relatedProducts.push(...additionalProducts);
-  }
-
-  const formatPrice = (value: number) => {
-    return new Intl.NumberFormat("vi-VN").format(value) + "đ";
-  };
+  const others = products.filter((p) => p.id !== currentProductId);
+  const sameCategory = category
+    ? others.filter((p) => p.tags.some((t) => t.name === category))
+    : [];
+  // Ưu tiên cùng danh mục, thiếu thì bù bằng sản phẩm khác
+  const relatedProducts = [
+    ...sameCategory,
+    ...others.filter((p) => !sameCategory.includes(p)),
+  ].slice(0, maxItems);
 
   if (relatedProducts.length === 0) return null;
 
@@ -55,7 +59,7 @@ export function RelatedProducts({
           >
             <div className="aspect-square relative overflow-hidden">
               <Image
-                src={product.images[0] || "/placeholder.jpg"}
+                src={productImage(product)}
                 alt={product.name}
                 fill
                 className="object-cover group-hover:scale-105 transition-transform"
@@ -84,34 +88,30 @@ export function FrequentlyBoughtTogether({
   currentProductId: string;
   maxItems?: number;
 }>) {
-  const products = SAMPLE_PRODUCTS.filter(
-    (p) => p.id !== currentProductId
-  ).slice(0, maxItems);
-
+  const { data: allProducts = [] } = useProducts();
   const { addToCart } = useCart();
   const [isAdded, setIsAdded] = useState(false);
 
-  const formatPrice = (value: number) => {
-    return new Intl.NumberFormat("vi-VN").format(value) + "đ";
-  };
+  // Chỉ gợi ý sản phẩm có variant để có thể thêm vào giỏ
+  const products = allProducts
+    .filter((p) => p.id !== currentProductId && p.variants.length > 0)
+    .slice(0, maxItems);
 
   const totalPrice = products.reduce((sum, p) => sum + p.basePrice, 0);
 
   const handleAddAll = () => {
     products.forEach((product) => {
-      const materialName =
-        MATERIALS.find((m) => m.id === product.materials[0])?.name ||
-        product.materials[0];
+      const variant = product.variants[0];
       addToCart({
-        productId: product.id,
+        variantId: variant.id,
         name: product.name,
-        image: product.images[0] || "/placeholder.svg",
-        price: product.basePrice,
+        image: productImage(product),
+        price: variant.price ?? product.basePrice,
         quantity: 1,
         specs: {
-          material: materialName,
-          color: product.colors[0] || "#000000",
-          size: product.sizes[1]?.name || product.sizes[0]?.name || "Mặc định",
+          material: variant.material?.name ?? variant.name,
+          color: variant.material?.color || "Theo vật liệu",
+          size: "100%",
         },
       });
     });
@@ -136,7 +136,7 @@ export function FrequentlyBoughtTogether({
             >
               <div className="w-16 h-16 relative border-2 border-foreground overflow-hidden">
                 <Image
-                  src={product.images[0] || "/placeholder.jpg"}
+                  src={productImage(product)}
                   alt={product.name}
                   fill
                   className="object-cover"

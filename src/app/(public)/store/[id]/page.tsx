@@ -28,6 +28,12 @@ import {
 import { WarrantyInfo } from "@/components/store/warranty-info";
 import { useCart } from "@/contexts/CartContext";
 import { productService } from "@/services/product.api";
+import { formatPrice } from "@/lib/utils";
+import { API_CONFIG } from "@/config/api.config";
+
+/** Backend chấp nhận tỉ lệ nguyên trong khoảng 10–500% */
+const clampScale = (value: string) =>
+  Math.min(500, Math.max(10, Math.round(Number(value) || 100)));
 
 export default function ProductDetailPage({
   params,
@@ -52,6 +58,12 @@ export default function ProductDetailPage({
     return product?.variants?.find((v) => v.id === selectedVariantId) ?? null;
   }, [product, selectedVariantId]);
 
+  // File STL gốc của sản phẩm (backend phục vụ tĩnh tại /files/...)
+  const modelUrl =
+    product?.printFile?.type === "stl"
+      ? `${API_CONFIG.BASE_URL}${product.printFile.url}`
+      : undefined;
+
   // keep these (scale/qty)
   const [customScale, setCustomScale] = useState(100);
   const [quantity, setQuantity] = useState(1);
@@ -71,12 +83,9 @@ export default function ProductDetailPage({
     return product ? Number(product.basePrice) : 0;
   }, [selectedVariant, product]);
 
-  const calculatedPrice = Math.round(
-    unitPrice * (customScale / 100) * quantity
-  );
-
-  const formatPrice = (value: number) =>
-    new Intl.NumberFormat("vi-VN").format(value) + "đ";
+  // Đơn giá sau khi áp tỉ lệ in; tổng = đơn giá × số lượng
+  const scaledUnitPrice = Math.round(unitPrice * (customScale / 100));
+  const calculatedPrice = scaledUnitPrice * quantity;
 
   // 4. Loading & Error States
   if (isLoading) {
@@ -127,7 +136,7 @@ export default function ProductDetailPage({
                   <span className="text-sm font-medium">Xem 360°</span>
                 </div>
                 <div className="aspect-video bg-background">
-                  <ModelViewer />
+                  <ModelViewer url={modelUrl} />
                 </div>
               </div>
             </div>
@@ -162,7 +171,15 @@ export default function ProductDetailPage({
                       type="number"
                       value={customScale}
                       onChange={(e) =>
-                        setCustomScale(Math.max(10, Number(e.target.value)))
+                        setCustomScale(
+                          Math.min(
+                            500,
+                            Math.max(0, Number(e.target.value) || 0)
+                          )
+                        )
+                      }
+                      onBlur={() =>
+                        setCustomScale(clampScale(String(customScale)))
                       }
                       className="w-24 border-2 border-foreground"
                     />
@@ -248,17 +265,23 @@ export default function ProductDetailPage({
                   disabled={!selectedVariantId}
                   onClick={() => {
                     if (!selectedVariant) return;
+                    const scale = clampScale(String(customScale));
 
                     addToCart({
-                      productId: selectedVariantId,
+                      variantId: selectedVariant.id,
                       name: product.name,
                       image: product.images[0]?.url || "/placeholder.svg",
-                      price: calculatedPrice,
+                      // Cùng công thức với backend: basePrice × priceFactor × scale/100
+                      price: Math.round((unitPrice * scale) / 100),
                       quantity: quantity,
+                      scale,
                       specs: {
-                        material: selectedVariant.material.name,
-                        color: "Theo vật liệu",
-                        size: `${customScale}%`,
+                        material:
+                          selectedVariant.material?.name ??
+                          selectedVariant.name,
+                        color:
+                          selectedVariant.material?.color || "Theo vật liệu",
+                        size: `${scale}%`,
                       },
                     });
 
@@ -299,7 +322,7 @@ export default function ProductDetailPage({
           {/* Mapping Category from Tags for Related Products */}
           <RelatedProducts
             currentProductId={id}
-            category={product.tags[0]?.tag.name || "General"}
+            category={product.tags[0]?.name}
           />
         </div>
       </main>
